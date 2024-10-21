@@ -2,17 +2,55 @@ import SwiftUI
 
 struct PhotoMainView: View {
     @StateObject private var categoryManager = CategoryManagerViewModel()
-    @StateObject private var textRecognitionViewModel: TextRecognitionViewModel
+    @StateObject private var photoViewModel: PhotoViewModel
 
+    // Initialize the photoViewModel with the categoryManager
     init() {
-        _textRecognitionViewModel = StateObject(wrappedValue: TextRecognitionViewModel(categoryManager: categoryManager))
+        let categoryManager = CategoryManagerViewModel() // Create an instance of CategoryManagerViewModel
+        _categoryManager = StateObject(wrappedValue: categoryManager) // Initialize StateObject for categoryManager
+        _photoViewModel = StateObject(wrappedValue: PhotoViewModel(categoryManager: categoryManager)) // Initialize StateObject for photoViewModel
     }
 
     var body: some View {
         NavigationView {
-            VStack {
-                PhotoPicker(textRecognitionViewModel: textRecognitionViewModel)
-                // Additional UI components related to recognized text, if needed.
+            ScrollView { // Wrap content in ScrollView for scrolling
+                VStack {
+                    PhotoPicker(photoViewModel: photoViewModel) // Inject PhotoViewModel
+
+                    // Toggle for allergy categories
+                    Text("Select Your Allergies")
+                        .font(.headline)
+                        .padding()
+
+                    ForEach(categoryManager.availableCategories, id: \.name) { category in
+                        Toggle(isOn: Binding(
+                            get: { categoryManager.selectedWords.contains(category.name) },
+                            set: { isSelected in
+                                if isSelected {
+                                    categoryManager.selectedWords.append(category.name)
+                                } else {
+                                    categoryManager.selectedWords.removeAll(where: { $0 == category.name })
+                                }
+                            }
+                        )) {
+                            Text(category.name)
+                        }
+                        .padding()
+                    }
+
+                    // Display detected text predictions
+                    if !photoViewModel.detectedText.isEmpty {
+                        Text("Predictions for your allergies:")
+                            .font(.headline)
+                            .padding(.top)
+
+                        ForEach(photoViewModel.detectedText, id: \.word) { detected in
+                            Text("\(detected.category): \(detected.word)")
+                                .padding(.bottom, 5)
+                        }
+                    }
+                }
+                .padding() // Add padding to the VStack
             }
             .navigationTitle("Photo Recognition")
         }

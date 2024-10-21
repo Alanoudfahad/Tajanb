@@ -2,140 +2,80 @@ import SwiftUI
 import Photos
 
 struct PhotoPicker: View {
-    @State private var photos: [PHAsset] = []
     @State private var selectedImage: UIImage?
-    
+    @ObservedObject var photoViewModel: PhotoViewModel
+    @State private var showingImagePicker = false // State variable to control the image picker
+
     var body: some View {
         VStack {
+            // Display the selected image if it exists
             if let image = selectedImage {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
                     .frame(height: 300)
                     .padding()
+            } else {
+                // Placeholder view when no image is selected
+                Text("No image selected")
+                    .foregroundColor(.gray)
+                    .padding()
             }
-            Button("Load Photos") {
-                loadPhotos()
+
+            Button("Select Image") {
+                showingImagePicker = true // Show the image picker
             }
             .padding()
-            
-            // Display photos in a grid
-            GridView(photos: photos, onPhotoSelect: { asset in
-                loadImage(asset: asset) { image in
-                    selectedImage = image
-                }
-            })
         }
         .onAppear {
-            requestAuthorization()
+            showingImagePicker = true // Automatically show the image picker when the view appears
         }
-    }
-    
-    // Request authorization to access photo library
-    private func requestAuthorization() {
-        PHPhotoLibrary.requestAuthorization { status in
-            if status == .authorized {
-                loadPhotos()
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker(image: $selectedImage)
+        }
+        .onChange(of: selectedImage) { newImage in
+            if let newImage = newImage {
+                photoViewModel.resetPredictions() // Clear old predictions
+                photoViewModel.startTextRecognition(from: newImage) // Call text recognition on the selected image
             }
-        }
-    }
-
-    // Fetch photos from the library
-    private func loadPhotos() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let fetchedPhotos = fetchPhotos()
-            DispatchQueue.main.async {
-                self.photos = fetchedPhotos
-            }
-        }
-    }
-
-    // Fetch PHAssets
-    private func fetchPhotos() -> [PHAsset] {
-        var assets: [PHAsset] = []
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        
-        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-        fetchResult.enumerateObjects { (asset, _, _) in
-            assets.append(asset)
-        }
-        
-        return assets
-    }
-
-    // Load image from PHAsset
-    private func loadImage(asset: PHAsset, completion: @escaping (UIImage?) -> Void) {
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
-
-        imageManager.requestImage(for: asset, targetSize: CGSize(width: 300, height: 300), contentMode: .aspectFill, options: requestOptions) { (image, _) in
-            completion(image)
         }
     }
 }
 
-// GridView to display photos in a grid layout
-struct GridView: View {
-    let photos: [PHAsset]
-    let onPhotoSelect: (PHAsset) -> Void
-    
-    var body: some View {
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
-        
-        LazyVGrid(columns: columns, spacing: 10) {
-            ForEach(photos, id: \.self) { asset in
-                PhotoThumbnail(asset: asset, onPhotoSelect: onPhotoSelect)
+// ImagePicker to allow users to select an image from their photo library
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        var parent: ImagePicker
+
+        init(parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let uiImage = info[.originalImage] as? UIImage {
+                parent.image = uiImage
+                print("Image selected: \(uiImage)") // Debug print for selected image
             }
+            picker.dismiss(animated: true)
         }
-        .padding()
-    }
-}
 
-// PhotoThumbnail to represent each photo in the grid
-struct PhotoThumbnail: View {
-    let asset: PHAsset
-    let onPhotoSelect: (PHAsset) -> Void
-    @State private var image: UIImage?
-    
-    var body: some View {
-        Button(action: {
-            onPhotoSelect(asset)
-        }) {
-            if let image = image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 100)
-                    .clipped()
-            } else {
-                Color.gray // Placeholder while loading
-                    .frame(height: 100)
-            }
-        }
-        .onAppear {
-            loadImage()
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
         }
     }
-    
-    private func loadImage() {
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
 
-        imageManager.requestImage(for: asset, targetSize: CGSize(width: 300, height: 300), contentMode: .aspectFill, options: requestOptions) { (uiImage, _) in
-            self.image = uiImage
-        }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
     }
-}
 
-// Main App Entry Point
-@main
-struct PhotoPickerApp: App {
-    var body: some Scene {
-        WindowGroup {
-            PhotoPicker()
-        }
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary // Set source type to photo library
+        return picker
     }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 }

@@ -1,19 +1,10 @@
-//
-//  TajanbApp.swift
-//  Tajanb
-//
-//  Created by Alanoud Alshuaibi on 17/04/1446 AH.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
 struct TajanbApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
+        let schema = Schema([TargetWord.self]) // Reference your model class
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
@@ -25,8 +16,9 @@ struct TajanbApp: App {
 
     var body: some Scene {
         WindowGroup {
+           // PhotoMainView() // Call MainView here
             ContentView()
-        }
-        .modelContainer(sharedModelContainer)
+        }                .modelContainer(sharedModelContainer) // Inject the model container into the view
+
     }
 }
