@@ -11,6 +11,8 @@ import AVFoundation
 struct CameraView: View {
     @ObservedObject var textRecognitionViewModel: TextRecognitionViewModel
     @ObservedObject var categoryManagerViewModel: CategoryManagerViewModel
+    // Create an instance of PhotoViewModel
+     @StateObject var photoViewModel: PhotoViewModel
 
     // Define the size and position of the box (as a percentage of the screen)
     let boxWidthPercentage: CGFloat = 0.7
@@ -80,9 +82,8 @@ struct CameraView: View {
                     Spacer()
                     
                     HStack {
-                        Button(action: {
-                            // Action for upload photos
-                        }) {
+                        // Navigation to the photo view
+                        NavigationLink(destination: PhotoPicker(photoViewModel: photoViewModel)) { // Use the photoViewModel instance
                             VStack {
                                 Image(systemName: "photo.on.rectangle")
                                     .font(.system(size: 24))
@@ -128,7 +129,8 @@ struct CameraView: View {
 #Preview {
     CameraView(
         textRecognitionViewModel: TextRecognitionViewModel(categoryManager: CategoryManagerViewModel()),
-        categoryManagerViewModel: CategoryManagerViewModel()
+        categoryManagerViewModel: CategoryManagerViewModel(),
+        photoViewModel: PhotoViewModel(categoryManager: CategoryManagerViewModel()) // Pass the required categoryManager here
     )
 }
 
