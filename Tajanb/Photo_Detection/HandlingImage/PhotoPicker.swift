@@ -15,16 +15,22 @@ struct PhotoPicker: View {
                     .scaledToFit()
                     .frame(height: 300)
                     .padding()
+                    .accessibilityLabel("صورة مختارة") // Accessibility label in Arabic
             } else {
                 // Placeholder view when no image is selected
-                Text("No image selected")
+                Text("لم يتم اختيار صورة")
                     .foregroundColor(.gray)
                     .padding()
+                    .accessibilityLabel("لم يتم اختيار أي صورة") // Accessibility label in Arabic
             }
 
-            Button("Select Image") {
+            Button(action: {
                 showingImagePicker = true // Show the image picker
+            }) {
+                Text("اختر صورة") // Button text in Arabic
             }
+            .accessibilityLabel("اختر صورة من المكتبة ") // Accessibility label in Arabic
+            .accessibilityHint("يفتح مكتبة الصور لاختيار صورة") // Hint in Arabic
             .padding()
         }
         .onAppear {
@@ -56,7 +62,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let uiImage = info[.originalImage] as? UIImage {
                 parent.image = uiImage
-                print("Image selected: \(uiImage)") // Debug print for selected image
+                print("تم اختيار الصورة: \(uiImage)") // Debug print in Arabic
             }
             picker.dismiss(animated: true)
         }
