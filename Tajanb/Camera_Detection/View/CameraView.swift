@@ -8,11 +8,11 @@
 import SwiftUI
 import AVFoundation
 
+
 struct CameraView: View {
     @ObservedObject var textRecognitionViewModel: TextRecognitionViewModel
     @ObservedObject var categoryManagerViewModel: CategoryManagerViewModel
-    // Create an instance of PhotoViewModel
-     @StateObject var photoViewModel: PhotoViewModel
+    @StateObject var photoViewModel: PhotoViewModel
 
     // Define the size and position of the box (as a percentage of the screen)
     let boxWidthPercentage: CGFloat = 0.7
@@ -45,7 +45,7 @@ struct CameraView: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
-                            .strokeBorder(Color.gray, lineWidth: 3)
+                            .strokeBorder(Color.white, lineWidth: 3)
                             .frame(width: UIScreen.main.bounds.width * boxWidthPercentage, height: UIScreen.main.bounds.height * boxHeightPercentage)
                         
                         // Conditionally display point label or detected text
@@ -56,24 +56,27 @@ struct CameraView: View {
                                 .padding(.horizontal, 8)
                                 .background(Color.black.opacity(0.7))
                                 .cornerRadius(8)
-                        } else {
-                            VStack {
-                                ForEach(textRecognitionViewModel.detectedText, id: \.word) { item in
-                                    HStack {
-                                        Text("\(item.category): \(item.word)") // Display category and word
-                                            .font(.largeTitle)
-                                            .padding()
-                                            .background(Color.black.opacity(0.7))
-                                            .foregroundColor(.white)
-                                            .cornerRadius(10)
-                                        Spacer()
-                                    }
-                                    .padding(.horizontal)
-                                }
-                            }
                         }
                     }
                     
+                    // If detected text is not empty, display detected words at the bottom
+                    if !textRecognitionViewModel.detectedText.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(textRecognitionViewModel.detectedText, id: \.word) { item in
+                                    Text(item.word)
+                                        .font(.system(size: 16, weight: .medium))
+                                        .padding(10)
+                                        .background(Color.red.opacity(0.8))
+                                        .foregroundColor(.white)
+                                        .cornerRadius(20)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 10)
+                        }
+                    }
+
                     Spacer()
                 }
                 
@@ -83,7 +86,7 @@ struct CameraView: View {
                     
                     HStack {
                         // Navigation to the photo view
-                        NavigationLink(destination: PhotoPicker(photoViewModel: photoViewModel)) { // Use the photoViewModel instance
+                        NavigationLink(destination: PhotoPicker(photoViewModel: photoViewModel)) {
                             VStack {
                                 Image(systemName: "photo.on.rectangle")
                                     .font(.system(size: 24))
@@ -118,6 +121,8 @@ struct CameraView: View {
             }
             .onAppear {
                 textRecognitionViewModel.startSession()
+                // Refresh detected text based on updated selected words
+                categoryManagerViewModel.updateSelectedWords(with: [])
             }
             .onDisappear {
                 textRecognitionViewModel.stopSession()

@@ -56,24 +56,26 @@ class TextRecognitionViewModel: NSObject, ObservableObject {
     }
 
     private func configureTextRecognition() {
-          textRequest = VNRecognizeTextRequest { [weak self] (request, error) in
-              guard let self = self else { return }
+        textRequest = VNRecognizeTextRequest { [weak self] (request, error) in
+            guard let self = self else { return }
 
-              if let error = error {
-                  print("Error recognizing text: \(error)")
-                  return
-              }
+            if let error = error {
+                print("Error recognizing text: \(error)")
+                return
+            }
 
-              guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                  return
-              }
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                print("No text observations")
+                return
+            }
 
-              let detectedStrings = observations.compactMap { $0.topCandidates(1).first?.string }
-              
-              DispatchQueue.main.async {
-                  self.processDetectedText(detectedStrings)
-              }
-          }
+            let detectedStrings = observations.compactMap { $0.topCandidates(1).first?.string }
+            print("Detected text: \(detectedStrings)")  // Add this for debugging
+            DispatchQueue.main.async {
+                self.processDetectedText(detectedStrings)
+            }
+        }
+          
 
           textRequest.recognitionLevel = .accurate
           textRequest.recognitionLanguages = ["ar", "ar-SA", "ar-AE"]
@@ -81,7 +83,7 @@ class TextRecognitionViewModel: NSObject, ObservableObject {
           textRequest.minimumTextHeight = 0.005
       }
     
-    private func processDetectedText(_ detectedStrings: [String]) {
+     func processDetectedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
         let cleanedText = categoryManager.preprocessText(combinedText)
 
@@ -130,6 +132,7 @@ class TextRecognitionViewModel: NSObject, ObservableObject {
     func getSession() -> AVCaptureSession {
         return session
     }
+    
     
 }
 
