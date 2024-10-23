@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct PhotoMainView: View {
-    @StateObject private var categoryManager = CategoryManagerViewModel()
+    @StateObject private var categoryManager = CameraViewModel()
     @StateObject private var photoViewModel: PhotoViewModel
 
     // Initialize the photoViewModel with the categoryManager
     init() {
-        let categoryManager = CategoryManagerViewModel() // Create an instance of CategoryManagerViewModel
+        let categoryManager = CameraViewModel() // Create an instance of CategoryManagerViewModel
         _categoryManager = StateObject(wrappedValue: categoryManager) // Initialize StateObject for categoryManager
-        _photoViewModel = StateObject(wrappedValue: PhotoViewModel(categoryManager: categoryManager)) // Initialize StateObject for photoViewModel
+        _photoViewModel = StateObject(wrappedValue: PhotoViewModel(viewmodel: categoryManager)) // Initialize StateObject for photoViewModel
     }
 
     var body: some View {

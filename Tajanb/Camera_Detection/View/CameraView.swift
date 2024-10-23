@@ -10,9 +10,8 @@ import AVFoundation
 
 
 struct CameraView: View {
-    @ObservedObject var textRecognitionViewModel: TextRecognitionViewModel
-    @ObservedObject var categoryManagerViewModel: CategoryManagerViewModel
-    @StateObject var photoViewModel: PhotoViewModel
+    @ObservedObject var viewModel: CameraViewModel
+  @ObservedObject var photoViewModel: PhotoViewModel
 
     // Define the size and position of the box (as a percentage of the screen)
     let boxWidthPercentage: CGFloat = 0.7
@@ -22,7 +21,7 @@ struct CameraView: View {
         NavigationView {
             ZStack {
                 // Camera preview
-                CameraPreview(session: textRecognitionViewModel.getSession())
+                CameraPreview(session: viewModel.getSession())
                     .edgesIgnoringSafeArea(.all)
                 
                 // Scanning label at the top
@@ -49,7 +48,7 @@ struct CameraView: View {
                             .frame(width: UIScreen.main.bounds.width * boxWidthPercentage, height: UIScreen.main.bounds.height * boxHeightPercentage)
                         
                         // Conditionally display point label or detected text
-                        if textRecognitionViewModel.detectedText.isEmpty {
+                        if viewModel.detectedText.isEmpty {
                             Text("Point at an ingredient")
                                 .foregroundColor(.white)
                                 .font(.system(size: 17, weight: .medium))
@@ -60,10 +59,10 @@ struct CameraView: View {
                     }
                     
                     // If detected text is not empty, display detected words at the bottom
-                    if !textRecognitionViewModel.detectedText.isEmpty {
+                    if !viewModel.detectedText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
-                                ForEach(textRecognitionViewModel.detectedText, id: \.word) { item in
+                                ForEach(viewModel.detectedText, id: \.word) { item in
                                     Text(item.word)
                                         .font(.system(size: 16, weight: .medium))
                                         .padding(10)
@@ -86,13 +85,13 @@ struct CameraView: View {
                     
                     HStack {
                         // Navigation to the photo view
-                        NavigationLink(destination: PhotoPicker(photoViewModel: photoViewModel)) {
+                       NavigationLink(destination: PhotoPicker(photoViewModel: photoViewModel)) {
                             VStack {
                                 Image(systemName: "photo.on.rectangle")
                                     .font(.system(size: 24))
                                 Text("Upload photos")
                                     .font(.system(size: 14, weight: .medium))
-                            }
+                           }
                             .padding(16)
                             .foregroundColor(.white)
                             .background(Color.black.opacity(0.6))
@@ -102,7 +101,7 @@ struct CameraView: View {
                         Spacer()
                         
                         // Navigation to the Categories view
-                        NavigationLink(destination: Categories(viewModel: categoryManagerViewModel)) {
+                        NavigationLink(destination: Categories(viewModel: viewModel)) {
                             VStack {
                                 Image(systemName: "list.bullet")
                                     .font(.system(size: 24))
@@ -120,23 +119,19 @@ struct CameraView: View {
                 }
             }
             .onAppear {
-                textRecognitionViewModel.startSession()
-                // Refresh detected text based on updated selected words
-                categoryManagerViewModel.updateSelectedWords(with: [])
+                viewModel.startSession()
+        
             }
             .onDisappear {
-                textRecognitionViewModel.stopSession()
+                viewModel.stopSession()
             }
         }
     }
 }
 
 #Preview {
-    CameraView(
-        textRecognitionViewModel: TextRecognitionViewModel(categoryManager: CategoryManagerViewModel()),
-        categoryManagerViewModel: CategoryManagerViewModel(),
-        photoViewModel: PhotoViewModel(categoryManager: CategoryManagerViewModel()) // Pass the required categoryManager here
-    )
+    CameraView(viewModel: CameraViewModel(), photoViewModel: PhotoViewModel(viewmodel: CameraViewModel()))
+
 }
 
 struct CameraPreview: UIViewRepresentable {

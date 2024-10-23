@@ -14,11 +14,11 @@ class PhotoViewModel: NSObject, ObservableObject {
     @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
     private var textRequest = VNRecognizeTextRequest(completionHandler: nil)
     private var hapticManager = HapticManager()
-    var categoryManager: CategoryManagerViewModel
+    var ViewModel: CameraViewModel
     private var matchedWordsSet: Set<String> = [] // To keep track of matched words
 
-    init(categoryManager: CategoryManagerViewModel) {
-        self.categoryManager = categoryManager
+    init(viewmodel: CameraViewModel) {
+        self.ViewModel = viewmodel
         super.init()
         configureTextRecognition()
     }
@@ -63,7 +63,7 @@ class PhotoViewModel: NSObject, ObservableObject {
 
     private func processDetectedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
-        let cleanedText = categoryManager.preprocessText(combinedText)
+        let cleanedText = ViewModel.preprocessText(combinedText)
 
         // Split the cleaned text into words and check against allergies
         let words = cleanedText.split(separator: " ").map(String.init)
@@ -74,7 +74,7 @@ class PhotoViewModel: NSObject, ObservableObject {
 
     private func checkAllergy(for word: String) {
         // Use the CategoryManager to check for target words
-        if let result = categoryManager.isTargetWord(word) {
+        if let result = ViewModel.isTargetWord(word) {
             // Check if this word has already triggered haptic feedback
             if !matchedWordsSet.contains(word) {
                 DispatchQueue.main.async {
@@ -99,3 +99,4 @@ class PhotoViewModel: NSObject, ObservableObject {
         matchedWordsSet.removeAll() // Clear matched words set
     }
 }
+
