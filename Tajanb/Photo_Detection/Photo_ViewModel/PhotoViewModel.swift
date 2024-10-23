@@ -65,31 +65,32 @@ class PhotoViewModel: NSObject, ObservableObject {
         let combinedText = detectedStrings.joined(separator: " ")
         let cleanedText = ViewModel.preprocessText(combinedText)
 
-        // Split the cleaned text into words and check against allergies
-        let words = cleanedText.split(separator: " ").map(String.init)
+        print("Detected Combined Text: \(cleanedText)")
+
+        // Split the cleaned text into words and check against selected words
+        let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
+        print("Detected Words List: \(words)")
+
         for word in words {
             checkAllergy(for: word)
         }
     }
 
     private func checkAllergy(for word: String) {
-        // Use the CategoryManager to check for target words
-        if let result = ViewModel.isTargetWord(word) {
-            // Check if this word has already triggered haptic feedback
-            if !matchedWordsSet.contains(word) {
+        let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased() // Clean the word
+
+        if let result = ViewModel.isTargetWord(cleanedWord) {
+            // Check if this word has already been detected to avoid duplicates
+            if !matchedWordsSet.contains(cleanedWord) {
                 DispatchQueue.main.async {
                     self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
-                    // Trigger haptic feedback after adding the prediction
-                    self.hapticManager.performHapticFeedback()
-                    print("Matched word: \(word) in category: \(result.0)")
-
-                    // Add the word to the set to prevent duplicate feedback
-                    self.matchedWordsSet.insert(word)
+                    self.hapticManager.performHapticFeedback() // Trigger haptic feedback
+                    self.matchedWordsSet.insert(cleanedWord)
                 }
             }
         } else {
-            // If the word is not matched, remove it from the set (if it exists)
-            matchedWordsSet.remove(word)
+            // Remove the word from the matched set if no longer matching
+            matchedWordsSet.remove(cleanedWord)
         }
     }
 

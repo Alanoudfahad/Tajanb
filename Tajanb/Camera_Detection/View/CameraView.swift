@@ -26,38 +26,31 @@ struct CameraView: View {
                 
                 // Scanning label at the top
                 VStack {
-                    Text("Scanning...")
+                    Text("مسح....")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.black.opacity(0.5))
+                        .background(Color.black.opacity(0.2))
                         .cornerRadius(8)
                         .padding(.top, 50)
                     
                     Spacer()
                 }
-
-                // Overlay box with dynamic content
                 VStack {
                     Spacer()
                     
                     ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .strokeBorder(Color.white, lineWidth: 3)
-                            .frame(width: UIScreen.main.bounds.width * boxWidthPercentage, height: UIScreen.main.bounds.height * boxHeightPercentage)
-                        
+                    CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
                         // Conditionally display point label or detected text
                         if viewModel.detectedText.isEmpty {
-                            Text("Point at an ingredient")
+                            Text("أشر إلى أحد المكونات")
                                 .foregroundColor(.white)
                                 .font(.system(size: 17, weight: .medium))
                                 .padding(.horizontal, 8)
-                                .background(Color.black.opacity(0.7))
-                                .cornerRadius(8)
+                   
                         }
                     }
-                    
                     // If detected text is not empty, display detected words at the bottom
                     if !viewModel.detectedText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -84,38 +77,37 @@ struct CameraView: View {
                     Spacer()
                     
                     HStack {
-                        // Navigation to the photo view
-                       NavigationLink(destination: PhotoPicker(photoViewModel: photoViewModel)) {
-                            VStack {
-                                Image(systemName: "photo.on.rectangle")
-                                    .font(.system(size: 24))
-                                Text("Upload photos")
-                                    .font(.system(size: 14, weight: .medium))
-                           }
-                            .padding(16)
-                            .foregroundColor(.white)
-                            .background(Color.black.opacity(0.6))
-                            .cornerRadius(30)
-                        }
-                        
+
+                  // Navigation to the Categories view
+                  NavigationLink(destination: Categories(viewModel: viewModel)) {
+                      VStack {
+                          Image(systemName: "list.bullet")
+                              .font(.system(size: 24))
+                              .tint(.white)
+                              .padding()
+                              .background(Circle().fill(Color.black.opacity(0.7)))
+                          Text("حساسياتي")
+                              .font(.system(size: 14, weight: .medium))
+                              .foregroundColor(.white)
+                      }
+                  }
                         Spacer()
-                        
-                        // Navigation to the Categories view
-                        NavigationLink(destination: Categories(viewModel: viewModel)) {
-                            VStack {
-                                Image(systemName: "list.bullet")
-                                    .font(.system(size: 24))
-                                Text("My allergies")
-                                    .font(.system(size: 14, weight: .medium))
-                            }
-                            .padding(16)
-                            .foregroundColor(.white)
-                            .background(Color.black.opacity(0.6))
-                            .cornerRadius(30)
+                    // Navigation to the photo view
+                    NavigationLink(destination: PhotoMainView()) {
+                        VStack {
+                            Image(systemName: "photo")
+                                .font(.system(size: 24))
+                                .padding()
+                                .tint(.white)
+                                .background(Circle().fill(Color.black.opacity(0.7)))
+                            Text("تحميل صورة")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
                         }
                     }
-                    .padding(.horizontal, 40)
-                    .padding(.bottom, 30)
+              }
+              .padding(.horizontal, 40)
+              .padding(.bottom, 30)
                 }
             }
             .onAppear {
