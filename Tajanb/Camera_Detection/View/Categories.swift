@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct Categories: View {
-    @ObservedObject var viewModel: CategoryManagerViewModel
+   // @ObservedObject var viewModel: CategoryManagerViewModel
+    @ObservedObject var viewModel: CameraViewModel
 
     var body: some View {
         VStack {
@@ -55,6 +56,6 @@ struct Categories: View {
 
 
 #Preview {
-    Categories(viewModel: CategoryManagerViewModel())
+    Categories(viewModel: CameraViewModel())
 }
 
