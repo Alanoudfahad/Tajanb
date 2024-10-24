@@ -93,18 +93,19 @@ struct CameraView: View {
                   }
                         Spacer()
                     // Navigation to the photo view
-                    NavigationLink(destination: PhotoMainView()) {
-                        VStack {
-                            Image(systemName: "photo")
-                                .font(.system(size: 24))
-                                .padding()
-                                .tint(.white)
-                                .background(Circle().fill(Color.black.opacity(0.7)))
-                            Text("تحميل صورة")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white)
+                        NavigationLink(destination: PhotoMainView()
+                            .navigationBarBackButtonHidden(true)) {
+                            VStack {
+                                Image(systemName: "photo")
+                                    .font(.system(size: 24))
+                                    .padding()
+                                    .tint(.white)
+                                    .background(Circle().fill(Color.black.opacity(0.7)))
+                                Text("تحميل صورة")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
                         }
-                    }
               }
               .padding(.horizontal, 40)
               .padding(.bottom, 30)
