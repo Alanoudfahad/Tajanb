@@ -16,9 +16,10 @@ struct CameraView: View {
     // Define the size and position of the box (as a percentage of the screen)
     let boxWidthPercentage: CGFloat = 0.7
     let boxHeightPercentage: CGFloat = 0.2
+    @State private var selectedNavigation: String? = nil // Track selected navigation
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 // Camera preview
                 CameraPreview(session: viewModel.getSession())
@@ -85,7 +86,7 @@ struct CameraView: View {
                               .font(.system(size: 24))
                               .tint(.white)
                               .padding()
-                              .background(Circle().fill(Color.black.opacity(0.7)))
+                              .background(Circle().fill(selectedNavigation == "categories" ? Color("CustomGreen") : Color.black.opacity(0.7)))
                           Text("حساسياتي")
                               .font(.system(size: 14, weight: .medium))
                               .foregroundColor(.white)
@@ -100,7 +101,8 @@ struct CameraView: View {
                                     .font(.system(size: 24))
                                     .padding()
                                     .tint(.white)
-                                    .background(Circle().fill(Color.black.opacity(0.7)))
+                                    .background(Circle().fill(selectedNavigation == "photo" ? Color("CustomGreen") : Color.black.opacity(0.7)))
+
                                 Text("تحميل صورة")
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(.white)

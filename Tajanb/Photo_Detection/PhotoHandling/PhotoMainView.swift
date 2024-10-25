@@ -45,3 +45,6 @@ struct PhotoMainView: View {
         .background(Color(red: 30/255, green: 30/255, blue: 30/255).edgesIgnoringSafeArea(.all)) // shade of grey for background
     }
 }
+#Preview {
+    PhotoMainView()
+}
