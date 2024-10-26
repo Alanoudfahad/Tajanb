@@ -6,9 +6,11 @@
 //
 import SwiftUI
 
+
 struct Categories: View {
     @ObservedObject var viewModel: CameraViewModel
     @Environment(\.dismiss) var dismiss
+    @Environment(\.openURL) var openURL
     @State private var selectedCategory: String?
 
     var body: some View {
@@ -43,7 +45,7 @@ struct Categories: View {
             List(viewModel.availableCategories, id: \.name) { category in
                 ZStack {
                     NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
-                       // EmptyView()
+                        // EmptyView()
                     }
                     .opacity(0)
                     
@@ -65,7 +67,7 @@ struct Categories: View {
             .scrollContentBackground(.hidden)
 
             Button(action: {
-                // Action for suggesting an allergy
+                sendEmail()
             }) {
                 Text("اقترح حساسية")
                     .fontWeight(.bold)
@@ -91,14 +93,26 @@ struct Categories: View {
                     Image(systemName: "chevron.backward")
                         .foregroundColor(.white)
                 }
-                .accessibilityLabel("Back") // For accessibility, VoiceOver will read it as "Back".
+                .accessibilityLabel("Back")
                 .accessibilityHint("Double-tap to go back.")
             }
         }
-        .navigationBarBackButtonHidden(true) // Hide the default back button
+        .navigationBarBackButtonHidden(true)
         .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
     
+    func sendEmail() {
+        let email = "tajanbapp@gmail.com"
+        let subject = "اقتراح حساسية جديدة"
+        let body = "مرحبًا، أرغب في اقتراح حساسية جديدة."
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        if let url = URL(string: "mailto:\(email)?subject=\(encodedSubject)&body=\(encodedBody)") {
+            openURL(url)
+        }
+    }
+
     func iconForCategory(_ category: String) -> String {
         let categoryIcons: [String: String] = [
             "مشتقات الحليب": "🥛", "Dairy Products": "🥛",
@@ -117,6 +131,7 @@ struct Categories: View {
         return categoryIcons[category] ?? "❓"
     }
 }
+
 
 struct AllergyRow: View {
     var icon: String
