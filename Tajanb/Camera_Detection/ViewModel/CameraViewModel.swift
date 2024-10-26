@@ -14,6 +14,7 @@ class CameraViewModel: NSObject, ObservableObject {
 
     @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
     @Published var availableCategories = [Category]()
+    @Published var freeAllergenMessage: String? // New variable to display the message
     private var hapticManager = HapticManager() // Haptic feedback manager.
     @Published var selectedWords = [String]() {
         didSet {
@@ -32,23 +33,9 @@ class CameraViewModel: NSObject, ObservableObject {
         loadSelectedWords()
         configureCaptureSession()
         configureTextRecognition()
+        
     }
-    
-//    private func loadCategories() {
-//        guard let path = Bundle.main.path(forResource: "TargetWords", ofType: "json") else {
-//            print("Error finding TargetWords.json")
-//            return
-//        }
-//        
-//        do {
-//            let data = try Data(contentsOf: URL(fileURLWithPath: path))
-//            let decoder = JSONDecoder()
-//            availableCategories = try decoder.decode([Category].self, from: data)
-//            print("Loaded Categories: \(availableCategories)")
-//        } catch {
-//            print("Error loading categories from JSON: \(error)")
-//        }
-//    }
+
     private func loadCategories() {
         let languageCode = Locale.current.language.languageCode?.identifier
         let fileName = languageCode == "ar" ? "categories_ar" : "categories_en"
@@ -71,15 +58,17 @@ class CameraViewModel: NSObject, ObservableObject {
         UserDefaults.standard.set(selectedWords, forKey: "selectedWords")
     }
 
-    private func loadSelectedWords() {
-        if let words = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
-            selectedWords = words
-        }
-    }
-    
     func updateSelectedWords(with words: [String]) {
-        selectedWords = words.map { $0.lowercased() }
-    }
+           selectedWords = words
+           UserDefaults.standard.set(words, forKey: "selectedWords") // Save to UserDefaults
+       }
+       
+       func loadSelectedWords() {
+           // Load words from UserDefaults when the app starts
+           if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
+               selectedWords = savedWords
+           }
+       }
 
      func isTargetWord(_ text: String) -> (String, String, [String])? {
         for category in availableCategories {
@@ -143,71 +132,49 @@ class CameraViewModel: NSObject, ObservableObject {
         textRequest.usesLanguageCorrection = true
         textRequest.minimumTextHeight = 0.005
     }
-//    private func configureTextRecognition() {
-//        textRequest = VNRecognizeTextRequest { [weak self] (request, error) in
-//            guard let self = self else { return }
-//
-//            if let error = error {
-//                print("Error recognizing text: \(error)")
-//                return
-//            }
-//
-//            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-//                return
-//            }
-//
-//            let detectedStrings = observations.compactMap { $0.topCandidates(1).first?.string }
-//            
-//            DispatchQueue.main.async {
-//                self.processDetectedText(detectedStrings)
-//            }
-//        }
-//
-//        textRequest.recognitionLevel = .accurate  // Switch to .fast if needed
-//        textRequest.recognitionLanguages = ["ar", "ar-SA", "ar-AE"]
-//        textRequest.usesLanguageCorrection = true
-//        textRequest.minimumTextHeight = 0.005  // Adjust to capture smaller text
-//        
-//    }
 
-    private func processDetectedText(_ detectedStrings: [String]) {
-        // Combine all detected strings into a single block
+
+    func processDetectedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
-
-        // Preprocess the combined text to clean and normalize it
         let cleanedText = preprocessText(combinedText)
         print("Detected Combined Text: \(cleanedText)")
-
-        // Check if either the Arabic keyword 'المكونات' or the English keyword 'ingredients' is present
-        if fuzzyContains(cleanedText, keyword: "المكونات") || fuzzyContains(cleanedText, keyword: "ingredients") {
-            // Determine which keyword was detected
-            let keyword = fuzzyContains(cleanedText, keyword: "المكونات") ? "المكونات" : "ingredients"
-            
-            // Extract ingredients text following the detected keyword
-            if let range = cleanedText.range(of: keyword)?.upperBound {
-                let ingredientsText = String(cleanedText[range...]).trimmingCharacters(in: .whitespaces)
-
-                // Split the ingredients by common delimiters (commas, spaces)
-                let ingredients = ingredientsText
-                    .components(separatedBy: CharacterSet(charactersIn: ",، ")) // Handles both Arabic and English delimiters
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { !$0.isEmpty }
-
-                // Filter ingredients that match the user's selected words or their synonyms
-                let filteredIngredients = ingredients.filter { ingredient in
-                    isSelectedWord(ingredient)
-                }
-
-                // Update the detected ingredients with only the filtered ones
-                updateDetectedIngredients(filteredIngredients)
-            } else {
-                print("Failed to extract ingredients.")
-                detectedText = []
-            }
+        
+        // Determine the keyword to use based on the device's language
+        let isArabic = Locale.current.language.languageCode == "ar"
+        let keyword = isArabic ? "المكونات" : "ingredients"
+        
+        // Only detect text in the specified language
+        if fuzzyContains(cleanedText, keyword: keyword) {
+            // When the keyword is detected, process ingredients accordingly
+            let ingredientsDetected = extractAndProcessIngredients(from: cleanedText, keyword: keyword)
+            freeAllergenMessage = ingredientsDetected.isEmpty ? getLocalizedMessage() : nil
         } else {
-            print("Keyword 'المكونات' or 'ingredients' not found.")
-            detectedText = []
+            // Reset the message if the keyword is not in the text
+            freeAllergenMessage = nil
         }
+    }
+
+    private func extractAndProcessIngredients(from text: String, keyword: String) -> [String] {
+        if let range = text.range(of: keyword)?.upperBound {
+            let ingredientsText = String(text[range...]).trimmingCharacters(in: .whitespaces)
+            let ingredients = ingredientsText
+                .components(separatedBy: CharacterSet(charactersIn: ",، "))
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            let filteredIngredients = ingredients.filter { ingredient in
+                isSelectedWord(ingredient)
+            }
+            updateDetectedIngredients(filteredIngredients)
+            return filteredIngredients
+        }
+        print("Failed to extract ingredients.")
+        detectedText = []
+        return []
+    }
+
+    
+    private func getLocalizedMessage() -> String {
+        return Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسيه" : "Free allergens"
     }
     private func isSelectedWord(_ ingredient: String) -> Bool {
         // Check if the ingredient matches any selected word (case-insensitive)
@@ -269,6 +236,10 @@ class CameraViewModel: NSObject, ObservableObject {
 
     private func updateDetectedIngredients(_ ingredients: [String]) {
         let targetWords = ingredients.compactMap { ingredient -> (String, String, [String])? in
+            // Reset the free allergen message if ingredients are detected
+            if !ingredients.isEmpty {
+                freeAllergenMessage = nil
+            }
             if let (category, word, hiddenSynonyms) = isTargetWord(ingredient.lowercased()) {
                 let detectedSynonyms = hiddenSynonyms.filter { selectedWords.contains($0.lowercased()) }
                 return (category, word, detectedSynonyms)

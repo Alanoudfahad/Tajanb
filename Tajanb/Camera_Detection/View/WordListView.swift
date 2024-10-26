@@ -45,18 +45,19 @@ struct WordListView: View {
                         Text(word.word)
                             .foregroundColor(.white)
                             .font(.system(size: 18, weight: .medium))
+                            .frame(maxWidth: .infinity, alignment: .leading) // Ensures Text is aligned to the start
                         
-                        Toggle("", isOn: Binding(
+                        Toggle(isOn: Binding(
                             get: { viewModel.selectedWords.contains(word.word) },
                             set: { isSelected in
                                 toggleSelection(for: word.word, isSelected: isSelected)
                             }
-                        ))
-                        Spacer()
-                        .labelsHidden()
-                        
+                        )) {
+                            EmptyView() // Use an empty view instead of an empty string
+                        }
+                        .labelsHidden() // Ensures no label is displayed
                         .toggleStyle(CustomToggleStyle())
-                        
+                        .padding(.leading, 120) // Add extra space between Text and Toggle if needed
                     }
                     .padding()
                     .background(Color("GrayList"))
@@ -64,9 +65,9 @@ struct WordListView: View {
                 }
                 .listRowBackground(Color.clear)
             }
-            
             .listStyle(PlainListStyle())
             .background(Color("CustomBackground"))
+            
         }
         
         .background(Color("CustomBackground"))
@@ -110,8 +111,8 @@ struct CustomToggleStyle: ToggleStyle {
 }
 
 #Preview {
-    WordListView(category: .init(name: " Diary", words: [
-        Word(word: " cow milk", hiddenSynonyms: ["String"]),
-        Word(word: " yougret", hiddenSynonyms: ["String"])
+    WordListView(category: .init(name: "Diary", words: [
+        Word(word: "cow milk", hiddenSynonyms: ["String"]),
+        Word(word: "yougret", hiddenSynonyms: ["String"])
     ]), viewModel: CameraViewModel())
 }
