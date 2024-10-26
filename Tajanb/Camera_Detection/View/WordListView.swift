@@ -11,66 +11,68 @@ import SwiftUI
 struct WordListView: View {
     let category: Category
     @ObservedObject var viewModel: CameraViewModel
-    @Environment(\.dismiss) var dismiss // For navigation back
-    
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
-            VStack {
-                VStack(spacing: 0) {
-                    Text("تم")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(.bottom)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 25)
-                        .padding(.leading, 25)
-                        .onTapGesture {
-                            dismiss() // Save selected words and navigate back
-                        }
-                    
-                    Divider()
-                        .background(Color.white)
-                }
-                
-                Text(category.name)
+        VStack {
+            VStack(spacing: 0) {
+                Text("Done")
+                    .font(.headline)
                     .foregroundColor(.white)
-                    .font(.system(size: 24, weight: .bold))
-                    .padding(.top, 20)
-                    .padding(.bottom, 10)
+                    .padding(.bottom)
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.bottom, 15)
-                    .padding(.trailing, 25)
-                
-                List {
-                    ForEach(category.words, id: \.word) { word in
-                        HStack {
-                            Toggle("", isOn: Binding(
-                                get: { viewModel.selectedWords.contains(word.word) },
-                                set: { isSelected in
-                                    toggleSelection(for: word.word, isSelected: isSelected)
-                                }
-                            ))
-                            .labelsHidden()
-                            .toggleStyle(CustomToggleStyle())
-                            
-                            Spacer()
-                            
-                            Text(word.word)
-                                .foregroundColor(.white)
-                                .font(.system(size: 18, weight: .medium))
-                        }
-                        .padding()
-                        .background(Color("GrayList"))
-                        .cornerRadius(10)
+                    .padding(.top, 25)
+                    .padding(.horizontal)
+                    .onTapGesture {
+                        dismiss()
                     }
-                    .listRowBackground(Color.clear)
-                }
-                .listStyle(PlainListStyle())
-                .background(Color("CustomBackground"))
+                
+                Divider()
+                    .background(Color.white)
             }
+            
+            Text(category.name)
+                .foregroundColor(.white)
+                .font(.system(size: 24, weight: .bold))
+                .padding(.top, 20)
+                .padding(.bottom, 10)
+                .frame(maxWidth: .infinity, alignment: .leading) // Align to trailing for RTL
+                .padding(.horizontal)
+            
+            List {
+                ForEach(category.words, id: \.word) { word in
+                    HStack {
+                        Text(word.word)
+                            .foregroundColor(.white)
+                            .font(.system(size: 18, weight: .medium))
+                        
+                        Toggle("", isOn: Binding(
+                            get: { viewModel.selectedWords.contains(word.word) },
+                            set: { isSelected in
+                                toggleSelection(for: word.word, isSelected: isSelected)
+                            }
+                        ))
+                        Spacer()
+                        .labelsHidden()
+                        
+                        .toggleStyle(CustomToggleStyle())
+                        
+                    }
+                    .padding()
+                    .background(Color("GrayList"))
+                    .cornerRadius(10)
+                }
+                .listRowBackground(Color.clear)
+            }
+            
+            .listStyle(PlainListStyle())
+            .background(Color("CustomBackground"))
+        }
+        
         .background(Color("CustomBackground"))
         .navigationBarBackButtonHidden(true)
+        .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
-
 
     private func toggleSelection(for word: String, isSelected: Bool) {
         if isSelected {
@@ -83,20 +85,11 @@ struct WordListView: View {
     }
 }
 
-#Preview {
-    WordListView(category: .init(name: "مشتقات الحليب", words: [
-        Word(word: "حليب البقر", hiddenSynonyms: ["String"]),
-        Word(word: "حليب الماعز", hiddenSynonyms: ["String"])
-    ]), viewModel: CameraViewModel())
-}
-
-
-
 struct CustomToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack {
             RoundedRectangle(cornerRadius: 16)
-                .fill(configuration.isOn ? Color("CustomGreen") : Color("CustomeGrayToggle"))// Use custom color
+                .fill(configuration.isOn ? Color("CustomGreen") : Color("CustomeGrayToggle"))
                 .frame(width: 50, height: 30)
                 .overlay(
                     Circle()
@@ -114,4 +107,11 @@ struct CustomToggleStyle: ToggleStyle {
             configuration.label
         }
     }
+}
+
+#Preview {
+    WordListView(category: .init(name: " Diary", words: [
+        Word(word: " cow milk", hiddenSynonyms: ["String"]),
+        Word(word: " yougret", hiddenSynonyms: ["String"])
+    ]), viewModel: CameraViewModel())
 }

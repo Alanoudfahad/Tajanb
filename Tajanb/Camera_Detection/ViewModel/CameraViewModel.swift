@@ -34,12 +34,30 @@ class CameraViewModel: NSObject, ObservableObject {
         configureTextRecognition()
     }
     
+//    private func loadCategories() {
+//        guard let path = Bundle.main.path(forResource: "TargetWords", ofType: "json") else {
+//            print("Error finding TargetWords.json")
+//            return
+//        }
+//        
+//        do {
+//            let data = try Data(contentsOf: URL(fileURLWithPath: path))
+//            let decoder = JSONDecoder()
+//            availableCategories = try decoder.decode([Category].self, from: data)
+//            print("Loaded Categories: \(availableCategories)")
+//        } catch {
+//            print("Error loading categories from JSON: \(error)")
+//        }
+//    }
     private func loadCategories() {
-        guard let path = Bundle.main.path(forResource: "TargetWords", ofType: "json") else {
-            print("Error finding TargetWords.json")
+        let languageCode = Locale.current.language.languageCode?.identifier
+        let fileName = languageCode == "ar" ? "categories_ar" : "categories_en"
+
+        guard let path = Bundle.main.path(forResource: fileName, ofType: "json") else {
+            print("Error finding \(fileName).json")
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
             let decoder = JSONDecoder()
@@ -49,7 +67,6 @@ class CameraViewModel: NSObject, ObservableObject {
             print("Error loading categories from JSON: \(error)")
         }
     }
-
     private func saveSelectedWords() {
         UserDefaults.standard.set(selectedWords, forKey: "selectedWords")
     }
@@ -102,9 +119,8 @@ class CameraViewModel: NSObject, ObservableObject {
             print("Error configuring focus: \(error)")
         }
     }
-
     private func configureTextRecognition() {
-        textRequest = VNRecognizeTextRequest { [weak self] (request, error) in
+        textRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard let self = self else { return }
 
             if let error = error {
@@ -117,18 +133,42 @@ class CameraViewModel: NSObject, ObservableObject {
             }
 
             let detectedStrings = observations.compactMap { $0.topCandidates(1).first?.string }
-            
             DispatchQueue.main.async {
                 self.processDetectedText(detectedStrings)
             }
         }
 
-        textRequest.recognitionLevel = .accurate  // Switch to .fast if needed
-        textRequest.recognitionLanguages = ["ar", "ar-SA", "ar-AE"]
+        textRequest.recognitionLevel = .accurate  // Switch to .fast for performance improvement
+        textRequest.recognitionLanguages = ["ar", "en"] // Arabic and English
         textRequest.usesLanguageCorrection = true
-        textRequest.minimumTextHeight = 0.005  // Adjust to capture smaller text
-        
+        textRequest.minimumTextHeight = 0.005
     }
+//    private func configureTextRecognition() {
+//        textRequest = VNRecognizeTextRequest { [weak self] (request, error) in
+//            guard let self = self else { return }
+//
+//            if let error = error {
+//                print("Error recognizing text: \(error)")
+//                return
+//            }
+//
+//            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+//                return
+//            }
+//
+//            let detectedStrings = observations.compactMap { $0.topCandidates(1).first?.string }
+//            
+//            DispatchQueue.main.async {
+//                self.processDetectedText(detectedStrings)
+//            }
+//        }
+//
+//        textRequest.recognitionLevel = .accurate  // Switch to .fast if needed
+//        textRequest.recognitionLanguages = ["ar", "ar-SA", "ar-AE"]
+//        textRequest.usesLanguageCorrection = true
+//        textRequest.minimumTextHeight = 0.005  // Adjust to capture smaller text
+//        
+//    }
 
     private func processDetectedText(_ detectedStrings: [String]) {
         // Combine all detected strings into a single block
@@ -138,15 +178,18 @@ class CameraViewModel: NSObject, ObservableObject {
         let cleanedText = preprocessText(combinedText)
         print("Detected Combined Text: \(cleanedText)")
 
-        // Check if the keyword 'المكونات' is present
-        if fuzzyContains(cleanedText, keyword: "المكونات") {
-            // Extract ingredients text following the keyword 'المكونات'
-            if let range = cleanedText.range(of: "المكونات")?.upperBound {
+        // Check if either the Arabic keyword 'المكونات' or the English keyword 'ingredients' is present
+        if fuzzyContains(cleanedText, keyword: "المكونات") || fuzzyContains(cleanedText, keyword: "ingredients") {
+            // Determine which keyword was detected
+            let keyword = fuzzyContains(cleanedText, keyword: "المكونات") ? "المكونات" : "ingredients"
+            
+            // Extract ingredients text following the detected keyword
+            if let range = cleanedText.range(of: keyword)?.upperBound {
                 let ingredientsText = String(cleanedText[range...]).trimmingCharacters(in: .whitespaces)
 
                 // Split the ingredients by common delimiters (commas, spaces)
                 let ingredients = ingredientsText
-                    .components(separatedBy: CharacterSet(charactersIn: ",، "))
+                    .components(separatedBy: CharacterSet(charactersIn: ",، ")) // Handles both Arabic and English delimiters
                     .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                     .filter { !$0.isEmpty }
 
@@ -162,7 +205,7 @@ class CameraViewModel: NSObject, ObservableObject {
                 detectedText = []
             }
         } else {
-            print("Keyword 'المكونات' not found.")
+            print("Keyword 'المكونات' or 'ingredients' not found.")
             detectedText = []
         }
     }
@@ -188,18 +231,14 @@ class CameraViewModel: NSObject, ObservableObject {
     }
 
 
-     func preprocessText(_ text: String) -> String {
+    func preprocessText(_ text: String) -> String {
         var cleanedText = text
-            .replacingOccurrences(of: "\n", with: " ")  // Replace newlines with spaces
-            .replacingOccurrences(of: "-", with: " ")   // Replace dashes with spaces
-            .replacingOccurrences(of: ",", with: ", ")  // Ensure space after commas
-            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)  // Reduce spaces
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: ",", with: ", ")
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // Normalize OCR errors (e.g., 'االمكونات' -> 'المكونات')
         cleanedText = cleanedText.replacingOccurrences(of: "االمكونات", with: "المكونات")
-
-        // Remove diacritics to normalize text
         return cleanedText.applyingTransform(.stripCombiningMarks, reverse: false) ?? cleanedText
     }
 
@@ -231,14 +270,12 @@ class CameraViewModel: NSObject, ObservableObject {
     private func updateDetectedIngredients(_ ingredients: [String]) {
         let targetWords = ingredients.compactMap { ingredient -> (String, String, [String])? in
             if let (category, word, hiddenSynonyms) = isTargetWord(ingredient.lowercased()) {
-                // Keep only the detected synonyms that match the scanned ingredient.
                 let detectedSynonyms = hiddenSynonyms.filter { selectedWords.contains($0.lowercased()) }
                 return (category, word, detectedSynonyms)
             }
             return nil
         }
 
-        // Update the detected text only if there are changes.
         if !detectedText.elementsEqual(targetWords, by: { $0 == $1 }) {
             detectedText = targetWords
             print("Updated Detected Ingredients: \(detectedText)")

@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9405D5862CC563980027338A /* TargetWords.json in Resources */ = {isa = PBXBuildFile; fileRef = 9405D5852CC563980027338A /* TargetWords.json */; };
+		944AA2962CCC39DB00957CDC /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 944AA2952CCC39DB00957CDC /* Localizable.xcstrings */; };
+		944AA2982CCC3FEE00957CDC /* categories_ar.json in Resources */ = {isa = PBXBuildFile; fileRef = 944AA2972CCC3FEB00957CDC /* categories_ar.json */; };
+		944AA29C2CCC400B00957CDC /* categories_en.json in Resources */ = {isa = PBXBuildFile; fileRef = 944AA29B2CCC400800957CDC /* categories_en.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,7 +30,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9405D5852CC563980027338A /* TargetWords.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TargetWords.json; sourceTree = "<group>"; };
+		944AA2952CCC39DB00957CDC /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		944AA2972CCC3FEB00957CDC /* categories_ar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = categories_ar.json; sourceTree = "<group>"; };
+		944AA29B2CCC400800957CDC /* categories_en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = categories_en.json; sourceTree = "<group>"; };
 		BDF7FF072CC4E86700518D46 /* Tajanb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tajanb.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF7FF1B2CC4E86900518D46 /* TajanbTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TajanbTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF7FF252CC4E86900518D46 /* TajanbUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TajanbUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,7 +97,9 @@
 		BDF7FEFE2CC4E86700518D46 = {
 			isa = PBXGroup;
 			children = (
-				9405D5852CC563980027338A /* TargetWords.json */,
+				944AA2952CCC39DB00957CDC /* Localizable.xcstrings */,
+				944AA2972CCC3FEB00957CDC /* categories_ar.json */,
+				944AA29B2CCC400800957CDC /* categories_en.json */,
 				BDF7FF092CC4E86700518D46 /* Tajanb */,
 				BDF7FF1E2CC4E86900518D46 /* TajanbTests */,
 				BDF7FF282CC4E86900518D46 /* TajanbUITests */,
@@ -209,8 +215,8 @@
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				en,
 			);
 			mainGroup = BDF7FEFE2CC4E86700518D46;
 			minimizedProjectReferenceProxies = 1;
@@ -231,7 +237,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9405D5862CC563980027338A /* TargetWords.json in Resources */,
+				944AA2982CCC3FEE00957CDC /* categories_ar.json in Resources */,
+				944AA29C2CCC400B00957CDC /* categories_en.json in Resources */,
+				944AA2962CCC39DB00957CDC /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +430,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -478,6 +487,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
