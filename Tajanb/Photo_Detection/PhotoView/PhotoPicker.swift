@@ -3,10 +3,9 @@ import Photos
 import PhotosUI
 
 struct PhotoPicker: View {
-    @State private var selectedImage: UIImage?
+    @Binding var selectedImage: UIImage?
     @ObservedObject var photoViewModel: PhotoViewModel
     @State private var showingImagePicker = false
-    @Environment(\.presentationMode) var presentationMode // To control the navigation back
 
     var body: some View {
         VStack {
@@ -26,34 +25,13 @@ struct PhotoPicker: View {
                     .background(Color.gray.opacity(0.2))
                     .cornerRadius(10)
                     .padding()
-
-
             } else {
                 // Placeholder text when no image is selected
                 Text("لم يتم اختيار صورة")
                     .foregroundColor(.gray)
                     .padding()
-                    .accessibilityLabel("لم يتم اختيار أي صورة")
             }
-
-            Spacer()
-
-            // Done Button
-            Button(action: {
-                // Navigate back to the CameraView when Done is pressed
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                Text("Done")
-                    .font(.headline)
-                    .foregroundColor(.black)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color(red: 163/255, green: 234/255, blue: 11/255)) // Color #A3EA0B
-                    .cornerRadius(10)
-            }
-            .padding(.bottom, 30) // Align button at the bottom
         }
-        .background(Color(red: 30/255, green: 30/255, blue: 30/255).edgesIgnoringSafeArea(.all)) // shade of grey for background
         .onAppear {
             showingImagePicker = true
         }
