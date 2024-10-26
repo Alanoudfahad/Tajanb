@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct OnboardingView1: View {
+    @Binding var hasSeenOnboarding: Bool
+
     var body: some View {
         NavigationView {
             VStack {
@@ -64,7 +66,7 @@ struct OnboardingView1: View {
 
                 Spacer()
                 // Navigation Button to the next onboarding screen
-                NavigationLink(destination: OnboardingView2()) {
+                NavigationLink(destination: OnboardingView2( hasSeenOnboarding: $hasSeenOnboarding)) {
                     Text("Get Started")
                         .font(.headline)
                         .foregroundColor(.black)
@@ -74,6 +76,7 @@ struct OnboardingView1: View {
                         .cornerRadius(10)
                         .padding(.horizontal, 20)
                 }
+              
                 
                 Spacer()
                 Spacer()
@@ -87,8 +90,8 @@ struct OnboardingView1: View {
               }
 
 
-              struct OnboardingView1_Previews: PreviewProvider {
-                  static var previews: some View {
-                      OnboardingView1()
-                  }
-              }
+//              struct OnboardingView1_Previews: PreviewProvider {
+//                  static var previews: some View {
+//                      OnboardingView1()
+//                  }
+//              }

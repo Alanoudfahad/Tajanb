@@ -9,6 +9,7 @@ import SwiftUI
 // حتى البوتون اظن مفروض فوق بعد
 struct OnboardingView2: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Binding var hasSeenOnboarding: Bool
 
     var body: some View {
         NavigationView {
@@ -29,7 +30,6 @@ struct OnboardingView2: View {
                         Spacer()
                     }
                     .padding(.leading)
-//                    .padding(.top, 20)
                 
                 Spacer()
                 
@@ -126,7 +126,7 @@ struct OnboardingView2: View {
 
                 
             
-                NavigationLink(destination: OnboardingView3()) {
+                NavigationLink(destination: OnboardingView3( hasSeenOnboarding: $hasSeenOnboarding)) {
                     Text("Next")
                         .font(.headline)
                         .foregroundColor(.black)
@@ -158,15 +158,9 @@ struct OnboardingView2: View {
 
 
 
-
-// هنا بس حطيت الانبوردينق ٣ فاضية، عند أفراح
-struct OnboardingView3: View {
-    var body: some View {
-        Text("Here Onboarding3")
-    }
-}
-struct OnboardingView2_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingView2()
-    }
-}
+//
+//struct OnboardingView2_Previews: PreviewProvider {
+//    static var previews: some View {
+//        OnboardingView2()
+//    }
+//}

@@ -4,8 +4,8 @@
 //
 //  Created by Afrah Saleh on 17/04/1446 AH.
 //
-
 import SwiftUI
+
 struct Categories: View {
     @ObservedObject var viewModel: CameraViewModel
     @Environment(\.dismiss) var dismiss
@@ -18,6 +18,7 @@ struct Categories: View {
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding(.vertical, 8)
+                    .accessibilityLabel("My Allergies Title")
                 
                 Divider()
                     .background(Color.white)
@@ -27,20 +28,22 @@ struct Categories: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .leading) // Changed to leading
-                .padding(.top,20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 20)
                 .padding(.horizontal)
+                .accessibilityLabel("My Allergies")
             
             Text("Avoid your allergic reactions")
                 .foregroundColor(.white)
                 .padding(.bottom, 20)
-                .frame(maxWidth: .infinity, alignment: .leading) // Changed to leading
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
+                .accessibilityLabel("Avoid your allergic reactions")
             
             List(viewModel.availableCategories, id: \.name) { category in
                 ZStack {
                     NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
-                        EmptyView()
+                       // EmptyView()
                     }
                     .opacity(0)
                     
@@ -53,6 +56,8 @@ struct Categories: View {
                             .background(selectedCategory == category.name ? Color("CustomGreen") : Color("GrayList"))
                             .cornerRadius(10)
                     }
+                    .accessibilityLabel("Category: \(category.name)")
+                    .accessibilityHint("Double-tap to view more details about \(category.name)")
                 }
                 .listRowBackground(Color.clear)
             }
@@ -60,7 +65,7 @@ struct Categories: View {
             .scrollContentBackground(.hidden)
 
             Button(action: {
-                // Action for the button
+                // Action for suggesting an allergy
             }) {
                 Text("اقترح حساسية")
                     .fontWeight(.bold)
@@ -73,11 +78,11 @@ struct Categories: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 20)
             .padding(.top, 40)
+            .accessibilityLabel("Suggest an Allergy")
+            .accessibilityHint("Double-tap to suggest a new allergy type.")
             
         }
-        
         .background(Color("CustomBackground"))
-        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
@@ -86,8 +91,11 @@ struct Categories: View {
                     Image(systemName: "chevron.backward")
                         .foregroundColor(.white)
                 }
+                .accessibilityLabel("Back") // For accessibility, VoiceOver will read it as "Back".
+                .accessibilityHint("Double-tap to go back.")
             }
         }
+        .navigationBarBackButtonHidden(true) // Hide the default back button
         .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
     
@@ -117,7 +125,7 @@ struct AllergyRow: View {
     var body: some View {
         HStack {
             Text(icon)
-                .font(.system(size: 24)) // Adjust the size of the emoji if needed
+                .font(.system(size: 24))
                 .padding(.trailing, 8)
             Text(text)
                 .foregroundColor(.white)
@@ -126,6 +134,9 @@ struct AllergyRow: View {
         .padding()
         .background(Color("GrayList"))
         .cornerRadius(10)
+        .accessibilityElement()
+        .accessibilityLabel("\(text) category")
+        .accessibilityHint("Double-tap to view details.")
     }
 }
 
