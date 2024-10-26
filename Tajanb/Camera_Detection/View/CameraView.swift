@@ -84,7 +84,7 @@ struct CameraView: View {
                       VStack {
                           Image(systemName: "list.bullet")
                               .font(.system(size: 24))
-                              .tint(.white)
+                              .tint(Color("CustomGreen"))
                               .padding()
                               .background(Circle().fill(selectedNavigation == "categories" ? Color("CustomGreen") : Color.black.opacity(0.7)))
                           Text("حساسياتي")
@@ -100,7 +100,7 @@ struct CameraView: View {
                                 Image(systemName: "photo")
                                     .font(.system(size: 24))
                                     .padding()
-                                    .tint(.white)
+                                    .tint(Color("CustomGreen"))
                                     .background(Circle().fill(selectedNavigation == "photo" ? Color("CustomGreen") : Color.black.opacity(0.7)))
 
                                 Text("تحميل صورة")

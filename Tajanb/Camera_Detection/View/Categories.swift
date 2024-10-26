@@ -6,67 +6,59 @@
 //
 
 import SwiftUI
-
-
 struct Categories: View {
     @ObservedObject var viewModel: CameraViewModel
-    @Environment(\.dismiss) var dismiss // For back navigation
-    @State private var selectedCategory: String? // Track the selected category
-    
+    @Environment(\.dismiss) var dismiss
+    @State private var selectedCategory: String?
+
     var body: some View {
         VStack {
-            // Custom Navigation Title with line underneath
             VStack(spacing: 0) {
-                Text("حساسيني")
+                Text("My Allergies")
                     .font(.headline)
                     .foregroundColor(.white)
-                    .padding(.bottom)
                     .padding(.vertical, 8)
                 
                 Divider()
                     .background(Color.white)
             }
             
-            // Main Title
-            Text("حساسية الطعام")
+            Text("My Allergies")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.top, 25)
-                .padding(.trailing, 16)
+                .frame(maxWidth: .infinity, alignment: .leading) // Changed to leading
+                .padding(.top,20)
+                .padding(.horizontal)
             
-            // Subtitle
-            Text("تجنب ردود الفعل التحسسية لديك")
+            Text("Avoid your allergic reactions")
                 .foregroundColor(.white)
                 .padding(.bottom, 20)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.trailing, 16)
+                .frame(maxWidth: .infinity, alignment: .leading) // Changed to leading
+                .padding(.horizontal)
             
-            // List of Categories
             List(viewModel.availableCategories, id: \.name) { category in
                 ZStack {
                     NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
                         EmptyView()
-                    }.opacity(0) // Make NavigationLink invisible
+                    }
+                    .opacity(0)
                     
-                    // AllergyRow as button with animation
                     Button(action: {
                         withAnimation {
                             selectedCategory = category.name
                         }
                     }) {
                         AllergyRow(icon: iconForCategory(category.name), text: category.name)
-                            .background(selectedCategory == category.name ? Color.green : Color.secondary)
+                            .background(selectedCategory == category.name ? Color("CustomGreen") : Color("GrayList"))
                             .cornerRadius(10)
                     }
                 }
-                .listRowBackground(Color.clear) // Transparent row background
+                .listRowBackground(Color.clear)
             }
             .listStyle(PlainListStyle())
             .scrollContentBackground(.hidden)
 
-            // Button
             Button(action: {
                 // Action for the button
             }) {
@@ -81,7 +73,9 @@ struct Categories: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 20)
             .padding(.top, 40)
+            
         }
+        
         .background(Color("CustomBackground"))
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -94,23 +88,25 @@ struct Categories: View {
                 }
             }
         }
+        .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
     
     func iconForCategory(_ category: String) -> String {
-        switch category {
-        case "مشتقات الحليب": return "🥛"
-        case "البيض": return "🥚"
-        case "البذور": return "🌻"
-        case "الخضار": return "🥗"
-        case "الفواكة": return "🍓"
-        case "البهارات": return "🧂"
-        case "القمح (الجلوتين)": return "🌾"
-        case "المكسرات": return "🥜"
-        case "الكائنات البحرية (القشريات والرخويات)": return "🦀"
-        case "الأسماك": return "🐟"
-        case "البقوليات": return "🌽"
-        default: return "❓"
-        }
+        let categoryIcons: [String: String] = [
+            "مشتقات الحليب": "🥛", "Dairy Products": "🥛",
+            "البيض": "🥚", "Egg": "🥚",
+            "البذور": "🌻", "Seeds": "🌻",
+            "الخضار": "🥗", "Vegetables": "🥗",
+            "الفواكة": "🍓", "Fruits": "🍓",
+            "البهارات": "🧂", "Spices": "🧂",
+            "القمح (الجلوتين)": "🌾", "Wheat (Gluten)": "🌾",
+            "المكسرات": "🥜", "Nuts": "🥜",
+            "الكائنات البحرية (القشريات والرخويات)": "🦀", "Seafood": "🦀",
+            "الأسماك": "🐟", "Fish": "🐟",
+            "البقوليات": "🌽", "Legumes": "🌽"
+        ]
+        
+        return categoryIcons[category] ?? "❓"
     }
 }
 
@@ -120,12 +116,12 @@ struct AllergyRow: View {
 
     var body: some View {
         HStack {
+            Text(icon)
+                .font(.system(size: 24)) // Adjust the size of the emoji if needed
+                .padding(.trailing, 8)
             Text(text)
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            
-            Text(icon)
-                .padding(.leading, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding()
         .background(Color("GrayList"))
@@ -135,5 +131,6 @@ struct AllergyRow: View {
 
 #Preview {
     Categories(viewModel: CameraViewModel())
+        .environment(\.layoutDirection, .rightToLeft) // For Arabic
 }
 
