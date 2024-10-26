@@ -4,7 +4,11 @@
     "" : {
 
     },
+    "%@" : {
+
+    },
     "%@: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -190,22 +194,6 @@
         }
       }
     },
-    "Predictions for your allergies:" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "توقعات الحساسية الخاصة بك:"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Predictions for your allergies:"
-          }
-        }
-      }
-    },
     "Scan a list of ingredients product, and find out if it is suitable for you." : {
       "localizations" : {
         "ar" : {
@@ -351,21 +339,8 @@
         }
       }
     },
-    "لم يتم اختيار أي صورة" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "لم يتم اختيار أي صورة"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No image selected"
-          }
-        }
-      }
+    "خالي من مسببات الحساسية" : {
+
     },
     "لم يتم اختيار صورة" : {
       "localizations" : {
