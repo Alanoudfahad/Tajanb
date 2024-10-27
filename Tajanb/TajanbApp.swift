@@ -8,32 +8,40 @@
 import SwiftUI
 import SwiftData
 
-//@main
-//struct TajanbApp: App {
-////    let viewModel = CameraViewModel()
-////    let photoviewModel = PhotoViewModel(viewmodel: CameraViewModel())
-//    var body: some Scene {
-//        WindowGroup {
-//            OnboardingView1()
-////            CameraView(
-////                viewModel: viewModel, photoViewModel: photoviewModel)
-//        }
-//    }
-//}
-
 
 @main
 struct TajanbApp: App {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
+    @State private var justCompletedOnboarding: Bool = false // Track if onboarding just completed
     let viewModel = CameraViewModel()
 
     var body: some Scene {
         WindowGroup {
             if hasSeenOnboarding {
-                SplashScreenView(cameraViewModel: viewModel)
+                // Show SplashScreen on subsequent launches if onboarding has been seen
+                if justCompletedOnboarding {
+                    // Directly show the CameraView after onboarding completion
+                    CameraView(viewModel: viewModel, photoViewModel: PhotoViewModel(viewmodel: viewModel))
+                } else {
+                    // Show SplashScreen on all subsequent launches
+                    SplashScreenView(cameraViewModel: viewModel)
+                        .onAppear {
+                            // Reset the flag after splash screen displays
+                            justCompletedOnboarding = false
+                        }
+                }
             } else {
-                OnboardingView1(hasSeenOnboarding: $hasSeenOnboarding)
+                // Show Onboarding on the first launch
+                OnboardingView1(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
             }
         }
     }
 }
+
+
+
+//            if !hasSeenOnboarding {
+//                OnboardingView1(hasSeenOnboarding: $hasSeenOnboarding)
+//            } else if hasSeenOnboarding {
+//                SplashScreenView(cameraViewModel: viewModel)
+//            }

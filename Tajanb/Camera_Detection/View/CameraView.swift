@@ -26,20 +26,6 @@ struct CameraView: View {
                     .accessibilityLabel("Live camera preview")
                     .accessibilityHint("Displays what the camera is currently viewing")
 
-                // Scanning label at the top
-                VStack {
-                    Text("Scanning....")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.black.opacity(0.2))
-                        .cornerRadius(8)
-                        .padding(.top, 50)
-                        .accessibilityLabel("Scanning")
-                    
-                    Spacer()
-                }
                 
                 VStack {
                     Spacer()
@@ -175,6 +161,11 @@ struct CameraView: View {
             }
             .onAppear {
                 viewModel.startSession()
+
+                // Load initial data if needed
+               if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
+                   viewModel.updateSelectedWords(with: savedWords)
+               }
             }
             .onDisappear {
                 viewModel.stopSession()
