@@ -33,7 +33,8 @@ struct PhotoPicker: View {
             }
         }
         .onAppear {
-            showingImagePicker = true
+            photoViewModel.requestPhotoLibraryAccess() // Request access when view appears
+            showingImagePicker = true // Show the image picker
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(image: $selectedImage)
@@ -47,7 +48,7 @@ struct PhotoPicker: View {
     }
 }
 
-// ImagePicker struct remains unchanged
+
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
 
