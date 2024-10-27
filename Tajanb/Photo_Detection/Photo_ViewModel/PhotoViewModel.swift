@@ -5,10 +5,10 @@
 //  Created by Alanoud Alshuaibi on 19/04/1446 AH.
 //
 
-
 import Foundation
 import Vision
 import UIKit
+import Photos
 
 class PhotoViewModel: NSObject, ObservableObject {
     @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
@@ -28,11 +28,12 @@ class PhotoViewModel: NSObject, ObservableObject {
             guard let self = self else { return }
 
             if let error = error {
-                print("Error recognizing text: \(error)")
+                print("Error recognizing text: \(error.localizedDescription)")
                 return
             }
 
             guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                print("No recognized text found")
                 return
             }
 
@@ -57,7 +58,7 @@ class PhotoViewModel: NSObject, ObservableObject {
         do {
             try handler.perform([textRequest])
         } catch {
-            print("Failed to perform text recognition request: \(error)")
+            print("Failed to perform text recognition request: \(error.localizedDescription)")
         }
     }
 
@@ -82,10 +83,16 @@ class PhotoViewModel: NSObject, ObservableObject {
         if let result = ViewModel.isTargetWord(cleanedWord) {
             // Check if this word has already been detected to avoid duplicates
             if !matchedWordsSet.contains(cleanedWord) {
-                DispatchQueue.main.async {
-                    self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
-                    self.hapticManager.performHapticFeedback() // Trigger haptic feedback
-                    self.matchedWordsSet.insert(cleanedWord)
+                // Check if the detected word matches a selected allergen
+                if ViewModel.selectedWords.contains(result.1) {
+                    DispatchQueue.main.async {
+                        self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
+                        
+                        // Perform haptic feedback only if the detected word matches a selected allergen
+                        self.hapticManager.performHapticFeedback()
+                        
+                        self.matchedWordsSet.insert(cleanedWord)
+                    }
                 }
             }
         } else {
@@ -94,10 +101,29 @@ class PhotoViewModel: NSObject, ObservableObject {
         }
     }
 
-    // New method to reset detected text and matched words
+    // Method to reset detected text and matched words
     func resetPredictions() {
         detectedText.removeAll() // Clear the existing predictions
         matchedWordsSet.removeAll() // Clear matched words set
     }
-}
 
+    // Request access to photo library
+    func requestPhotoLibraryAccess() {
+        PHPhotoLibrary.requestAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    print("Photo library access granted.")
+                case .denied, .restricted:
+                    print("Photo library access denied or restricted.")
+                case .notDetermined:
+                    print("Photo library access not determined.")
+                case .limited:
+                    print("Photo library access granted with limitations.")
+                @unknown default:
+                    print("Unknown photo library access status.")
+                }
+            }
+        }
+    }
+}

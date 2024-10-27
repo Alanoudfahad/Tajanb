@@ -30,16 +30,18 @@ class HapticManager {
         }
     }
 
-    // Perform haptic feedback.
+    // Perform longer haptic feedback.
     func performHapticFeedback() {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
 
         var events = [CHHapticEvent]()
 
-        // Add a sharp transient haptic event (like a click).
-         let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0) // Max intensity
-         let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1.0) // Max sharpness
-        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        // Add a continuous haptic event with a duration.
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.4) // Adjust intensity as needed.
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.5) // Adjust sharpness as needed.
+        let duration: TimeInterval = 1.0 // Duration of the haptic event in seconds.
+
+        let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [intensity, sharpness], relativeTime: 0, duration: duration)
         events.append(event)
 
         do {
