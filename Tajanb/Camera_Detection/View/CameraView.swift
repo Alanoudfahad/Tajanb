@@ -13,9 +13,9 @@ struct CameraView: View {
     @ObservedObject var photoViewModel: PhotoViewModel
     let boxWidthPercentage: CGFloat = 0.7
     let boxHeightPercentage: CGFloat = 0.2
-    @State private var selectedNavigation: String? = nil // Track selected navigation
-    @State private var isCategoriesActive = false // Track if categories button is active
-    @State private var isPhotoActive = false // Track if photo button is active
+    @State private var selectedNavigation: String? = nil
+    @State private var isCategoriesActive = false
+    @State private var isPhotoActive = false
 
     var body: some View {
         NavigationStack {
@@ -26,7 +26,6 @@ struct CameraView: View {
                     .accessibilityLabel("Live camera preview")
                     .accessibilityHint("Displays what the camera is currently viewing")
 
-                
                 VStack {
                     Spacer()
                     
@@ -37,7 +36,7 @@ struct CameraView: View {
                         
                         // Prompt if no ingredients are detected and freeAllergenMessage is nil
                         if viewModel.detectedText.isEmpty && viewModel.freeAllergenMessage == nil {
-                            Text("Point to an ingredient to scan")
+                            Text("وجه الكاميرا نحو المكونات للمسح")
                                 .foregroundColor(.white)
                                 .font(.system(size: 17, weight: .medium))
                                 .padding(.horizontal, 8)
@@ -63,15 +62,24 @@ struct CameraView: View {
                     if !viewModel.detectedText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
-                                ForEach(viewModel.detectedText, id: \.word) { item in
-                                    Text(item.word)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .padding(10)
-                                        .background(Color.red.opacity(0.8))
-                                        .foregroundColor(.white)
-                                        .cornerRadius(20)
-                                        .accessibilityLabel(item.word)
-                                        .accessibilityHint("Detected allergen")
+                                // Create a set of detected words in lowercase for easier comparison
+                                let uniqueDetectedWords = Set(viewModel.detectedText.map { $0.word.lowercased() })
+                                
+                                ForEach(Array(uniqueDetectedWords), id: \.self) { word in
+                                    // Find the detected item using a case-insensitive comparison
+                                    if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
+                                        // Display only if the word matches the user's selected allergens, ignoring case
+                                        if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
+                                            Text(detectedItem.word)
+                                                .font(.system(size: 14, weight: .medium))
+                                                .padding(10)
+                                                .background(Color.red.opacity(0.8))
+                                                .foregroundColor(.white)
+                                                .cornerRadius(20)
+                                                .accessibilityLabel(Text("\(detectedItem.word) allergen"))
+                                                .accessibilityHint("Detected allergen")
+                                        }
+                                    }
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -111,8 +119,8 @@ struct CameraView: View {
                                 }
                             }
                         )
-                        .accessibilityLabel("My Allergies")
-                        .accessibilityHint("Double-tap to view your allergy categories")
+                        .accessibilityLabel(Text("My Allergies"))
+                        .accessibilityHint(Text("Double-tap to view your allergy categories"))
 
                         Spacer()
                         
@@ -141,8 +149,8 @@ struct CameraView: View {
                                 }
                             }
                         )
-                        .accessibilityLabel("Upload Photo")
-                        .accessibilityHint("Double-tap to upload a photo for scanning")
+                        .accessibilityLabel(Text("Upload Photo"))
+                        .accessibilityHint(Text("Double-tap to upload a photo for scanning"))
                     }
                     .padding()
                     .padding(.horizontal, 40)
@@ -161,26 +169,17 @@ struct CameraView: View {
             }
             .onAppear {
                 viewModel.startSession()
-
-                // Load initial data if needed
-               if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
-                   viewModel.updateSelectedWords(with: savedWords)
-               }
+                if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
+                    viewModel.updateSelectedWords(with: savedWords)
+                }
             }
             .onDisappear {
                 viewModel.stopSession()
             }
-    
-
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-
     }
-}
-#Preview {
-    CameraView(viewModel: CameraViewModel(), photoViewModel: PhotoViewModel(viewmodel: CameraViewModel()))
-
 }
 
 struct CameraPreview: UIViewRepresentable {

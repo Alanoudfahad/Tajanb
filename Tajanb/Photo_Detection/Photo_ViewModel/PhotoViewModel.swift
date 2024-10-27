@@ -12,6 +12,7 @@ import Photos
 
 class PhotoViewModel: NSObject, ObservableObject {
     @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
+    @Published var freeAllergenMessage: String? // Updated to manage the message state
     private var textRequest = VNRecognizeTextRequest(completionHandler: nil)
     private var hapticManager = HapticManager()
     var ViewModel: CameraViewModel
@@ -44,7 +45,7 @@ class PhotoViewModel: NSObject, ObservableObject {
         }
 
         textRequest.recognitionLevel = .accurate
-        textRequest.recognitionLanguages = ["ar", "ar-SA", "ar-AE"]
+        textRequest.recognitionLanguages = ["ar", "en"]
         textRequest.usesLanguageCorrection = true
     }
 
@@ -72,12 +73,19 @@ class PhotoViewModel: NSObject, ObservableObject {
         let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
         print("Detected Words List: \(words)")
 
+        var foundAllergens = false
+
         for word in words {
-            checkAllergy(for: word)
+            if checkAllergy(for: word) {
+                foundAllergens = true
+            }
         }
+
+        // Update the free allergen message based on whether allergens were found
+        freeAllergenMessage = foundAllergens ? nil : getLocalizedMessage()
     }
 
-    private func checkAllergy(for word: String) {
+    private func checkAllergy(for word: String) -> Bool {
         let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased() // Clean the word
 
         if let result = ViewModel.isTargetWord(cleanedWord) {
@@ -93,18 +101,25 @@ class PhotoViewModel: NSObject, ObservableObject {
                         
                         self.matchedWordsSet.insert(cleanedWord)
                     }
+                    return true // Allergen found
                 }
             }
         } else {
             // Remove the word from the matched set if no longer matching
             matchedWordsSet.remove(cleanedWord)
         }
+        return false // No allergen found for this word
+    }
+
+    private func getLocalizedMessage() -> String {
+        return Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسية" : "Allergen-free"
     }
 
     // Method to reset detected text and matched words
     func resetPredictions() {
         detectedText.removeAll() // Clear the existing predictions
         matchedWordsSet.removeAll() // Clear matched words set
+        freeAllergenMessage = getLocalizedMessage() // Reset the message to allergen-free
     }
 
     // Request access to photo library

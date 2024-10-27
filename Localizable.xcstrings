@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -32,6 +33,7 @@
       }
     },
     "Allergen-free" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -294,6 +296,9 @@
         }
       }
     },
+    "Key" : {
+      "extractionState" : "manual"
+    },
     "Live camera preview" : {
       "localizations" : {
         "ar" : {
@@ -503,6 +508,16 @@
         }
       }
     },
+    "تم" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
     "حساسية الطعام" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -567,6 +582,9 @@
           }
         }
       }
+    },
+    "وجه الكاميرا نحو المكونات للمسح" : {
+
     }
   },
   "version" : "1.0"
