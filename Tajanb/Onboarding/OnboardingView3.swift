@@ -10,24 +10,23 @@ import SwiftUI
 struct OnboardingView3: View {
     @ObservedObject var cameraViewModel = CameraViewModel()
     @State private var selectedCategories: Set<String> = []
-    @State private var navigate = false // Add this state variable to trigger navigation
+    @State private var navigate = false
     @Binding var hasSeenOnboarding: Bool
-
+    @Binding var justCompletedOnboarding: Bool // Track onboarding completion
     var body: some View {
         NavigationView {
-
             VStack {
                 Spacer()
                 // Progress Indicator
                 HStack(spacing: 8) {
                     Capsule()
-                        .fill(Color(red: 163 / 255, green: 234 / 255, blue: 11 / 255))
+                        .fill(Color("CustomGreen"))
                         .frame(width: 30, height: 4)
                     Capsule()
-                        .fill(Color(red: 163 / 255, green: 234 / 255, blue: 11 / 255))
+                        .fill(Color("CustomGreen"))
                         .frame(width: 30, height: 4)
                     Capsule()
-                        .fill(Color(red: 163 / 255, green: 234 / 255, blue: 11 / 255))
+                        .fill(Color("CustomGreen"))
                         .frame(width: 30, height: 4)
                 }
                 .padding(.bottom, 40)
@@ -35,7 +34,7 @@ struct OnboardingView3: View {
                 // Title Text
                 Text("Choose type do you have?")
                     .font(.system(size: 25, weight: .bold))
-                    .foregroundColor(Color(red: 140 / 255, green: 200 / 255, blue: 12 / 255))
+                    .foregroundColor(Color("CustomGreen"))
                     .padding(.bottom, 8)
                 
                 Text("Select at least 1")
@@ -63,48 +62,53 @@ struct OnboardingView3: View {
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
-                            .background(selectedCategories.contains(category.name) ? Color(red: 163 / 255, green: 234 / 255, blue: 11 / 255) : Color.gray.opacity(0.2))
+                            .background(selectedCategories.contains(category.name) ? Color("CustomGreen") : Color.gray.opacity(0.2))
                             .clipShape(Capsule())
                         }
                     }
                 }
-                .padding(.horizontal,10)
+                .padding(.horizontal, 10)
                 
                 Spacer()
                 // Button to trigger saving and navigation
-                         Button(action: {
-                             saveSelectedWords()
-                             navigate = true
-                             hasSeenOnboarding = true // Mark onboarding as complete
+                Button(action: {
+                    // Save selected words to UserDefaults
+                    saveSelectedWords()
 
-                         }) {
-                             Text("Get Started")
-                                 .font(.headline)
-                                 .foregroundColor(.black)
-                                 .padding()
-                                 .frame(maxWidth: .infinity)
-                                 .background(selectedCategories.isEmpty ? Color.gray : Color(red: 163 / 255, green: 234 / 255, blue: 11 / 255))
-                                 .cornerRadius(10)
-                                 .padding(.horizontal, 20)
-                         }
-                         .disabled(selectedCategories.isEmpty) // Disable button if no selection
+                    // Immediately set the onboarding flag
+                    hasSeenOnboarding = true
 
-                         // NavigationLink that triggers based on `navigate` state
-                         NavigationLink(
-                             destination: CameraView(viewModel: cameraViewModel, photoViewModel: PhotoViewModel(viewmodel: cameraViewModel)),
-                             isActive: $navigate
-                         ) {
-                             EmptyView() // Empty view as the label
-                         }
+                    // Trigger navigation to the next screen
+                    navigate = true
+                    justCompletedOnboarding = true // Set to true to skip splash screen once
 
-                
+                }) {
+                    Text("Get Started")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(selectedCategories.isEmpty ? Color.gray : Color("CustomGreen"))
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                }
+                .disabled(selectedCategories.isEmpty) // Disable button if no selection
+
+                // NavigationLink to CameraView
+                NavigationLink(
+                    destination: CameraView(viewModel: cameraViewModel, photoViewModel: PhotoViewModel(viewmodel: cameraViewModel)),
+                    isActive: $navigate
+                ) {
+                    EmptyView()
+                }
                 Spacer()
             }
-            .background(Color(red: 29 / 255, green: 29 / 255, blue: 31 / 255).edgesIgnoringSafeArea(.all))
+            .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
     }
+
     // Helper function to get emoji icon for each category
     private func iconForCategory(_ category: String) -> String {
         let categoryIcons: [String: String] = [
@@ -123,10 +127,10 @@ struct OnboardingView3: View {
         
         return categoryIcons[category] ?? "❓"
     }
-    
+
     private func saveSelectedWords() {
         var wordsToSave: [String] = []
-        
+
         // Collect words and synonyms from selected categories
         for category in cameraViewModel.availableCategories where selectedCategories.contains(category.name) {
             for word in category.words {
@@ -136,17 +140,12 @@ struct OnboardingView3: View {
                 }
             }
         }
-        
-        // Save the words to UserDefaults
+
+        // Save the words to UserDefaults and update the ViewModel
         cameraViewModel.updateSelectedWords(with: wordsToSave)
+        
+        // Debugging statement
+        print("Words saved: \(wordsToSave)")
     }
 }
-//struct OnboardingView3_Previews: PreviewProvider {
-//    static var previews: some View {
-//        OnboardingView3(hasSeenOnboarding: Binding<true>)
-//    }
-//}
-// Define an Enum to represent navigation destinations
-enum NavigationDestination {
-    case cameraView
-}
+

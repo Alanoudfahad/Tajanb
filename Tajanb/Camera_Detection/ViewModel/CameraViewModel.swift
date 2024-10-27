@@ -21,12 +21,14 @@ class CameraViewModel: NSObject, ObservableObject {
             saveSelectedWords()
         }
     }
-    
-    private var session: AVCaptureSession!
+    @Published var cameraPermissionGranted: Bool = false // Track permission state
+    //private var session: AVCaptureSession!
     private var textRequest = VNRecognizeTextRequest(completionHandler: nil)
     private var frameCount = 0
     private let frameSkipCount = 3 // Process every 3rd frame
-
+    
+    private var session: AVCaptureSession!
+    
     override init() {
         super.init()
         loadCategories()
@@ -57,11 +59,12 @@ class CameraViewModel: NSObject, ObservableObject {
     private func saveSelectedWords() {
         UserDefaults.standard.set(selectedWords, forKey: "selectedWords")
     }
-
+    
     func updateSelectedWords(with words: [String]) {
-           selectedWords = words
-           UserDefaults.standard.set(words, forKey: "selectedWords") // Save to UserDefaults
-       }
+        selectedWords = words
+        UserDefaults.standard.set(words, forKey: "selectedWords")
+        print("Selected words updated: \(selectedWords)")
+    }
        
        func loadSelectedWords() {
            // Load words from UserDefaults when the app starts
@@ -108,6 +111,7 @@ class CameraViewModel: NSObject, ObservableObject {
             print("Error configuring focus: \(error)")
         }
     }
+    
     private func configureTextRecognition() {
         textRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard let self = self else { return }
@@ -256,21 +260,20 @@ class CameraViewModel: NSObject, ObservableObject {
             }
         }
     }
-
-
+    
     func startSession() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.session.startRunning()
-        }
-    }
-    
-    func stopSession() {
-        session.stopRunning()
-    }
-    
-    func getSession() -> AVCaptureSession {
-        return session
-    }
+          DispatchQueue.global(qos: .userInitiated).async {
+              self.session.startRunning()
+          }
+      }
+      
+      func stopSession() {
+          session.stopRunning()
+      }
+      
+      func getSession() -> AVCaptureSession {
+          return session
+      }
     func updateDetectedWords() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }

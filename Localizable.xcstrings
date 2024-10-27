@@ -1,17 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“”"
-          }
-        }
-      }
-    },
     "%@" : {
       "localizations" : {
         "ar" : {
@@ -32,45 +21,12 @@
         }
       }
     },
-    "%@ allergen selection" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@اختيار الحساسيه"
-          }
-        }
-      }
-    },
     "%@ category" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@فئة"
-          }
-        }
-      }
-    },
-    "%@ selection" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@اختيار"
-          }
-        }
-      }
-    },
-    "Allergen word" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "كلمة مسببات الحساسية"
           }
         }
       }
@@ -117,6 +73,17 @@
         }
       }
     },
+    "Camera access required" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الوصول إلى الكاميرا مطلوب"
+          }
+        }
+      }
+    },
     "Category: %@" : {
       "localizations" : {
         "ar" : {
@@ -132,7 +99,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تحقق من وجود مسببات للحساسية في صورك عن طريق تحديد صورة من ألبوم الكاميرا للبحث عن المكونات التي قد تكون ضارة"
+            "value" : "يمكنك التحقق من المواد المسببة للحساسية عن طريق تحديد صورة من ألبوم الكاميرا للبحث عن المكونات الضارة المحتملة"
           }
         },
         "en" : {
@@ -144,7 +111,14 @@
       }
     },
     "Choose type do you have?" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر نوع الحساسية الذي لديك؟"
+          }
+        }
+      }
     },
     "Detected allergen" : {
       "localizations" : {
@@ -162,17 +136,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "تم اكتشاف مسببات الحساسية من الصورة المحددة"
-          }
-        }
-      }
-    },
-    "Displays the list of allergens in the %@ category." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يعرض قائمة المواد المسببة للحساسية في %@ الفئة."
           }
         }
       }
@@ -223,17 +186,6 @@
         }
       }
     },
-    "Double-tap to mark %@ as an allergen to avoid." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "انقر مرتين لتحديد %@ المادة المسببة للحساسية التي يجب تجنبها."
-          }
-        }
-      }
-    },
     "Double-tap to select an image for allergen detection" : {
       "localizations" : {
         "ar" : {
@@ -250,28 +202,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "انقر مرتين لاقتراح نوع جديد من الحساسية."
-          }
-        }
-      }
-    },
-    "Double-tap to toggle selection for %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "انقر نقرًا مزدوجًا للاختيار %@."
-          }
-        }
-      }
-    },
-    "Double-tap to toggle selection." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "انقر نقرًا مزدوجًا للتبديل بين الاختيارات."
           }
         }
       }
@@ -328,40 +258,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Get Started"
-          }
-        }
-      }
-    },
-    "Here Onboarding3" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هنا المقدمة"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Here Onboarding3"
-          }
-        }
-      }
-    },
-    "Here the Main Screen" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "الصفحه الرئيسية"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Here the Main Screen"
           }
         }
       }
@@ -450,23 +346,23 @@
         }
       }
     },
-    "Not selected" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "لم يتم التحديد"
-          }
-        }
-      }
-    },
     "Photo Picker" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "أداة اختيار الصور"
+          }
+        }
+      }
+    },
+    "Please grant camera access in settings." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يرجى منح حق الوصول إلى الكاميرا في الإعدادات"
           }
         }
       }
@@ -486,7 +382,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "قم بمسح قائمة مكونات المنتج، واكتشف ما إذا كان مناسبًا لك."
+            "value" : "قم بمسح قائمة مكونات المنتج، واكتشف ما إذا كان مناسبًا لك"
           }
         },
         "en" : {
@@ -513,36 +409,12 @@
         }
       }
     },
-    "Scanning" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "مسح"
-          }
-        }
-      }
-    },
-    "Scanning...." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "مسح"
-          }
-        }
-      }
-    },
     "Select at least 1" : {
-
-    },
-    "Selected" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تم اختياره"
+            "value" : "على الأقل ١"
           }
         }
       }

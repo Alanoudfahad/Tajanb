@@ -13,16 +13,16 @@
 //  Created by Ahad on 21/04/1446 AH.
 
 import SwiftUI
-// سويتها أي كلام عاد زبطوها زي ما تبون
 
 struct SplashScreenView: View {
     @State private var animateLogo = false
     @State private var isActive = false
-    @ObservedObject var cameraViewModel = CameraViewModel()
+    @ObservedObject var cameraViewModel: CameraViewModel
 
     var body: some View {
         VStack {
             if isActive {
+                // Navigate to CameraView when the splash screen completes
                 CameraView(viewModel: cameraViewModel, photoViewModel: PhotoViewModel(viewmodel: cameraViewModel))
             } else {
                 ZStack {
@@ -37,7 +37,6 @@ struct SplashScreenView: View {
                         .scaleEffect(animateLogo ? 1 : 0.5)
                         .opacity(animateLogo ? 1 : 0)
                         .animation(.easeInOut(duration: 1.5))
-
                 }
                 .onAppear {
                     withAnimation {
@@ -51,9 +50,8 @@ struct SplashScreenView: View {
         }
     }
 }
-
 struct SplashScreenView_Previews: PreviewProvider {
     static var previews: some View {
-        SplashScreenView()
+        SplashScreenView(cameraViewModel: CameraViewModel())
     }
 }
