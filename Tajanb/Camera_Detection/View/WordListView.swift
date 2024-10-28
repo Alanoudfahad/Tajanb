@@ -113,9 +113,9 @@ struct CustomToggleStyle: ToggleStyle {
     }
 }
 
-#Preview {
-    WordListView(category: .init(name: "Diary", words: [
-        Word(word: "cow milk", hiddenSynonyms: ["String"]),
-        Word(word: "yougret", hiddenSynonyms: ["String"])
-    ]), viewModel: CameraViewModel())
-}
+//#Preview {
+//    WordListView(category: .init(name: "Diary", words: [
+//        Word(word: "cow milk", hiddenSynonyms: ["String"]),
+//        Word(word: "yougret", hiddenSynonyms: ["String"])
+//    ]), viewModel: CameraViewModel())
+//}

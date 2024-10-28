@@ -91,6 +91,8 @@ struct Categories: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
                     dismiss()
+                    viewModel.loadSelectedWords(using: modelContext)
+                    viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext) // Ensure latest words are loaded
                 }) {
                     Image(systemName: "chevron.backward")
                         .foregroundColor(.white)
@@ -157,8 +159,8 @@ struct AllergyRow: View {
     }
 }
 
-#Preview {
-    Categories(viewModel: CameraViewModel())
-        .environment(\.layoutDirection, .rightToLeft) // For Arabic
-}
+//#Preview {
+//    Categories(viewModel: CameraViewModel())
+//        .environment(\.layoutDirection, .rightToLeft) // For Arabic
+//}
 

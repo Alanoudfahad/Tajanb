@@ -12,6 +12,7 @@ import SwiftData
 class SelectedWord: Identifiable {
     var id: UUID = UUID() // Unique identifier
     var word: String      // The selected word
+    
 
     init(word: String) {
         self.word = word
