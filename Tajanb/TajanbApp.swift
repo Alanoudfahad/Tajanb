@@ -32,7 +32,7 @@ struct TajanbApp: App {
                 }
             } else {
                 // Show Onboarding on the first launch
-                OnboardingView1(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
+                OnboardingContainerView(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
             }
         }
         .modelContainer(for: SelectedWord.self)

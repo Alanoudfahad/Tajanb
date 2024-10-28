@@ -340,6 +340,7 @@
       }
     },
     "Next" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -427,6 +428,9 @@
           }
         }
       }
+    },
+    "Skip" : {
+
     },
     "Suggest an Allergy" : {
       "localizations" : {
