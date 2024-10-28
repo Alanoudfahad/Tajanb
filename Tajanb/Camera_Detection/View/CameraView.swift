@@ -23,79 +23,80 @@ struct CameraView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Camera preview
-                CameraPreview(session: viewModel.getSession())
-                    .edgesIgnoringSafeArea(.all)
-                    .accessibilityHidden(!allowCameraWithVoiceOver) // Hide camera preview from VoiceOver if not allowed
-                    .accessibilityLabel("Live camera preview")
-                    .accessibilityHint("Displays what the camera is currently viewing")
+                  ZStack {
+                      // Camera preview
+                                    CameraPreview(session: viewModel.getSession())
+                                        .edgesIgnoringSafeArea(.all)
+                                        .accessibilityHidden(!allowCameraWithVoiceOver) // Hide camera preview from VoiceOver if not allowed
+                                        .accessibilityLabel("Live camera preview")
+                                        .accessibilityHint("Displays what the camera is currently viewing")
+                      VStack {
+                        Spacer()
 
-                VStack {
-                    Spacer()
-
-                    // Display the camera scanning box and prompt only if VoiceOver is not active
-                    if !isVoiceOverRunning {
-                        ZStack {
-                            CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-                                .accessibilityHidden(true)
-                            
-                            // Prompt if no ingredients are detected and freeAllergenMessage is nil
-                            if viewModel.detectedText.isEmpty && viewModel.freeAllergenMessage == nil {
-                                Text("وجه الكاميرا نحو المكونات للمسح")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 17, weight: .medium))
-                                    .padding(.horizontal, 8)
-                                    .background(Color.black.opacity(0.5))
-                                    .cornerRadius(8)
-                                    .accessibilityLabel("Point to an ingredient to scan")
-                            }
-                        }
-                    }
+                        // Display the camera scanning box and prompt only if VoiceOver is not active
+                          if !isVoiceOverRunning {
+                         ZStack {
+                             CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+                                 .accessibilityHidden(true)
+                             
+                             // Prompt if no ingredients are detected and freeAllergenMessage is nil
+                             if viewModel.detectedText.isEmpty && viewModel.freeAllergenMessage == nil {
+                                 Text("وجه الكاميرا نحو المكونات للمسح")
+                                     .foregroundColor(.white)
+                                     .font(.system(size: 17, weight: .medium))
+                                     .padding(.horizontal, 8)
+                                     .background(Color.black.opacity(0.5))
+                                     .cornerRadius(8)
+                                     .accessibilityLabel("Point to an ingredient to scan")
+                             }
+                         }
+                     }
                     
                     // Display allergen-free message below the scanning box if non-nil
-                    if let freeAllergenMessage = viewModel.freeAllergenMessage {
-                        Text(freeAllergenMessage)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color("FreeColor"))
-                            .cornerRadius(20)
-                            .padding(.top, 10)
-                            .accessibilityLabel(freeAllergenMessage)
-                    }
+                          if let freeAllergenMessage = viewModel.freeAllergenMessage {
+                              Text(freeAllergenMessage)
+                                  .font(.system(size: 14, weight: .medium))
+                                  .foregroundColor(.white)
+                                  .padding()
+                                  .background(Color("FreeColor"))
+                                  .cornerRadius(20)
+                                  .padding(.top, 10)
+                                  .accessibilityLabel(freeAllergenMessage)
+                          }
 
                     // Display detected words at the bottom
-                    if !viewModel.detectedText.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                let uniqueDetectedWords = Set(viewModel.detectedText.map { $0.word.lowercased() })
-                                let summary = uniqueDetectedWords.joined(separator: ", ")
-                                
-                                HStack(spacing: 10) {
-                                    ForEach(Array(uniqueDetectedWords), id: \.self) { word in
-                                        if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
-                                            if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
-                                                Text(detectedItem.word)
-                                                    .font(.system(size: 14, weight: .medium))
-                                                    .padding(10)
-                                                    .background(Color.red.opacity(0.8))
-                                                    .foregroundColor(.white)
-                                                    .cornerRadius(20)
-                                            }
-                                        }
-                                    }
-                                }
-                                .accessibilityElement(children: .combine)
-                                .accessibilityLabel(Text("Detected words: \(summary)"))
-                                .accessibilityHint("Swipe through detected words")
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.top, 10)
-                        }
-                    }
-
-                    Spacer()
+                                      if !viewModel.detectedText.isEmpty {
+                                          ScrollView(.horizontal, showsIndicators: false) {
+                                              HStack(spacing: 10) {
+                                                  let uniqueDetectedWords = Set(viewModel.detectedText.map { $0.word.lowercased() })
+                                                  let summary = uniqueDetectedWords.joined(separator: ", ")
+                                                  
+                                                  HStack(spacing: 10) {
+                                                      ForEach(Array(uniqueDetectedWords), id: \.self) { word in
+                                                          if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
+                                                              if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
+                                                                  Text(detectedItem.word)
+                                                                      .font(.system(size: 14, weight: .medium))
+                                                                      .padding(10)
+                                                                      .background(Color.red.opacity(0.8))
+                                                                      .foregroundColor(.white)
+                                                                      .cornerRadius(20)
+                                                                  
+                                                              }
+                                                              
+                                                          }
+                                                      }
+                                                  }
+                                                  .accessibilityElement(children: .combine)
+                                                  .accessibilityLabel(Text("Detected words: \(summary)"))
+                                                  .accessibilityHint("Swipe through detected words")
+                                              }
+                                              .padding(.horizontal, 20)
+                                              .padding(.top, 10)
+                                          }
+                                      }
+                                      
+                                      Spacer()
                 }
                 
                 // Bottom buttons
@@ -176,6 +177,11 @@ struct CameraView: View {
                 }
             }
             .onAppear {
+                viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+
+                viewModel.loadSelectedWords(using: modelContext)
+                viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext) // Ensure latest words are loaded
+
                 isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
                 if allowCameraWithVoiceOver || !isVoiceOverRunning {
                     viewModel.startSession()
@@ -190,7 +196,6 @@ struct CameraView: View {
                         viewModel.startSession()
                     }
                 }
-                viewModel.loadSelectedWords(using: modelContext)
             }
             .onDisappear {
                 viewModel.stopSession()

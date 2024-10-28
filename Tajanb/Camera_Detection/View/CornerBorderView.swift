@@ -62,6 +62,7 @@ struct CornerBorderView: View {
                 .offset(x: ((UIScreen.main.bounds.width * boxWidthPercentage) / 2), y: ((UIScreen.main.bounds.height * boxHeightPercentage) / 2) - (borderLength / 2))
                 .foregroundColor(.white)
         }
+        
     }
 }
 
