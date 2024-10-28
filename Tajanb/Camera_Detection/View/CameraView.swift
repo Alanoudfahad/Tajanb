@@ -8,6 +8,7 @@
 import SwiftUI
 import AVFoundation
 import SwiftData
+
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
     @ObservedObject var photoViewModel: PhotoViewModel
@@ -16,7 +17,9 @@ struct CameraView: View {
     @State private var selectedNavigation: String? = nil
     @State private var isCategoriesActive = false
     @State private var isPhotoActive = false
-    @Environment(\.modelContext) private var modelContext // Access the modelContext from the environment
+    @State private var allowCameraWithVoiceOver = false // User preference for allowing camera with VoiceOver
+    @Environment(\.modelContext) private var modelContext
+    @State private var isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
 
     var body: some View {
         NavigationStack {
@@ -24,26 +27,29 @@ struct CameraView: View {
                 // Camera preview
                 CameraPreview(session: viewModel.getSession())
                     .edgesIgnoringSafeArea(.all)
+                    .accessibilityHidden(!allowCameraWithVoiceOver) // Hide camera preview from VoiceOver if not allowed
                     .accessibilityLabel("Live camera preview")
                     .accessibilityHint("Displays what the camera is currently viewing")
 
                 VStack {
                     Spacer()
-                    
-                    // Display the camera scanning box
-                    ZStack {
-                        CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-                            .accessibilityHidden(true)
-                        
-                        // Prompt if no ingredients are detected and freeAllergenMessage is nil
-                        if viewModel.detectedText.isEmpty && viewModel.freeAllergenMessage == nil {
-                            Text("وجه الكاميرا نحو المكونات للمسح")
-                                .foregroundColor(.white)
-                                .font(.system(size: 17, weight: .medium))
-                                .padding(.horizontal, 8)
-                                .background(Color.black.opacity(0.5))
-                                .cornerRadius(8)
-                                .accessibilityLabel("Point to an ingredient to scan")
+
+                    // Display the camera scanning box and prompt only if VoiceOver is not active
+                    if !isVoiceOverRunning {
+                        ZStack {
+                            CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+                                .accessibilityHidden(true)
+                            
+                            // Prompt if no ingredients are detected and freeAllergenMessage is nil
+                            if viewModel.detectedText.isEmpty && viewModel.freeAllergenMessage == nil {
+                                Text("وجه الكاميرا نحو المكونات للمسح")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 17, weight: .medium))
+                                    .padding(.horizontal, 8)
+                                    .background(Color.black.opacity(0.5))
+                                    .cornerRadius(8)
+                                    .accessibilityLabel("Point to an ingredient to scan")
+                            }
                         }
                     }
                     
@@ -63,25 +69,26 @@ struct CameraView: View {
                     if !viewModel.detectedText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
-                                // Create a set of detected words in lowercase for easier comparison
                                 let uniqueDetectedWords = Set(viewModel.detectedText.map { $0.word.lowercased() })
+                                let summary = uniqueDetectedWords.joined(separator: ", ")
                                 
-                                ForEach(Array(uniqueDetectedWords), id: \.self) { word in
-                                    // Find the detected item using a case-insensitive comparison
-                                    if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
-                                        // Display only if the word matches the user's selected allergens, ignoring case
-                                        if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
-                                            Text(detectedItem.word)
-                                                .font(.system(size: 14, weight: .medium))
-                                                .padding(10)
-                                                .background(Color.red.opacity(0.8))
-                                                .foregroundColor(.white)
-                                                .cornerRadius(20)
-                                                .accessibilityLabel(Text("\(detectedItem.word) allergen"))
-                                                .accessibilityHint("Detected allergen")
+                                HStack(spacing: 10) {
+                                    ForEach(Array(uniqueDetectedWords), id: \.self) { word in
+                                        if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
+                                            if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
+                                                Text(detectedItem.word)
+                                                    .font(.system(size: 14, weight: .medium))
+                                                    .padding(10)
+                                                    .background(Color.red.opacity(0.8))
+                                                    .foregroundColor(.white)
+                                                    .cornerRadius(20)
+                                            }
                                         }
                                     }
                                 }
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel(Text("Detected words: \(summary)"))
+                                .accessibilityHint("Swipe through detected words")
                             }
                             .padding(.horizontal, 20)
                             .padding(.top, 10)
@@ -169,18 +176,25 @@ struct CameraView: View {
                 }
             }
             .onAppear {
-              viewModel.startSession()
-
-              // Load initial data from CoreData (or SwiftData) using modelContext
-              viewModel.loadSelectedWords(using: modelContext)
-
-              // If you also want to load from UserDefaults (as a fallback or backup)
-              if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
-                  viewModel.updateSelectedWords(with: savedWords, using: modelContext)
-              }
-          }
+                isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
+                if allowCameraWithVoiceOver || !isVoiceOverRunning {
+                    viewModel.startSession()
+                }
+                NotificationCenter.default.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: .main) { _ in
+                    isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
+                    if isVoiceOverRunning {
+                        if !allowCameraWithVoiceOver {
+                            viewModel.stopSession()
+                        }
+                    } else {
+                        viewModel.startSession()
+                    }
+                }
+                viewModel.loadSelectedWords(using: modelContext)
+            }
             .onDisappear {
                 viewModel.stopSession()
+                NotificationCenter.default.removeObserver(self, name: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil)
             }
         }
         .navigationBarHidden(true)
