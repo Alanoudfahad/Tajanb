@@ -123,6 +123,7 @@
       }
     },
     "Detected allergen" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -141,6 +142,9 @@
           }
         }
       }
+    },
+    "Detected words: %@" : {
+
     },
     "Displays what the camera is currently viewing" : {
       "localizations" : {
@@ -433,6 +437,9 @@
           }
         }
       }
+    },
+    "Swipe through detected words" : {
+
     },
     "The selected image contains no allergens" : {
       "localizations" : {
