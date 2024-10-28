@@ -9,6 +9,8 @@ import Foundation
 import AVFoundation
 import Vision
 import CoreHaptics
+import SwiftData
+import SwiftUICore
 
 class CameraViewModel: NSObject, ObservableObject {
 
@@ -16,11 +18,13 @@ class CameraViewModel: NSObject, ObservableObject {
     @Published var availableCategories = [Category]()
     @Published var freeAllergenMessage: String?
     private var hapticManager = HapticManager()
-    @Published var selectedWords = [String]() {
-        didSet {
-            saveSelectedWords()
-        }
-    }
+//    @Published var selectedWords = [String]() {
+//        didSet {
+//            saveSelectedWords()
+//        }
+//    }
+    @Published var selectedWords = [String]()
+
     @Published var cameraPermissionGranted: Bool = false
     private var textRequest = VNRecognizeTextRequest(completionHandler: nil)
     private var session: AVCaptureSession!
@@ -28,7 +32,7 @@ class CameraViewModel: NSObject, ObservableObject {
     override init() {
         super.init()
         loadCategories()
-        loadSelectedWords()
+       // loadSelectedWords()
         configureCaptureSession()
         configureTextRecognition()
     }
@@ -52,22 +56,37 @@ class CameraViewModel: NSObject, ObservableObject {
         }
     }
 
-    private func saveSelectedWords() {
-        UserDefaults.standard.set(selectedWords, forKey: "selectedWords")
-    }
-    
-    func updateSelectedWords(with words: [String]) {
-        selectedWords = words
-        UserDefaults.standard.set(words, forKey: "selectedWords")
-        print("Selected words updated: \(selectedWords)")
-    }
-    
-    func loadSelectedWords() {
-        if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
-            selectedWords = savedWords
-        }
-    }
+    func saveSelectedWords(using modelContext: ModelContext) {
+               let fetchDescriptor = FetchDescriptor<SelectedWord>()
+               if let existingWords = try? modelContext.fetch(fetchDescriptor) {
+                   for word in existingWords {
+                       modelContext.delete(word)
+                   }
+               }
 
+               for word in selectedWords {
+                   let newWord = SelectedWord(word: word)
+                   modelContext.insert(newWord)
+               }
+
+               try? modelContext.save()
+           }
+
+           func loadSelectedWords(using modelContext: ModelContext) {
+               let fetchDescriptor = FetchDescriptor<SelectedWord>()
+               if let savedWordsData = try? modelContext.fetch(fetchDescriptor) {
+                   selectedWords = savedWordsData.map { $0.word }
+               } else {
+                   selectedWords = []
+               }
+           }
+
+           func updateSelectedWords(with words: [String], using modelContext: ModelContext) {
+               selectedWords = words
+               saveSelectedWords(using: modelContext)
+               print("Selected words updated: \(selectedWords)")
+           }
+    
     private func configureCaptureSession() {
         session = AVCaptureSession()
         session.sessionPreset = .high
@@ -236,3 +255,19 @@ extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
 }
+//
+//    private func saveSelectedWords() {
+//        UserDefaults.standard.set(selectedWords, forKey: "selectedWords")
+//    }
+//
+//    func updateSelectedWords(with words: [String]) {
+//        selectedWords = words
+//        UserDefaults.standard.set(words, forKey: "selectedWords")
+//        print("Selected words updated: \(selectedWords)")
+//    }
+//
+//    func loadSelectedWords() {
+//        if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
+//            selectedWords = savedWords
+//        }
+//    }

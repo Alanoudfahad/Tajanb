@@ -9,9 +9,9 @@ import Foundation
 import SwiftData
 
 @Model
-class TargetWord: Identifiable {
-    var id: UUID = UUID()
-    var word: String
+class SelectedWord: Identifiable {
+    var id: UUID = UUID() // Unique identifier
+    var word: String      // The selected word
 
     init(word: String) {
         self.word = word
