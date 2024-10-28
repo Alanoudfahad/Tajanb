@@ -5,6 +5,7 @@
 //  Created by Afrah Saleh on 17/04/1446 AH.
 //
 import SwiftUI
+import SwiftData
 
 
 struct Categories: View {
@@ -12,6 +13,7 @@ struct Categories: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.openURL) var openURL
     @State private var selectedCategory: String?
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         VStack {

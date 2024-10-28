@@ -1,10 +1,11 @@
 import SwiftUI
-
+import SwiftData
 struct PhotoMainView: View {
     @StateObject private var categoryManager = CameraViewModel()
     @StateObject private var photoViewModel: PhotoViewModel
     @State private var selectedImage: UIImage?
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.modelContext) private var modelContext // Access SwiftData model context
 
     init() {
         let categoryManager = CameraViewModel()
@@ -63,7 +64,10 @@ struct PhotoMainView: View {
                 }
                 .padding()
             }
-
+            .onAppear {
+                      // Load selected words using SwiftData model context
+                      categoryManager.loadSelectedWords(using: modelContext)
+                  }
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
             }) {

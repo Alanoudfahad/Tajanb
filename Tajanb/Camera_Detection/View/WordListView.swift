@@ -7,11 +7,13 @@
 
 
 import SwiftUI
+import SwiftData
 
 struct WordListView: View {
     let category: Category
     @ObservedObject var viewModel: CameraViewModel
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var modelContext // Access the modelContext from the environment
 
     var body: some View {
         VStack {
@@ -79,13 +81,14 @@ struct WordListView: View {
         if isSelected {
             if !viewModel.selectedWords.contains(word) {
                 viewModel.selectedWords.append(word)
+                viewModel.saveSelectedWords(using: modelContext)
             }
         } else {
             viewModel.selectedWords.removeAll { $0 == word }
+            viewModel.saveSelectedWords(using: modelContext) // Save after removing as well
         }
     }
 }
-
 struct CustomToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack {

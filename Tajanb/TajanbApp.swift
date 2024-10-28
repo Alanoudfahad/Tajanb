@@ -35,6 +35,8 @@ struct TajanbApp: App {
                 OnboardingView1(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
             }
         }
+        .modelContainer(for: SelectedWord.self)
+
     }
 }
 

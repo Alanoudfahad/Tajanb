@@ -7,7 +7,7 @@
 
 import SwiftUI
 import AVFoundation
-
+import SwiftData
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
     @ObservedObject var photoViewModel: PhotoViewModel
@@ -16,6 +16,7 @@ struct CameraView: View {
     @State private var selectedNavigation: String? = nil
     @State private var isCategoriesActive = false
     @State private var isPhotoActive = false
+    @Environment(\.modelContext) private var modelContext // Access the modelContext from the environment
 
     var body: some View {
         NavigationStack {
@@ -168,11 +169,16 @@ struct CameraView: View {
                 }
             }
             .onAppear {
-                viewModel.startSession()
-                if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
-                    viewModel.updateSelectedWords(with: savedWords)
-                }
-            }
+              viewModel.startSession()
+
+              // Load initial data from CoreData (or SwiftData) using modelContext
+              viewModel.loadSelectedWords(using: modelContext)
+
+              // If you also want to load from UserDefaults (as a fallback or backup)
+              if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
+                  viewModel.updateSelectedWords(with: savedWords, using: modelContext)
+              }
+          }
             .onDisappear {
                 viewModel.stopSession()
             }

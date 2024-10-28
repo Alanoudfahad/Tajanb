@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct OnboardingView3: View {
     @ObservedObject var cameraViewModel = CameraViewModel()
@@ -13,6 +14,8 @@ struct OnboardingView3: View {
     @State private var navigate = false
     @Binding var hasSeenOnboarding: Bool
     @Binding var justCompletedOnboarding: Bool // Track onboarding completion
+    @Environment(\.modelContext) private var modelContext // Access the modelContext from the environment
+
     var body: some View {
         NavigationView {
             VStack {
@@ -128,6 +131,26 @@ struct OnboardingView3: View {
         return categoryIcons[category] ?? "❓"
     }
 
+//    private func saveSelectedWords() {
+//        var wordsToSave: [String] = []
+//
+//        // Collect words and synonyms from selected categories
+//        for category in cameraViewModel.availableCategories where selectedCategories.contains(category.name) {
+//            for word in category.words {
+//                wordsToSave.append(word.word)
+//                if let synonyms = word.hiddenSynonyms {
+//                    wordsToSave.append(contentsOf: synonyms)
+//                }
+//            }
+//        }
+//
+//        // Save the words to UserDefaults and update the ViewModel
+//        cameraViewModel.updateSelectedWords(with: wordsToSave)
+//        
+//        // Debugging statement
+//        print("Words saved: \(wordsToSave)")
+//    }
+//}
     private func saveSelectedWords() {
         var wordsToSave: [String] = []
 
@@ -142,7 +165,8 @@ struct OnboardingView3: View {
         }
 
         // Save the words to UserDefaults and update the ViewModel
-        cameraViewModel.updateSelectedWords(with: wordsToSave)
+        cameraViewModel.updateSelectedWords(with: wordsToSave, using: modelContext)
+
         
         // Debugging statement
         print("Words saved: \(wordsToSave)")
