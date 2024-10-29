@@ -438,7 +438,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Welcome to Tajanb!"
           }
         }
@@ -513,14 +513,14 @@
       "localizations" : {
         "ar" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "خالي من مسببات الحساسية"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free allergy"
+            "value" : "Free from food allergy"
           }
         }
       }
