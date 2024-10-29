@@ -1,17 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        }
-      }
-    },
     "%@ allergen" : {
       "localizations" : {
         "ar" : {
@@ -28,17 +17,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@فئة"
-          }
-        }
-      }
-    },
-    "Allergen-free" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "خالي من المواد المسببة للحساسية"
           }
         }
       }
@@ -71,17 +49,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Back"
-          }
-        }
-      }
-    },
-    "Camera access required" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "الوصول إلى الكاميرا مطلوب"
           }
         }
       }
@@ -122,17 +89,6 @@
         }
       }
     },
-    "Detected allergen" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تم اكتشاف مسببات الحساسية"
-          }
-        }
-      }
-    },
     "Detected allergen from the selected image" : {
       "localizations" : {
         "ar" : {
@@ -144,7 +100,14 @@
       }
     },
     "Detected words: %@" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الكلمات المكتشفة: %@"
+          }
+        }
+      }
     },
     "Displays what the camera is currently viewing" : {
       "localizations" : {
@@ -301,7 +264,15 @@
       }
     },
     "Key" : {
-      "extractionState" : "manual"
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المفتاح"
+          }
+        }
+      }
     },
     "Live camera preview" : {
       "localizations" : {
@@ -339,40 +310,12 @@
         }
       }
     },
-    "Next" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "التالي:"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next"
-          }
-        }
-      }
-    },
     "Photo Picker" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "أداة اختيار الصور"
-          }
-        }
-      }
-    },
-    "Please grant camera access in settings." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يرجى منح حق الوصول إلى الكاميرا في الإعدادات"
           }
         }
       }
@@ -408,7 +351,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "مسح سريع للحماية المؤكدة"
+            "value" : "مسح سريع لحماية مؤكدة"
           }
         },
         "en" : {
@@ -430,7 +373,14 @@
       }
     },
     "Skip" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تخطي"
+          }
+        }
+      }
     },
     "Suggest an Allergy" : {
       "localizations" : {
@@ -443,7 +393,14 @@
       }
     },
     "Swipe through detected words" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اسحب لرؤية الكلمات المكتشفة"
+          }
+        }
+      }
     },
     "The selected image contains no allergens" : {
       "localizations" : {
@@ -521,6 +478,12 @@
     },
     "تم" : {
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -595,7 +558,20 @@
       }
     },
     "وجه الكاميرا نحو المكونات للمسح" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "وجه الكاميرا نحو المكونات للمسح"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Point to an ingredient to scan"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
