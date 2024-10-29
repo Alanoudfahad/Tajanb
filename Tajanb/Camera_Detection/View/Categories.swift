@@ -14,6 +14,7 @@ struct Categories: View {
     @Environment(\.openURL) var openURL
     @State private var selectedCategory: String?
     @Environment(\.modelContext) private var modelContext
+    @State private var isPressed = false // Track button press state
 
     var body: some View {
         VStack {
@@ -69,24 +70,43 @@ struct Categories: View {
             .scrollContentBackground(.hidden)
 
             Button(action: {
-                sendEmail()
-            }) {
-                Text("اقترح حساسية")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color("GrayList"))
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 20)
-            .padding(.top, 40)
-            .accessibilityLabel("Suggest an Allergy")
-            .accessibilityHint("Double-tap to suggest a new allergy type.")
-            
-        }
-        .background(Color("CustomBackground"))
+                       sendEmail()
+                // Set the button as pressed and start a delay to keep it green longer
+                           withAnimation {
+                               isPressed = true
+                           }
+                           
+                           // Change the color back to the original after a delay
+                           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                               withAnimation {
+                                   isPressed = false
+                               }
+                           }
+                       }) {
+                       Text("اقترح حساسية")
+                           .fontWeight(.bold)
+                           .foregroundColor(.white)
+                           .frame(maxWidth: .infinity)
+                           .padding()
+                           .background(isPressed ? Color("CustomGreen") : Color("GrayList")) // Change color based on press state
+                           .cornerRadius(10)
+                   }
+                   .padding(.horizontal, 16)
+                   .padding(.bottom, 20)
+                   .padding(.top, 40)
+                   .accessibilityLabel("Suggest an Allergy")
+                   .accessibilityHint("Double-tap to suggest a new allergy type.")
+                   .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                       withAnimation {
+                           isPressed = pressing // Change color when pressing
+                       }
+                   }, perform: {
+                       // Action when the button is released
+                       sendEmail()
+                   })
+                   
+               }
+               .background(Color.black.edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
