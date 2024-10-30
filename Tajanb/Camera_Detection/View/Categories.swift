@@ -18,16 +18,6 @@ struct Categories: View {
 
     var body: some View {
         VStack {
-            VStack(spacing: 0) {
-                Text("My Allergies")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.vertical, 8)
-                    .accessibilityLabel("My Allergies Title")
-                
-                Divider()
-                    .background(Color.white)
-            }
             
             Text("My Allergies")
                 .font(.largeTitle)
@@ -45,6 +35,8 @@ struct Categories: View {
                 .padding(.horizontal)
                 .accessibilityLabel("Avoid your allergic reactions")
             
+            Divider()
+                .background(Color.white)
             List(viewModel.availableCategories, id: \.name) { category in
                 ZStack {
                     NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
@@ -68,45 +60,49 @@ struct Categories: View {
             }
             .listStyle(PlainListStyle())
             .scrollContentBackground(.hidden)
-
+          
+            
+            HStack{
+                Text("هل لديك حساسية أخرى؟")
+                    .foregroundStyle(.gray)
+                
             Button(action: {
-                       sendEmail()
+                sendEmail()
                 // Set the button as pressed and start a delay to keep it green longer
-                           withAnimation {
-                               isPressed = true
-                           }
-                           
-                           // Change the color back to the original after a delay
-                           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                               withAnimation {
-                                   isPressed = false
-                               }
-                           }
-                       }) {
-                       Text("اقترح حساسية")
-                           .fontWeight(.bold)
-                           .foregroundColor(.white)
-                           .frame(maxWidth: .infinity)
-                           .padding()
-                           .background(isPressed ? Color("CustomGreen") : Color("GrayList")) // Change color based on press state
-                           .cornerRadius(10)
-                   }
-                   .padding(.horizontal, 16)
-                   .padding(.bottom, 20)
-                   .padding(.top, 40)
-                   .accessibilityLabel("Suggest an Allergy")
-                   .accessibilityHint("Double-tap to suggest a new allergy type.")
-                   .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                       withAnimation {
-                           isPressed = pressing // Change color when pressing
-                       }
-                   }, perform: {
-                       // Action when the button is released
-                       sendEmail()
-                   })
-                   
+                withAnimation {
+                    isPressed = true
+                }
+                
+                // Change the color back to the original after a delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation {
+                        isPressed = false
+                    }
+                }
+            }) {
+                
+                Text("اقترح حساسية")
+                    .font(.headline)
+                    .foregroundColor(Color("CustomGreen"))
+                
+            }
+            .accessibilityLabel("Suggest an Allergy")
+            .accessibilityHint("Double-tap to suggest a new allergy type.")
+            .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                withAnimation {
+                    isPressed = pressing // Change color when pressing
+                }
+            }, perform: {
+                // Action when the button is released
+                sendEmail()
+            })
+        }
+            .padding(.top,10)
+
+            
+            
                }
-               .background(Color.black.edgesIgnoringSafeArea(.all))
+        .background(Color(red: 30/255, green: 30/255, blue: 30/255).edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
@@ -115,7 +111,7 @@ struct Categories: View {
                     viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext) // Ensure latest words are loaded
                 }) {
                     Image(systemName: "chevron.backward")
-                        .foregroundColor(.white)
+                        .foregroundColor(.customGreen)
                 }
                 .accessibilityLabel("Back")
                 .accessibilityHint("Double-tap to go back.")

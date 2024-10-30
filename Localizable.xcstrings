@@ -301,6 +301,7 @@
       }
     },
     "My Allergies Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -556,6 +557,9 @@
           }
         }
       }
+    },
+    "هل لديك حساسية أخرى؟" : {
+
     },
     "وجه الكاميرا نحو المكونات للمسح" : {
       "localizations" : {
