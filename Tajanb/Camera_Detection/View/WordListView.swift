@@ -17,29 +17,33 @@ struct WordListView: View {
 
     var body: some View {
         VStack {
-            VStack(spacing: 0) {
-                Text("Done")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.bottom)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.top, 25)
-                    .padding(.horizontal)
+            
+            VStack(spacing: 6) {
+                
+                Image(systemName: "chevron.backward")
+                    .foregroundColor(.customGreen)
+                    .font(.system(size: 24))
+                    .padding(.top, 5)
+                    .padding(.trailing,340)
                     .onTapGesture {
                         dismiss()
                     }
+                
+                    Text(category.name)
+                        .foregroundColor(.white)
+                        .font(.system(size: 24, weight: .bold))
+                        .padding(.top, 20)
+                        .padding(.bottom, 10)
+                        .frame(maxWidth: .infinity, alignment: .leading) // Align to trailing for RTL
+                    .padding(.horizontal)
+                    
+
                 
                 Divider()
                     .background(Color.white)
             }
             
-            Text(category.name)
-                .foregroundColor(.white)
-                .font(.system(size: 24, weight: .bold))
-                .padding(.top, 20)
-                .padding(.bottom, 10)
-                .frame(maxWidth: .infinity, alignment: .leading) // Align to trailing for RTL
-                .padding(.horizontal)
+
             
             List {
                 ForEach(category.words, id: \.word) { word in
@@ -113,9 +117,9 @@ struct CustomToggleStyle: ToggleStyle {
     }
 }
 
-//#Preview {
-//    WordListView(category: .init(name: "Diary", words: [
-//        Word(word: "cow milk", hiddenSynonyms: ["String"]),
-//        Word(word: "yougret", hiddenSynonyms: ["String"])
-//    ]), viewModel: CameraViewModel())
-//}
+#Preview {
+    WordListView(category: .init(name: "مشتقات الحليب", words: [
+        Word(word: "cow milk", hiddenSynonyms: ["String"]),
+        Word(word: "yougret", hiddenSynonyms: ["String"])
+    ]), viewModel: CameraViewModel())
+}
