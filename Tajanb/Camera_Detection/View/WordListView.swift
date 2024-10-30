@@ -18,16 +18,16 @@ struct WordListView: View {
     var body: some View {
         VStack {
             
-            VStack(spacing: 6) {
-                
-                Image(systemName: "chevron.backward")
-                    .foregroundColor(.customGreen)
-                    .font(.system(size: 24))
-                    .padding(.top, 5)
-                    .padding(.trailing,340)
-                    .onTapGesture {
-                        dismiss()
-                    }
+//            VStack(spacing: 6) {
+//                
+//                Image(systemName: "chevron.backward")
+//                    .foregroundColor(.customGreen)
+//                    .font(.system(size: 24))
+//                    .padding(.top, 5)
+//                    .padding(.trailing,340)
+//                    .onTapGesture {
+//                        dismiss()
+//                    }
                 
                     Text(category.name)
                         .foregroundColor(.white)
@@ -41,7 +41,7 @@ struct WordListView: View {
                 
                 Divider()
                     .background(Color.white)
-            }
+           // }
             
 
             
@@ -77,6 +77,18 @@ struct WordListView: View {
         }
         
         .background(Color("CustomBackground"))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.backward")
+                        .foregroundColor(.customGreen)
+                }
+                .accessibilityLabel("Back")
+                .accessibilityHint("Double-tap to go back.")
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }

@@ -14,37 +14,51 @@ import SwiftUICore
 import UIKit
 
 class CameraViewModel: NSObject, ObservableObject {
-
     @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
+    private var matchedWordsSet: Set<String> = [] // To keep track of matched words
+    private var hapticManager = HapticManager()
     @Published var availableCategories = [Category]()
     @Published var freeAllergenMessage: String?
-    private var hapticManager = HapticManager()
     @Published var selectedWords = [String]()
-
+    private var session: AVCaptureSession = AVCaptureSession()
+    private let photoOutput = AVCapturePhotoOutput() // Add photo output for capturing still images
+    private var capturedPhotoCompletion: ((UIImage?) -> Void)? // Completion handler for captured photo
     @Published var cameraPermissionGranted: Bool = false
     private var textRequest = VNRecognizeTextRequest(completionHandler: nil)
-    private var session: AVCaptureSession!
-    private var searchTimer: Timer? // Timer for delayed search
-    // Region of Interest (ROI) for text detection
-     private var regionOfInterest: CGRect = .zero
-     private let screenBounds = UIScreen.main.bounds
+    private var regionOfInterest: CGRect = .zero
+    private let screenBounds = UIScreen.main.bounds
     override init() {
         super.init()
         loadCategories()
-        configureCaptureSession()
-        configureTextRecognition()
+        configureTextRecognitions()
     }
     
     func updateROI(boxWidthPercentage: CGFloat, boxHeightPercentage: CGFloat) {
-           // Calculate the Region of Interest (ROI) in terms of screen coordinates
-           let boxWidth = screenBounds.width * boxWidthPercentage
-           let boxHeight = screenBounds.height * boxHeightPercentage
-           let boxOriginX = (screenBounds.width - boxWidth) / 2
-           let boxOriginY = (screenBounds.height - boxHeight) / 2
-           
-           regionOfInterest = CGRect(x: boxOriginX, y: boxOriginY, width: boxWidth, height: boxHeight)
-           print("ROI updated to: \(regionOfInterest)")
-       }
+        let boxWidth = screenBounds.width * boxWidthPercentage
+        let boxHeight = screenBounds.height * boxHeightPercentage
+        let boxOriginX = (screenBounds.width - boxWidth) / 2
+        let boxOriginY = (screenBounds.height - boxHeight) / 2
+
+        regionOfInterest = CGRect(x: boxOriginX, y: boxOriginY, width: boxWidth, height: boxHeight)
+
+        // Debugging: Log the region of interest values
+        print("Region of Interest: \(regionOfInterest)")
+    }
+
+    private func transformBoundingBox(_ boundingBox: CGRect) -> CGRect {
+        // Convert the bounding box from normalized coordinates (0.0 - 1.0) to screen coordinates
+        let x = boundingBox.origin.x * screenBounds.width
+        let y = (1.0 - boundingBox.origin.y - boundingBox.height) * screenBounds.height // Invert y-axis
+        let width = boundingBox.width * screenBounds.width
+        let height = boundingBox.height * screenBounds.height
+
+        let transformedRect = CGRect(x: x, y: y, width: width, height: height)
+
+        // Debugging: Log the transformed bounding box
+        print("Transformed Bounding Box: \(transformedRect)")
+
+        return transformedRect
+    }
     
     private func loadCategories() {
         let languageCode = Locale.current.language.languageCode?.identifier
@@ -54,7 +68,7 @@ class CameraViewModel: NSObject, ObservableObject {
             print("Error finding \(fileName).json")
             return
         }
-
+        
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
             let decoder = JSONDecoder()
@@ -64,201 +78,217 @@ class CameraViewModel: NSObject, ObservableObject {
             print("Error loading categories from JSON: \(error)")
         }
     }
-
+    
     func saveSelectedWords(using modelContext: ModelContext) {
-               let fetchDescriptor = FetchDescriptor<SelectedWord>()
-               if let existingWords = try? modelContext.fetch(fetchDescriptor) {
-                   for word in existingWords {
-                       modelContext.delete(word)
-                   }
-               }
-
-               for word in selectedWords {
-                   let newWord = SelectedWord(word: word)
-                   modelContext.insert(newWord)
-               }
-
-               try? modelContext.save()
-           }
-
-           func loadSelectedWords(using modelContext: ModelContext) {
-               let fetchDescriptor = FetchDescriptor<SelectedWord>()
-               if let savedWordsData = try? modelContext.fetch(fetchDescriptor) {
-                   selectedWords = savedWordsData.map { $0.word }
-               } else {
-                   selectedWords = []
-               }
-           }
-
-           func updateSelectedWords(with words: [String], using modelContext: ModelContext) {
-               selectedWords = words
-               saveSelectedWords(using: modelContext)
-               print("Selected words updated: \(selectedWords)")
-           }
+        let fetchDescriptor = FetchDescriptor<SelectedWord>()
+        if let existingWords = try? modelContext.fetch(fetchDescriptor) {
+            for word in existingWords {
+                modelContext.delete(word)
+            }
+        }
+        
+        for word in selectedWords {
+            let newWord = SelectedWord(word: word)
+            modelContext.insert(newWord)
+        }
+        
+        try? modelContext.save()
+    }
+    
+    func loadSelectedWords(using modelContext: ModelContext) {
+        let fetchDescriptor = FetchDescriptor<SelectedWord>()
+        if let savedWordsData = try? modelContext.fetch(fetchDescriptor) {
+            selectedWords = savedWordsData.map { $0.word }
+        } else {
+            selectedWords = []
+        }
+    }
+    
+    func updateSelectedWords(with words: [String], using modelContext: ModelContext) {
+        selectedWords = words
+        saveSelectedWords(using: modelContext)
+        print("Selected words updated: \(selectedWords)")
+    }
     
     private func configureCaptureSession() {
-        session = AVCaptureSession()
-        session.sessionPreset = .hd1280x720  // Use a lower resolution to improve performance and accuracy.
+           session.beginConfiguration()
+           session.sessionPreset = .hd1280x720
 
-        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else { return }
+           if let currentInput = session.inputs.first {
+               session.removeInput(currentInput)
+           }
 
-        session.addInput(videoInput)
+           guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+                 let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else { return }
 
-        let videoOutput = AVCaptureVideoDataOutput()
-        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "cameraQueue"))
-        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
-        session.addOutput(videoOutput)
+           if session.canAddInput(videoInput) {
+               session.addInput(videoInput)
+           }
+           
+           // Add photo output to the session
+           if session.canAddOutput(photoOutput) {
+               session.addOutput(photoOutput)
+           }
 
-        do {
-            try videoDevice.lockForConfiguration()
+           session.commitConfiguration()
 
-            // Enable continuous auto-focus for a stable focus
-            if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
-                videoDevice.focusMode = .continuousAutoFocus
-            }
+           do {
+               try videoDevice.lockForConfiguration()
 
-            // Enable auto-exposure for better lighting conditions
-            if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
-                videoDevice.exposureMode = .continuousAutoExposure
-            }
+               if videoDevice.isFocusModeSupported(.continuousAutoFocus) {
+                   videoDevice.focusMode = .continuousAutoFocus
+               }
 
-            // Improve stability by reducing motion blur (limit frame rate)
-            if videoDevice.activeVideoMinFrameDuration.seconds > 0 {
-                videoDevice.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: 30) // 30 fps
-            }
+               if videoDevice.isExposureModeSupported(.continuousAutoExposure) {
+                   videoDevice.exposureMode = .continuousAutoExposure
+               }
 
-            videoDevice.unlockForConfiguration()
-        } catch {
-            print("Error configuring camera: \(error)")
-        }
-    }
-
-    private func configureTextRecognition() {
-          textRequest = VNRecognizeTextRequest { [weak self] request, error in
-              guard let self = self else { return }
-
-              if let error = error {
-                  print("Error recognizing text: \(error)")
-                  return
-              }
-
-              guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                  return
-              }
-
-              let filteredObservations = observations.filter { observation in
-                  // Project the bounding box of detected text from the camera feed into screen coordinates
-                  let transformedBoundingBox = self.transformBoundingBox(observation.boundingBox)
-                  // Check if the transformed bounding box intersects with the region of interest
-                  return self.regionOfInterest.intersects(transformedBoundingBox)
-              }
-
-              let detectedStrings = filteredObservations.compactMap { $0.topCandidates(1).first?.string }
-              DispatchQueue.main.async {
-                  self.processDetectedText(detectedStrings)
-              }
-          }
-
-          textRequest.recognitionLevel = .accurate
-          textRequest.recognitionLanguages = ["ar", "en"]
-          textRequest.usesLanguageCorrection = true
-          textRequest.minimumTextHeight = 0.01  // Increase this slightly to avoid detecting very small text/noise.
-      }
-    private func transformBoundingBox(_ boundingBox: CGRect) -> CGRect {
-           // Convert the bounding box from normalized coordinates to screen coordinates
-           let x = boundingBox.origin.x * screenBounds.width
-           let y = (1 - boundingBox.origin.y) * screenBounds.height // Invert y-axis
-           let width = boundingBox.width * screenBounds.width
-           let height = boundingBox.height * screenBounds.height
-           return CGRect(x: x, y: y - height, width: width, height: height)
+               videoDevice.unlockForConfiguration()
+           } catch {
+               print("Error configuring camera: \(error)")
+           }
        }
 
+       // Capture a still photo
+       func capturePhoto(completion: @escaping (UIImage?) -> Void) {
+           let settings = AVCapturePhotoSettings()
+           photoOutput.capturePhoto(with: settings, delegate: self)
+           capturedPhotoCompletion = completion
+       }
+    private func configureTextRecognitions() {
+        textRequest = VNRecognizeTextRequest { [weak self] request, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                print("Error recognizing text: \(error)")
+                return
+            }
+
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                return
+            }
+
+            let filteredObservations = observations.filter { observation in
+                // Project the bounding box of detected text from the camera feed into screen coordinates
+                let transformedBoundingBox = self.transformBoundingBox(observation.boundingBox)
+
+                // Debugging: Log whether the bounding box intersects with the ROI
+                let intersects = self.regionOfInterest.intersects(transformedBoundingBox)
+                print("Bounding Box: \(transformedBoundingBox), Intersects ROI: \(intersects)")
+
+                // Check if the transformed bounding box intersects with the region of interest
+                return intersects
+            }
+
+            let detectedStrings = filteredObservations.compactMap { $0.topCandidates(1).first?.string }
+            DispatchQueue.main.async {
+                self.processDetectedText(detectedStrings)
+            }
+        }
+
+        textRequest.recognitionLevel = .accurate
+        textRequest.recognitionLanguages = ["ar", "en"]
+        textRequest.usesLanguageCorrection = true
+        textRequest.minimumTextHeight = 0.02 // Adjust this to filter out small/noisy text
+    }
+    func startTextRecognition(from image: UIImage) {
+        guard let cgImage = image.cgImage else {
+            print("Failed to convert UIImage to CGImage")
+            return
+        }
+
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        do {
+            try handler.perform([textRequest])
+        } catch {
+            print("Failed to perform text recognition request: \(error.localizedDescription)")
+        }
+    }
+
     func processDetectedText(_ detectedStrings: [String]) {
-          let combinedText = detectedStrings.joined(separator: " ")
-          let cleanedText = preprocessText(combinedText)
-          
-          print("Detected Combined Text: \(cleanedText)")
-          
-          // First, attempt an immediate search without "المكونات"
-          if searchImmediateIngredients(in: cleanedText) {
-              searchTimer?.invalidate() // Cancel any existing timer if we find matches
-              
-          } else {
-              // If no immediate match, start a delayed search with "المكونات"
-              searchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-                  self?.searchDelayedIngredients(in: cleanedText)
-              }
-          }
-      }
-      
-      // Immediate search for ingredients without "المكونات"
-      private func searchImmediateIngredients(in text: String) -> Bool {
-          let ingredientsDetected = extractAndProcessIngredients(from: text, keyword: "")
-          if !ingredientsDetected.isEmpty {
-              freeAllergenMessage = nil // Clear message if ingredients are found
-              return true
-          }
-          return false
-      }
-      
-      // Delayed search with "المكونات" after 5 seconds
-    private func searchDelayedIngredients(in text: String) {
-        // Define the keyword based on the current locale
-        let keyword = Locale.current.language.languageCode == "ar" ? "المكونات" : "ingredients"
-        
-        // Check if the keyword exists in the detected text
-        if fuzzyContains(text, keyword: keyword) {
-            // Attempt to extract ingredients after the keyword
-            let ingredientsDetected = extractAndProcessIngredients(from: text, keyword: keyword)
-            
-            // If no ingredients were detected, show the free allergen message
-            if ingredientsDetected.isEmpty {
-                freeAllergenMessage = getLocalizedMessage()  // Show the "free allergens" message
-                print("No relevant ingredients found after '\(keyword)'. Showing free allergen message.")
+        let combinedText = detectedStrings.joined(separator: " ")
+        let cleanedText = preprocessText(combinedText)
+
+        print("Detected Combined Text: \(cleanedText)")
+
+        let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
+
+        var foundAllergens = false
+
+        for word in words {
+            if checkAllergy(for: word) {
+                foundAllergens = true
+            }
+        }
+
+        if !foundAllergens {
+            if fuzzyContains(cleanedText, keyword: "المكونات") {
+                freeAllergenMessage = getLocalizedMessage()
             } else {
-                freeAllergenMessage = nil  // Clear the message if ingredients are found
-                print("Ingredients found: \(ingredientsDetected). No free allergen message.")
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خطأ: لم يتم العثور على المكونات" : "Error: Ingredients not found"
             }
         } else {
-            // If the keyword is not found, clear the free allergen message
             freeAllergenMessage = nil
-            print("Keyword '\(keyword)' not found in the text.")
-        }
-    }
-      
-    private func extractAndProcessIngredients(from text: String, keyword: String) -> [String] {
-        guard let range = text.range(of: keyword, options: [.caseInsensitive, .diacriticInsensitive])?.upperBound else {
-            print("Keyword '\(keyword)' not found.")
-            return []
         }
         
-        // Extract text after the keyword
-        let ingredientsText = String(text[range...]).trimmingCharacters(in: .whitespaces)
-        print("Extracted text after '\(keyword)': \(ingredientsText)")
-        
-        // Split the extracted text into ingredients
-        let ingredients = ingredientsText.components(separatedBy: CharacterSet(charactersIn: ",، "))
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }  // Trim spaces and newlines
-            .filter { !$0.isEmpty }  // Remove empty entries
-        
-        // Filter ingredients to include only those that match the user's selected allergens
-        let filteredIngredients = ingredients.filter { isSelectedWord($0) }
-        
-        // Log the final detected ingredients
-        print("Filtered ingredients: \(filteredIngredients)")
-        
-        // Update the detected ingredients (for further processing or UI updates)
-        updateDetectedIngredients(filteredIngredients)
-        
-        return filteredIngredients
+        print("Free Allergen Message: \(freeAllergenMessage ?? "No Message")")
     }
+    
+    func fuzzyContains(_ text: String, keyword: String) -> Bool {
+        // Build a pattern that allows the keyword to be surrounded by non-letter characters or spaces
+        let pattern = "\\b\(keyword)\\b"
+        
+        // Search for the keyword using case insensitivity and diacritic insensitivity
+        let result = text.range(of: pattern, options: [.regularExpression, .caseInsensitive, .diacriticInsensitive]) != nil
+        print("Fuzzy match for keyword '\(keyword)': \(result)")  // Log the result
+        return result
+    }
+    
+    private func checkAllergy(for word: String) -> Bool {
+        let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased() // Clean the word
+
+        if let result = isTargetWord(cleanedWord) {
+            // Check if this word has already been detected to avoid duplicates
+            if !matchedWordsSet.contains(cleanedWord) {
+                // Check if the detected word matches a selected allergen
+                if selectedWords.contains(result.1) {
+                    DispatchQueue.main.async {
+                        self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
+                        
+                        // Perform haptic feedback only if the detected word matches a selected allergen
+                        self.hapticManager.performHapticFeedback()
+                        
+                        self.matchedWordsSet.insert(cleanedWord)
+                    }
+                    return true // Allergen found
+                }
+            }
+        } else {
+            // Remove the word from the matched set if no longer matching
+            matchedWordsSet.remove(cleanedWord)
+        }
+        return false // No allergen found for this word
+    }
+
+    private func getLocalizedMessage() -> String {
+        return Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسية" : "Allergen-free"
+    }
+
+    // Method to reset detected text and matched words
+    func resetPredictions() {
+        detectedText.removeAll() // Clear the existing predictions
+        matchedWordsSet.removeAll() // Clear matched words set
+        freeAllergenMessage = getLocalizedMessage() // Reset the message to allergen-free
+    }
+
+
+
     func isTargetWord(_ text: String) -> (String, String, [String])? {
         let lowercasedText = text.lowercased()
         for category in availableCategories {
             for word in category.words {
                 if word.word.lowercased() == lowercasedText ||
-                   word.hiddenSynonyms?.contains(where: { $0.lowercased() == lowercasedText }) == true {
+                    word.hiddenSynonyms?.contains(where: { $0.lowercased() == lowercasedText }) == true {
                     let synonyms = word.hiddenSynonyms ?? []
                     return (category.name, word.word, synonyms)
                 }
@@ -266,7 +296,7 @@ class CameraViewModel: NSObject, ObservableObject {
         }
         return nil
     }
-
+    
     // Assuming 'selectedWords' is a list of user-selected allergens
     private func isSelectedWord(_ word: String) -> Bool {
         // Check if the word is in the list of selected allergens
@@ -280,7 +310,7 @@ class CameraViewModel: NSObject, ObservableObject {
         
         return isMatch
     }
-
+    
     func preprocessText(_ text: String) -> String {
         var cleanedText = text
             .replacingOccurrences(of: "\n", with: " ")  // Replace newlines with space
@@ -288,89 +318,85 @@ class CameraViewModel: NSObject, ObservableObject {
             .replacingOccurrences(of: "[^\\p{L}\\p{Z}]", with: " ", options: .regularExpression)  // Remove non-letters and non-spaces
             .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)  // Replace multiple spaces with a single space
             .trimmingCharacters(in: .whitespacesAndNewlines)
-
+        
         // Fix common OCR mistakes (e.g., "االمكونات" -> "المكونات")
         cleanedText = cleanedText.replacingOccurrences(of: "االمكونات", with: "المكونات")
         
         return cleanedText.applyingTransform(.stripCombiningMarks, reverse: false) ?? cleanedText
     }
 
-    func fuzzyContains(_ text: String, keyword: String) -> Bool {
-        // Build a pattern that allows the keyword to be surrounded by non-letter characters or spaces
-        let pattern = "\\b\(keyword)\\b"
-        
-        // Search for the keyword using case insensitivity and diacritic insensitivity
-        let result = text.range(of: pattern, options: [.regularExpression, .caseInsensitive, .diacriticInsensitive]) != nil
-        print("Fuzzy match for keyword '\(keyword)': \(result)")  // Log the result
-        return result
-    }
-
-    private func getLocalizedMessage() -> String {
-        return Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسيه" : "Free allergens"
-    }
-
-    private func updateDetectedIngredients(_ ingredients: [String]) {
-        let targetWords = ingredients.compactMap { ingredient -> (String, String, [String])? in
-            if let (category, word, hiddenSynonyms) = isTargetWord(ingredient) {
-                // Only include words that are still selected by the user
-                if selectedWords.contains(word) {
-                    return (category, word, hiddenSynonyms)
-                }
-            }
-            return nil
-        }
-
-        // Avoid performing haptic feedback if no ingredients are detected
-        if !detectedText.elementsEqual(targetWords, by: { $0 == $1 }) {
-            detectedText = targetWords
-            print("Updated Detected Ingredients: \(detectedText)")
-            
-            // Perform haptic feedback only if detected text is not empty
-            if !targetWords.isEmpty {
-                hapticManager.performHapticFeedback()
-            }
-        }
-    }
-
+    
     func startSession() {
         DispatchQueue.global(qos: .userInitiated).async {
-            self.session.startRunning()
+            if !self.session.isRunning {
+                self.session.startRunning()  // Ensure the session starts running
+            }
         }
     }
 
-    func stopSession() {
-        session.stopRunning()
-    }
+       func stopSession() {
+           session.stopRunning()
+       }
 
-    func getSession() -> AVCaptureSession {
-        return session
-    }
-}
-
-extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        let requestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
-        do {
-            try requestHandler.perform([textRequest])
-        } catch {
-            print("Failed to perform text recognition request: \(error)")
+       func getSession() -> AVCaptureSession {
+           return session
+       }
+    
+    func requestCameraPermission(completion: @escaping (Bool) -> Void) {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            DispatchQueue.main.async {
+                self.cameraPermissionGranted = true
+                completion(true)
+            }
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    self.cameraPermissionGranted = granted
+                    completion(granted)
+                }
+            }
+        default:
+            DispatchQueue.main.async {
+                self.cameraPermissionGranted = false
+                completion(false)
+            }
         }
     }
+    
+    func prepareSession() {
+        // Check if permission is already granted before requesting it
+        if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
+            cameraPermissionGranted = true
+            configureAndStartSession()  // Start session immediately when already authorized
+        } else {
+            requestCameraPermission { [weak self] granted in
+                if granted {
+                    self?.configureAndStartSession()  // Immediately configure and start session when permission is granted
+                } else {
+                    print("Camera permission not granted.")
+                }
+            }
+        }
+    }
+
+    private func configureAndStartSession() {
+        configureCaptureSession()
+        
+        // Ensure session starts immediately after configuration
+        startSession()
+    }
 }
-//
-//    private func saveSelectedWords() {
-//        UserDefaults.standard.set(selectedWords, forKey: "selectedWords")
-//    }
-//
-//    func updateSelectedWords(with words: [String]) {
-//        selectedWords = words
-//        UserDefaults.standard.set(words, forKey: "selectedWords")
-//        print("Selected words updated: \(selectedWords)")
-//    }
-//
-//    func loadSelectedWords() {
-//        if let savedWords = UserDefaults.standard.array(forKey: "selectedWords") as? [String] {
-//            selectedWords = savedWords
-//        }
-//    }
+
+extension CameraViewModel: AVCapturePhotoCaptureDelegate {
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard error == nil, let imageData = photo.fileDataRepresentation() else {
+            print("Error capturing photo: \(error?.localizedDescription ?? "Unknown error")")
+            capturedPhotoCompletion?(nil)
+            return
+        }
+        let image = UIImage(data: imageData)
+        capturedPhotoCompletion?(image)
+    }
+}
+

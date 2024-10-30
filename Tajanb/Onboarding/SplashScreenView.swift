@@ -30,19 +30,20 @@ struct SplashScreenView: View {
                         .ignoresSafeArea()
 
                     Image("Logo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 150, height: 150)
-                        .foregroundColor(Color(red: 140 / 255, green: 200 / 255, blue: 12 / 255))
-                        .scaleEffect(animateLogo ? 1 : 0.5)
-                        .opacity(animateLogo ? 1 : 0)
-                        .animation(.easeInOut(duration: 1.5))
+                       .resizable()
+                       .aspectRatio(contentMode: .fit)
+                       .frame(width: 150, height: 150)
+                       .foregroundColor(Color(red: 140 / 255, green: 200 / 255, blue: 12 / 255))
+                       .scaleEffect(animateLogo ? 1 : 0.5)
+                       .opacity(animateLogo ? 1 : 0)
+                       .animation(.easeInOut(duration: 1.5))
                 }
                 .onAppear {
                     withAnimation {
                         self.animateLogo = true
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    // Remove the delay or reduce it to a shorter time
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { // Or set a smaller value like `+ 0.5` for quick transition
                         self.isActive = true
                     }
                 }

@@ -21,6 +21,7 @@ struct OnboardingContainerView: View {
                         .frame(width: 30, height: 4)
                 }
                 .padding(.leading, 150)
+                .padding(.top)
                 
                 // Skip button to go directly to the last view
                 HStack {
@@ -36,6 +37,7 @@ struct OnboardingContainerView: View {
                             .cornerRadius(10)
                     }
                     .padding(.trailing, 20)
+                    .padding(.top)
                 }
             }
             

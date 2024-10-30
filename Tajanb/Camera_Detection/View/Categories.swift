@@ -97,12 +97,13 @@ struct Categories: View {
                 sendEmail()
             })
         }
-            .padding(.top,10)
+            .padding()
+            .padding(.top,5)
 
             
             
                }
-        .background(Color(red: 30/255, green: 30/255, blue: 30/255).edgesIgnoringSafeArea(.all))
+        .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
