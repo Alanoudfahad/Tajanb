@@ -81,10 +81,31 @@ class PhotoViewModel: NSObject, ObservableObject {
             }
         }
 
-        // Update the free allergen message based on whether allergens were found
-        freeAllergenMessage = foundAllergens ? nil : getLocalizedMessage()
+        // Check for "المكونات" if no allergens were found
+        if !foundAllergens {
+            if fuzzyContains(cleanedText, keyword: "المكونات") {
+                // No allergens but "المكونات" found
+                freeAllergenMessage = getLocalizedMessage() // Display "Free from allergens" message
+            } else {
+                // "المكونات" not found, show an error message
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خطأ: لم يتم العثور على المكونات" : "Error: Ingredients not found"
+            }
+        } else {
+            // Reset the free allergen message if allergens are found
+            freeAllergenMessage = nil
+        }
     }
-
+    
+    func fuzzyContains(_ text: String, keyword: String) -> Bool {
+        // Build a pattern that allows the keyword to be surrounded by non-letter characters or spaces
+        let pattern = "\\b\(keyword)\\b"
+        
+        // Search for the keyword using case insensitivity and diacritic insensitivity
+        let result = text.range(of: pattern, options: [.regularExpression, .caseInsensitive, .diacriticInsensitive]) != nil
+        print("Fuzzy match for keyword '\(keyword)': \(result)")  // Log the result
+        return result
+    }
+    
     private func checkAllergy(for word: String) -> Bool {
         let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased() // Clean the word
 

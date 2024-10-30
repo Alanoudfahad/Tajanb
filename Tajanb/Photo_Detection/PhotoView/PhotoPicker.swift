@@ -6,17 +6,18 @@ struct PhotoPicker: View {
     @Binding var selectedImage: UIImage?
     @ObservedObject var photoViewModel: PhotoViewModel
     @State private var showingImagePicker = false
+    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
         VStack {
-            // Header
-            Text("نتيجة المكونات الموضحة في الصورة")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(.top)
-
-            // Display the selected image inside a border
+            Spacer()
             if let image = selectedImage {
+                // Only show this text and button after an image is selected
+                Text("نتيجة المكونات الموضحة في الصورة")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.top)
+
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
@@ -25,13 +26,21 @@ struct PhotoPicker: View {
                     .background(Color.gray.opacity(0.2))
                     .cornerRadius(10)
                     .padding()
+
             } else {
-                // Placeholder text when no image is selected
-                Text("لم يتم اختيار صورة")
-                    .foregroundColor(.gray)
-                    .padding()
+                               Spacer()
+
+                               Text("لم يتم اختيار صورة")
+                                   .foregroundColor(.gray)
+                                   .font(.headline)
+                                   .padding()
+
+                               Spacer()
+
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure the VStack takes the whole screen size
+
         .onAppear {
             photoViewModel.requestPhotoLibraryAccess() // Request access when view appears
             showingImagePicker = true // Show the image picker

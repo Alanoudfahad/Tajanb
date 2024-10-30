@@ -21,6 +21,16 @@
         }
       }
     },
+    "Allergen-free message" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خالي من مك،نات الحساسية"
+          }
+        }
+      }
+    },
     "Avoid your allergic reactions" : {
       "localizations" : {
         "ar" : {
@@ -49,6 +59,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Back"
+          }
+        }
+      }
+    },
+    "Camera permission is required to scan ingredients." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مطلوب إذن الكاميرا لمسح المكونات."
           }
         }
       }
@@ -85,6 +105,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "اختر نوع الحساسية الذي لديك؟"
+          }
+        }
+      }
+    },
+    "Close and Retake Photo" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أغلق والتقط صورة أخرى"
           }
         }
       }
@@ -155,6 +185,16 @@
         }
       }
     },
+    "Double-tap to retake the photo" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انقر نقرًا مزدوجًا لإعادة التقاط الصورة"
+          }
+        }
+      }
+    },
     "Double-tap to select an image for allergen detection" : {
       "localizations" : {
         "ar" : {
@@ -171,6 +211,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "انقر مرتين لاقتراح نوع جديد من الحساسية."
+          }
+        }
+      }
+    },
+    "Double-tap to take a photo" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انقر نقرًا مزدوجًا لإعادة التقاط الصورة"
           }
         }
       }
@@ -211,6 +261,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "انقر مرتين لعرض المزيد من التفاصيل"
+          }
+        }
+      }
+    },
+    "Error message" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خطا"
           }
         }
       }
@@ -263,6 +323,16 @@
         }
       }
     },
+    "Ingredients not found" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لم يتم العثور على المكونات"
+          }
+        }
+      }
+    },
     "Key" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -301,7 +371,7 @@
       }
     },
     "My Allergies Title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -403,12 +473,33 @@
         }
       }
     },
+    "Take Photo" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "التقط صورة"
+          }
+        }
+      }
+    },
     "The selected image contains no allergens" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "الصورة المحددة لا تحتوي على أي مسببات للحساسية"
+          }
+        }
+      }
+    },
+    "This app uses the camera to scan and recognize text from ingredients for allergen detection purposes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يستخدم هذا التطبيق الكاميرا لمسح النص من المكونات والتعرف عليه لأغراض الكشف عن مسببات الحساسية"
           }
         }
       }
@@ -429,6 +520,17 @@
         }
       }
     },
+    "We need access to your photos to allow you to select images for text recognition.\n\n\n" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " نحتاج إلى الوصول إلى صورك للسماح لك بتحديد الصور للتعرف على النص."
+          }
+        }
+      }
+    },
     "Welcome to Tajanb!" : {
       "localizations" : {
         "ar" : {
@@ -441,6 +543,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welcome to Tajanb!"
+          }
+        }
+      }
+    },
+    "اختر صورة" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر صورة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a photo"
           }
         }
       }
@@ -510,7 +628,24 @@
         }
       }
     },
+    "حساسيني" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حساسيني"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Allergies"
+          }
+        }
+      }
+    },
     "خالي من مسببات الحساسية" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -559,7 +694,20 @@
       }
     },
     "هل لديك حساسية أخرى؟" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هل لديك حساسية أخرى؟"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do you have other allergies?"
+          }
+        }
+      }
     },
     "وجه الكاميرا نحو المكونات للمسح" : {
       "localizations" : {
