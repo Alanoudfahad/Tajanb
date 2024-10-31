@@ -23,9 +23,10 @@ struct OnboardingContainerView: View {
                 .padding(.leading, 150)
                 .padding(.top)
                 
-                // Skip button to go directly to the last view
-                HStack {
-                    Spacer()
+                Spacer()
+
+                // Show Skip button or placeholder to keep layout consistent
+                if currentIndex < 2 {
                     Button(action: {
                         currentIndex = 2
                     }) {
@@ -38,7 +39,18 @@ struct OnboardingContainerView: View {
                     }
                     .padding(.trailing, 20)
                     .padding(.top)
+                } else {
+                    // Placeholder to keep alignment consistent
+                    Text("Skip")
+                        .font(.headline)
+                        .foregroundColor(Color.clear)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .cornerRadius(10)
+                        .padding(.trailing, 20)
+                        .padding(.top)
                 }
+                
             }
             
             TabView(selection: $currentIndex) {

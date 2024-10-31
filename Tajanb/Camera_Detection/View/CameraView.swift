@@ -186,13 +186,14 @@ struct CameraView: View {
                                 ZStack {
                                     Circle()
                                         .stroke(Color.white, lineWidth: 4) // Outer white ring
-                                        .frame(width: 90, height: 90) // Outer circle size
+                                        .frame(width: 80, height: 80) // Outer circle size
 
                                     Circle()
                                         .fill(Color.white) // Inner filled circle
-                                        .frame(width: 70, height: 70) // Inner circle size
+                                        .frame(width: 60, height: 60) // Inner circle size
                                 }
                             }
+                            .padding(.bottom,10)
                             .accessibilityLabel(Text("Take Photo"))
                             .accessibilityHint(Text("Double-tap to take a photo"))
                         }
@@ -265,12 +266,12 @@ struct CameraView: View {
                                   ZStack {
                                       // Outer white circle
                                       Circle()
-                                          .fill(Color.white)
+                                          .stroke(Color.customGreen, lineWidth: 2) // Outer white ring
                                           .frame(width: 40, height: 40)
 
                                       // "X" icon
                                       Image(systemName: "xmark")
-                                          .foregroundColor(Color.black)
+                                          .foregroundColor(.customGreen)
                                           .font(.system(size: 20)) // Adjust "X" size here
                                   }
                               }
