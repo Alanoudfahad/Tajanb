@@ -12,6 +12,8 @@ struct OnboardingView2: View {
                 .font(.system(size: 25, weight: .bold))
                 .foregroundColor(Color("CustomGreen"))
                 .padding(.bottom, 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 40)
 
             HStack(alignment: .top) {
                 VStack {
