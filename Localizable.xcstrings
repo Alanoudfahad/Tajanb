@@ -483,6 +483,9 @@
         }
       }
     },
+    "Take the picture now" : {
+
+    },
     "The selected image contains no allergens" : {
       "localizations" : {
         "ar" : {
@@ -580,6 +583,7 @@
       }
     },
     "تحميل صورة" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -629,6 +633,7 @@
       }
     },
     "حساسيني" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -660,6 +665,9 @@
           }
         }
       }
+    },
+    "خذ الصورة الآن" : {
+
     },
     "لم يتم اختيار صورة" : {
       "localizations" : {
