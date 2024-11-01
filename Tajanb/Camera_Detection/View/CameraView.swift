@@ -7,27 +7,31 @@
 
 import SwiftUI
 import AVFoundation
-import SwiftData
+import UIKit
+import Vision
 
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
     @ObservedObject var photoViewModel: PhotoViewModel
+    
+    // UI state and configuration variables
     let boxWidthPercentage: CGFloat = 0.7
     let boxHeightPercentage: CGFloat = 0.3
     @State private var selectedNavigation: String? = nil
     @State private var isCategoriesActive = false
     @State private var isPhotoActive = false
-    @State private var allowCameraWithVoiceOver = false // User preference for allowing camera with VoiceOver
+    @State private var allowCameraWithVoiceOver = false
     @Environment(\.modelContext) private var modelContext
     @State private var isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
-    @State private var showRetakeButton = false // Track if the user can retake the photo
-    @State private var isCameraRunning = true // Track if the camera is running
-    @State private var photoCaptured: UIImage? = nil // Hold the captured photo
+    @State private var showRetakeButton = false
+    @State private var isCameraRunning = true
+    @State private var photoCaptured: UIImage? = nil
 
     var body: some View {
         
         NavigationStack {
             ZStack {
+                // Camera preview or captured photo display
                 if viewModel.cameraPermissionGranted {
                     if isCameraRunning {
                         CameraPreview(session: viewModel.getSession())
@@ -51,12 +55,22 @@ struct CameraView: View {
                 VStack {
                     Spacer()
 
+                    // Box overlay and instruction text
                     ZStack {
                         CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
                             .accessibilityHidden(true)
                         
                         if isCameraRunning && !isVoiceOverRunning {
-                            if viewModel.detectedText.isEmpty && viewModel.freeAllergenMessage == nil {
+                            if viewModel.hasDetectedIngredients {
+                                Text("خذ الصورة الآن")
+                                    .foregroundColor(.yellow)
+                                    .font(.system(size: 20, weight: .bold))
+                                    .padding(.horizontal, 10)
+                                    .background(Color.black.opacity(0.7))
+                                    .cornerRadius(10)
+                                    .padding(.top, 20)
+                                    .accessibilityLabel("Take the picture now")
+                            } else {
                                 Text("وجه الكاميرا نحو المكونات للمسح")
                                     .foregroundColor(.white)
                                     .font(.system(size: 17, weight: .medium))
@@ -68,6 +82,7 @@ struct CameraView: View {
                         }
                     }
 
+                    // Display allergen message or detected ingredients list
                     if !isCameraRunning, let freeAllergenMessage = viewModel.freeAllergenMessage {
                         let isError = freeAllergenMessage.contains("خطأ") || freeAllergenMessage.contains("Error")
                         Text(freeAllergenMessage)
@@ -80,23 +95,22 @@ struct CameraView: View {
                             .accessibilityLabel(freeAllergenMessage)
                     }
 
+                    // Display detected words in a horizontal scroll view
                     if !isCameraRunning, !viewModel.detectedText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
                                 let uniqueDetectedWords = Set(viewModel.detectedText.map { $0.word.lowercased() })
                                 let summary = uniqueDetectedWords.joined(separator: ", ")
-
-                                HStack(spacing: 10) {
-                                    ForEach(Array(uniqueDetectedWords), id: \.self) { word in
-                                        if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
-                                            if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
-                                                Text(detectedItem.word)
-                                                    .font(.system(size: 14, weight: .medium))
-                                                    .padding(10)
-                                                    .background(Color.red.opacity(0.8))
-                                                    .foregroundColor(.white)
-                                                    .cornerRadius(20)
-                                            }
+                                
+                                ForEach(Array(uniqueDetectedWords), id: \.self) { word in
+                                    if let detectedItem = viewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
+                                        if viewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
+                                            Text(detectedItem.word)
+                                                .font(.system(size: 14, weight: .medium))
+                                                .padding(10)
+                                                .background(Color.red.opacity(0.8))
+                                                .foregroundColor(.white)
+                                                .cornerRadius(20)
                                         }
                                     }
                                 }
@@ -115,101 +129,56 @@ struct CameraView: View {
 
                 VStack {
                     Spacer()
+                    
+                    // Navigation and action buttons
                     HStack {
                         NavigationLink(value: "categories") {
-                            VStack {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.black.opacity(0.7))
-                                        .frame(width: 70, height: 70)
-                                    Image(systemName: "list.bullet")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(Color("CustomGreen"))
-                                }
-                                Text("حساسيني")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
+                            ButtonView(systemImage: "list.bullet", label: "حساسيني")
                         }
-                        .simultaneousGesture(TapGesture()
-                            .onEnded {
-                                isCategoriesActive = true
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    selectedNavigation = "categories"
-                                    isCategoriesActive = false
-                                    viewModel.stopSession()
-                                }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            isCategoriesActive = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                selectedNavigation = "categories"
+                                isCategoriesActive = false
+                                viewModel.stopSession()
                             }
-                        )
-                        .accessibilityLabel(Text("My Allergies"))
-                        .accessibilityHint(Text("Double-tap to view your allergy categories"))
+                        })
+                        .accessibilityLabel("My Allergies")
+                        .accessibilityHint("Double-tap to view your allergy categories")
                         
                         Spacer()
 
+                        // Capture photo button
                         if isCameraRunning {
-                            Button(action: {
-                                viewModel.capturePhoto { image in
-                                    DispatchQueue.main.async {
-                                        photoCaptured = image
-                                        isCameraRunning = false
-                                        showRetakeButton = true
-                                        viewModel.stopSession()
-                                        
-                                        if let capturedPhoto = photoCaptured {
-                                            viewModel.resetPredictions()
-                                            viewModel.startTextRecognition(from: capturedPhoto)
-                                        }
-                                    }
-                                }
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .stroke(Color.white, lineWidth: 4)
-                                        .frame(width: 80, height: 80)
-                                    Circle()
-                                        .fill(Color.white)
-                                        .frame(width: 60, height: 60)
-                                }
+                            Button(action: capturePhoto) {
+                                CaptureButtonView()
                             }
-                            .padding(.bottom,10)
-                            .accessibilityLabel(Text("Take Photo"))
-                            .accessibilityHint(Text("Double-tap to take a photo"))
+                            .padding(.bottom, 10)
+                            .accessibilityLabel("Take Photo")
+                            .accessibilityHint("Double-tap to take a photo")
                         }
 
                         Spacer()
 
                         NavigationLink(value: "photo") {
-                            VStack {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.black.opacity(0.7))
-                                        .frame(width: 70, height: 70)
-                                    Image(systemName: "photo")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(Color("CustomGreen"))
-                                }
-                                Text("تحميل صورة")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
+                            ButtonView(systemImage: "photo", label: "تحميل صورة")
                         }
-                        .simultaneousGesture(TapGesture()
-                            .onEnded {
-                                isPhotoActive = true
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    selectedNavigation = "photo"
-                                    isPhotoActive = false
-                                    viewModel.stopSession()
-                                }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            isPhotoActive = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                selectedNavigation = "photo"
+                                isPhotoActive = false
+                                viewModel.stopSession()
                             }
-                        )
-                        .accessibilityLabel(Text("Upload Photo"))
-                        .accessibilityHint(Text("Double-tap to upload a photo for scanning"))
+                        })
+                        .accessibilityLabel("Upload Photo")
+                        .accessibilityHint("Double-tap to upload a photo for scanning")
                     }
                     .padding(.horizontal, 40)
                     .padding(.bottom, 30)
                 }
             
+                // Handle navigation based on selected option
                 .navigationDestination(for: String.self) { destination in
                     switch destination {
                     case "categories":
@@ -221,60 +190,24 @@ struct CameraView: View {
                     }
                 }
                 
+                // Retake button for redoing the scan
                 if showRetakeButton {
                     VStack {
                         HStack {
                             Spacer()
-                            Button(action: {
-                                viewModel.resetPredictions()
-                                viewModel.detectedText = []
-                                viewModel.freeAllergenMessage = nil
-                                isCameraRunning = true
-                                showRetakeButton = false
-                                viewModel.startSession()
-                                viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .stroke(Color.customGreen, lineWidth: 2)
-                                        .frame(width: 40, height: 40)
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.customGreen)
-                                        .font(.system(size: 20))
-                                }
+                            Button(action: retakePhoto) {
+                                RetakeButtonView()
                             }
                             .padding([.trailing, .top], 20)
-                            .accessibilityLabel(Text("Close and Retake Photo"))
-                            .accessibilityHint(Text("Double-tap to retake the photo"))
+                            .accessibilityLabel("Close and Retake Photo")
+                            .accessibilityHint("Double-tap to retake the photo")
                         }
                         Spacer()
                     }
                     .padding()
                 }
             }
-            .onAppear {
-                DispatchQueue.main.async {
-                    viewModel.prepareSession()
-                    viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-                    viewModel.loadSelectedWords(using: modelContext)
-                    viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext)
-
-                    if allowCameraWithVoiceOver || !isVoiceOverRunning {
-                        viewModel.startSession()
-                    }
-
-                    NotificationCenter.default.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: .main) { _ in
-                        isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
-                        if isVoiceOverRunning {
-                            if !allowCameraWithVoiceOver {
-                                viewModel.stopSession()
-                            }
-                        } else {
-                            viewModel.startSession()
-                        }
-                    }
-                }
-            }
+            .onAppear(perform: onAppearSetup)
             .onDisappear {
                 viewModel.stopSession()
                 NotificationCenter.default.removeObserver(self, name: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil)
@@ -283,29 +216,59 @@ struct CameraView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
     }
-}
-
-struct CameraPreview: UIViewRepresentable {
-    let session: AVCaptureSession
     
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(previewLayer)
-        
-        DispatchQueue.main.async {
-            previewLayer.frame = view.bounds
+    // MARK: - Helper Functions
+    
+    // Capture photo action
+    private func capturePhoto() {
+        viewModel.capturePhoto { image in
+            DispatchQueue.main.async {
+                photoCaptured = image
+                isCameraRunning = false
+                showRetakeButton = true
+                viewModel.stopSession()
+                
+                if let capturedPhoto = photoCaptured {
+                    viewModel.resetPredictions()
+                    viewModel.startTextRecognition(from: capturedPhoto)
+                }
+            }
         }
-        
-        return view
     }
     
-    func updateUIView(_ uiView: UIView, context: Context) {
-        if let previewLayer = uiView.layer.sublayers?.first as? AVCaptureVideoPreviewLayer {
-            DispatchQueue.main.async {
-                previewLayer.frame = uiView.bounds
+    // Retake photo action
+    private func retakePhoto() {
+        viewModel.resetState()
+        viewModel.resetPredictions()
+        isCameraRunning = true
+        showRetakeButton = false
+        viewModel.startSession()
+        viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+    }
+    
+    // Setup on view appearance
+    private func onAppearSetup() {
+        DispatchQueue.main.async {
+            viewModel.prepareSession()
+            viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+            viewModel.loadSelectedWords(using: modelContext)
+            viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext)
+
+            if allowCameraWithVoiceOver || !isVoiceOverRunning {
+                viewModel.startSession()
+            }
+
+            NotificationCenter.default.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: .main) { _ in
+                isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
+                if isVoiceOverRunning {
+                    if !allowCameraWithVoiceOver {
+                        viewModel.stopSession()
+                    }
+                } else {
+                    viewModel.startSession()
+                }
             }
         }
     }
 }
+
