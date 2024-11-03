@@ -60,7 +60,9 @@ struct OnboardingContainerView: View {
                     .tag(1)
                 OnboardingView3(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
                     .tag(2)
+                
             }
+            
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default page indicator
             .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         }

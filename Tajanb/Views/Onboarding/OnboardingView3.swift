@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct OnboardingView3: View {
     @ObservedObject var cameraViewModel = CameraViewModel()
@@ -7,7 +6,6 @@ struct OnboardingView3: View {
     @State private var navigate = false
     @Binding var hasSeenOnboarding: Bool
     @Binding var justCompletedOnboarding: Bool
-    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         VStack {
@@ -33,7 +31,7 @@ struct OnboardingView3: View {
                         }
                     }) {
                         HStack(spacing: 8) {
-                            Text(iconForCategory(category.name))
+                            Text(category.icon)
                                 .font(.system(size: 20))
                             Text(category.name)
                                 .font(.system(size: 12, weight: .semibold))
@@ -52,7 +50,7 @@ struct OnboardingView3: View {
             Spacer()
 
             Button(action: {
-                saveSelectedWords()
+                cameraViewModel.saveSelectedWords(for: selectedCategories)
                 hasSeenOnboarding = true
                 navigate = true
                 justCompletedOnboarding = true
@@ -76,41 +74,14 @@ struct OnboardingView3: View {
             }
             Spacer()
         }
+        .onAppear {
+            cameraViewModel.fetchCategories()
+            cameraViewModel.startSession()
+            print("Categories fetched: \(cameraViewModel.availableCategories)")
+        }
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
     }
 
-    private func iconForCategory(_ category: String) -> String {
-        let categoryIcons: [String: String] = [
-            "مشتقات الحليب": "🥛", "Dairy Products": "🥛",
-            "البيض": "🥚", "Egg": "🥚",
-            "البذور": "🌻", "Seeds": "🌻",
-            "الخضار": "🥗", "Vegetables": "🥗",
-            "الفواكة": "🍓", "Fruits": "🍓",
-            "البهارات": "🧂", "Spices": "🧂",
-            "القمح (الجلوتين)": "🌾", "Wheat (Gluten)": "🌾",
-            "المكسرات": "🥜", "Nuts": "🥜",
-            "الكائنات البحرية (القشريات والرخويات)": "🦀", "Seafood": "🦀",
-            "الأسماك": "🐟", "Fish": "🐟",
-            "البقوليات": "🌽", "Legumes": "🌽"
-        ]
-        return categoryIcons[category] ?? "❓"
-    }
-
-    private func saveSelectedWords() {
-        var wordsToSave: [String] = []
-
-        for category in cameraViewModel.availableCategories where selectedCategories.contains(category.name) {
-            for word in category.words {
-                wordsToSave.append(word.word)
-                if let synonyms = word.hiddenSynonyms {
-                    wordsToSave.append(contentsOf: synonyms)
-                }
-            }
-        }
-
-        cameraViewModel.updateSelectedWords(with: wordsToSave, using: modelContext)
-        print("Words saved: \(wordsToSave)")
-    }
 }

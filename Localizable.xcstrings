@@ -265,6 +265,16 @@
         }
       }
     },
+    "Enter your suggestion here" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أدخل اقتراحك هنا"
+          }
+        }
+      }
+    },
     "Error message" : {
       "localizations" : {
         "ar" : {
@@ -381,6 +391,16 @@
         }
       }
     },
+    "OK" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم"
+          }
+        }
+      }
+    },
     "Photo Picker" : {
       "localizations" : {
         "ar" : {
@@ -397,6 +417,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "أشر إلى أحد المكونات لفحصه"
+          }
+        }
+      }
+    },
+    "Save Suggestion" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حفظ"
           }
         }
       }
@@ -484,7 +514,24 @@
       }
     },
     "Take the picture now" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خذ الصورة الآن!"
+          }
+        }
+      }
+    },
+    "Thank You!" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "شكرا"
+          }
+        }
+      }
     },
     "The selected image contains no allergens" : {
       "localizations" : {
@@ -534,6 +581,16 @@
         }
       }
     },
+    "We received your suggestion." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لقد تلقينا اقتراحك"
+          }
+        }
+      }
+    },
     "Welcome to Tajanb!" : {
       "localizations" : {
         "ar" : {
@@ -546,6 +603,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welcome to Tajanb!"
+          }
+        }
+      }
+    },
+    "Your Suggestion!" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اقتراحك"
           }
         }
       }
@@ -583,7 +650,7 @@
       }
     },
     "تحميل صورة" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -633,7 +700,7 @@
       }
     },
     "حساسيني" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -667,7 +734,20 @@
       }
     },
     "خذ الصورة الآن" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خذ الصورة الآن!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a picture now!"
+          }
+        }
+      }
     },
     "لم يتم اختيار صورة" : {
       "localizations" : {

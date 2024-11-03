@@ -9,23 +9,24 @@ import Foundation
 import AVFoundation
 import Vision
 import UIKit
+import SwiftUICore
+//import SwiftData
+import FirebaseFirestore
+import Foundation
+import Combine
 
 class CameraViewModel: NSObject, ObservableObject {
-    
-    // Published properties to notify UI of changes
-    @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
+
     @Published var availableCategories = [Category]()
-    @Published var freeAllergenMessage: String?
+    @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
     @Published var selectedWords = [String]()
+    @Published var freeAllergenMessage: String?
     @Published var cameraPermissionGranted: Bool = false
     @Published var hasDetectedIngredients: Bool = false
     @Published var liveDetectedText: String = ""
-    
-    // Variables for tracking matched words and allergens
     var matchedWordsSet: Set<String> = []
     var foundAllergens = false
-    
-    // Private variables for camera session and outputs
+//    @Environment(\.modelContext) private var modelContext
     private var session: AVCaptureSession = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()
     private var capturedPhotoCompletion: ((UIImage?) -> Void)?
@@ -35,54 +36,103 @@ class CameraViewModel: NSObject, ObservableObject {
     var hapticManager = HapticManager()
     private let screenBounds = UIScreen.main.bounds  // Screen bounds for bounding box calculation
     var regionOfInterest: CGRect = .zero
-    
+     let userDefaultsKey = "selectedWords" // Key for UserDefaults
+
     override init() {
-        super.init()
-        loadCategories()  // Load category data on initialization
-        configureTextRecognitions()  // Configure Vision request for text recognition
+            super.init()
+            loadSelectedWords() // Load words from UserDefaults
+            configureTextRecognitions()  // Configure Vision request for text recognition
+            configureCaptureSession()
+
     }
     
-    // Update the region of interest based on specified dimensions
-    func updateROI(boxWidthPercentage: CGFloat, boxHeightPercentage: CGFloat) {
-        let boxWidth = screenBounds.width * boxWidthPercentage
-        let boxHeight = screenBounds.height * boxHeightPercentage
-        let boxOriginX = (screenBounds.width - boxWidth) / 2
-        let boxOriginY = (screenBounds.height - boxHeight) / 2
-        regionOfInterest = CGRect(x: boxOriginX, y: boxOriginY, width: boxWidth, height: boxHeight)
-        print("Region of Interest: \(regionOfInterest)")  // Debugging output
-    }
-    
-    // Transform bounding box from normalized coordinates to screen coordinates
-    func transformBoundingBox(_ boundingBox: CGRect) -> CGRect {
-        let x = boundingBox.origin.x * screenBounds.width
-        let y = (1.0 - boundingBox.origin.y - boundingBox.height) * screenBounds.height  // Invert y-axis
-        let width = boundingBox.width * screenBounds.width
-        let height = boundingBox.height * screenBounds.height
-        let transformedRect = CGRect(x: x, y: y, width: width, height: height)
-        print("Transformed Bounding Box: \(transformedRect)")  // Debugging output
-        return transformedRect
-    }
-    
-    // Load categories from JSON file based on language
-    private func loadCategories() {
-        let languageCode = Locale.current.language.languageCode?.identifier
-        let fileName = languageCode == "ar" ? "categories_ar" : "categories_en"
+
+ 
+    // MARK: - Fetch categories and their associated words from Firestore
+    // Fetch categories from Firestore
+    func fetchCategories() {
+        let db = Firestore.firestore()
         
-        guard let path = Bundle.main.path(forResource: fileName, ofType: "json") else {
-            print("Error finding \(fileName).json")
+        // Determine the device language (e.g., "en" for English, "ar" for Arabic)
+        let deviceLanguageCode = Locale.preferredLanguages.first?.prefix(2) ?? "en"
+        
+        // Use the language code to select the appropriate Firestore collection
+        let collectionName = deviceLanguageCode == "ar" ? "categories_arabic" : "categories_english"
+        
+        db.collection(collectionName).getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching categories: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No categories found")
+                return
+            }
+            
+            // Decode Firestore documents into `Category` objects
+            self.availableCategories = documents.compactMap { document in
+                try? document.data(as: Category.self)
+            }
+        }
+    }
+    
+    
+    
+    
+    // MARK: - upload .json categories and their associated words into Firestore
+    func uploadJSONToFirestore() {
+        // Load the JSON files from your bundle
+        guard let englishFileURL = Bundle.main.url(forResource: "categories_en", withExtension: "json"),
+              let arabicFileURL = Bundle.main.url(forResource: "categories_ar", withExtension: "json"),
+              let englishData = try? Data(contentsOf: englishFileURL),
+              let arabicData = try? Data(contentsOf: arabicFileURL) else {
+            print("Failed to load JSON files")
             return
         }
-        
+
         do {
-            let data = try Data(contentsOf: URL(fileURLWithPath: path))
-            let decoder = JSONDecoder()
-            availableCategories = try decoder.decode([Category].self, from: data)
-            print("Loaded Categories: \(availableCategories)")  // Debugging output
+            // Decode JSON data
+            let englishCategories = try JSONDecoder().decode([Category].self, from: englishData)
+            let arabicCategories = try JSONDecoder().decode([Category].self, from: arabicData)
+            
+            let db = Firestore.firestore()
+            
+            // Upload each category to Firestore
+            for category in englishCategories {
+                let documentRef = db.collection("categories_english").document(category.name)
+                documentRef.setData(category.toDictionary())
+            }
+            
+            for category in arabicCategories {
+                let documentRef = db.collection("categories_arabic").document(category.name)
+                documentRef.setData(category.toDictionary())
+            }
+            
+            print("Data uploaded successfully")
         } catch {
-            print("Error loading categories from JSON: \(error)")
+            print("Error decoding JSON: \(error)")
         }
     }
+
+    // Firestore save function
+       func saveSuggestion(_ suggestionText: String, completion: @escaping (Result<Void, Error>) -> Void) {
+           let db = Firestore.firestore()
+           db.collection("User_Suggestions").addDocument(data: [
+               "suggestion": suggestionText,
+               "timestamp": Timestamp(date: Date())
+           ]) { error in
+               if let error = error {
+                   completion(.failure(error))
+               } else {
+                   completion(.success(()))
+               }
+           }
+       }
     
+    
+    
+    // MARK: - Camera functions
     // Configure camera capture session and add video/photo output
     private func configureCaptureSession() {
         session.beginConfiguration()
@@ -213,6 +263,34 @@ class CameraViewModel: NSObject, ObservableObject {
             print("Error processing frame: \(error)")
         }
     }
+    // Update the region of interest based on specified dimensions
+    func updateROI(boxWidthPercentage: CGFloat, boxHeightPercentage: CGFloat) {
+        let boxWidth = screenBounds.width * boxWidthPercentage
+        let boxHeight = screenBounds.height * boxHeightPercentage
+        let boxOriginX = (screenBounds.width - boxWidth) / 2
+        let boxOriginY = (screenBounds.height - boxHeight) / 2
+        regionOfInterest = CGRect(x: boxOriginX, y: boxOriginY, width: boxWidth, height: boxHeight)
+        print("Region of Interest: \(regionOfInterest)")  // Debugging output
+    }
+    
+    // Transform bounding box from normalized coordinates to screen coordinates
+    func transformBoundingBox(_ boundingBox: CGRect) -> CGRect {
+        let x = boundingBox.origin.x * screenBounds.width
+        let y = (1.0 - boundingBox.origin.y - boundingBox.height) * screenBounds.height  // Invert y-axis
+        let width = boundingBox.width * screenBounds.width
+        let height = boundingBox.height * screenBounds.height
+        let transformedRect = CGRect(x: x, y: y, width: width, height: height)
+        print("Transformed Bounding Box: \(transformedRect)")  // Debugging output
+        return transformedRect
+    }
+    // MARK: - Helper Functions for camera view:
+     func retakePhoto() {
+        resetState()
+        resetPredictions()
+        startSession()
+    }
+    
+    
 }
 
 // Extensions for handling photo capture and video output
@@ -239,5 +317,5 @@ extension CameraViewModel: AVCapturePhotoCaptureDelegate, AVCaptureVideoDataOutp
         processFrame(sampleBuffer: sampleBuffer)
     }
     
-    
+
 }

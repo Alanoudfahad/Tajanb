@@ -13,7 +13,6 @@
 //  Created by Ahad on 21/04/1446 AH.
 
 import SwiftUI
-
 struct SplashScreenView: View {
     @State private var animateLogo = false
     @State private var isActive = false
@@ -39,8 +38,10 @@ struct SplashScreenView: View {
                        .animation(.easeInOut(duration: 1.5))
                 }
                 .onAppear {
+                    cameraViewModel.startSession()
                     withAnimation {
                         self.animateLogo = true
+
                     }
                     // Remove the delay or reduce it to a shorter time
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { // Or set a smaller value like `+ 0.5` for quick transition

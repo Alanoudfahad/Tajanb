@@ -12,46 +12,61 @@ import Vision
 
 extension CameraViewModel {
     
-    // Save the user-selected words to the model context
-    func saveSelectedWords(using modelContext: ModelContext) {
-        let fetchDescriptor = FetchDescriptor<SelectedWord>()
-        
-        // Delete existing selected words from the model context
-        if let existingWords = try? modelContext.fetch(fetchDescriptor) {
-            for word in existingWords {
-                modelContext.delete(word)
-            }
-        }
-        
-        // Insert the new selected words
-        for word in selectedWords {
-            let newWord = SelectedWord(word: word)
-            modelContext.insert(newWord)
-        }
-        
-        // Save changes to the model context
-        try? modelContext.save()
-    }
+    // MARK: - Swift Data functions
 
-    // Load saved words from the model context into selectedWords array
-    func loadSelectedWords(using modelContext: ModelContext) {
-        let fetchDescriptor = FetchDescriptor<SelectedWord>()
-        
-        // Fetch and map saved words; if unavailable, reset to an empty array
-        if let savedWordsData = try? modelContext.fetch(fetchDescriptor) {
-            selectedWords = savedWordsData.map { $0.word }
-        } else {
-            selectedWords = []
-        }
-    }
+    // Save the selected words to UserDefaults
+       func saveSelectedWords() {
+           UserDefaults.standard.set(selectedWords, forKey: userDefaultsKey)
+           print("Words successfully saved to UserDefaults: \(selectedWords)")
+       }
+       
+       // Load the selected words from UserDefaults
+       func loadSelectedWords() {
+           if let savedWords = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String] {
+               selectedWords = savedWords
+               print("Loaded words from UserDefaults: \(selectedWords)")
+           } else {
+               print("No words found in UserDefaults.")
+           }
+       }
+       
+       // Update selected words and save them to UserDefaults
+       func updateSelectedWords(with words: [String]) {
+           selectedWords = words
+           saveSelectedWords()
+           print("Selected words updated: \(selectedWords)")
+       }
 
-    // Update selected words with a new list and save them to the model context
-    func updateSelectedWords(with words: [String], using modelContext: ModelContext) {
-        selectedWords = words
-        saveSelectedWords(using: modelContext)
-        print("Selected words updated: \(selectedWords)")
-    }
-
+    //Save all words
+       func saveSelectedWords(for selectedCategories: Set<String>) {
+           var wordsToSave: [String] = []
+           
+           // Collect words from selected categories
+           for category in availableCategories where selectedCategories.contains(category.name) {
+               for word in category.words {
+                   wordsToSave.append(word.word)
+                   wordsToSave.append(contentsOf: word.hiddenSynonyms)
+               }
+           }
+           
+           updateSelectedWords(with: wordsToSave)
+           print("Words saved: \(wordsToSave)")
+       }
+    //Toggle Word Selection
+    
+       func toggleSelection(for word: String, isSelected: Bool) {
+           if isSelected {
+               if !selectedWords.contains(word) {
+                   selectedWords.append(word)
+               }
+           } else {
+               selectedWords.removeAll { $0 == word }
+           }
+           saveSelectedWords() // Save to UserDefaults whenever selection changes
+       }
+    
+    
+    // MARK: - Text recognition Functions
     // Configure Vision request to recognize text and filter based on Region of Interest (ROI)
     func configureTextRecognitions() {
         textRequest = VNRecognizeTextRequest { [weak self] request, error in
@@ -87,6 +102,29 @@ extension CameraViewModel {
         textRequest.minimumTextHeight = 0.02  // Filter out small/noisy text
     }
 
+    // Check if text matches a target word in any category
+    func isTargetWord(_ text: String) -> (String, String, [String])? {
+        let lowercasedText = text.lowercased()
+        for category in availableCategories {
+            for word in category.words {
+                if word.word.lowercased() == lowercasedText ||
+                    word.hiddenSynonyms.contains(where: { $0.lowercased() == lowercasedText }) == true {
+                    return (category.name, word.word, word.hiddenSynonyms)
+                }
+            }
+        }
+        return nil
+    }
+
+    // Check if a word is user-selected allergen
+    private func isSelectedWord(_ word: String) -> Bool {
+        let isMatch = selectedWords.contains { selectedWord in
+            return word.compare(selectedWord, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        }
+        print("Ingredient '\(word)' is a selected word: \(isMatch)")
+        return isMatch
+    }
+    
     // Start text recognition from a provided image
     func startTextRecognition(from image: UIImage) {
         guard let cgImage = image.cgImage else {
@@ -215,28 +253,7 @@ extension CameraViewModel {
         freeAllergenMessage = getLocalizedMessage()
     }
 
-    // Check if text matches a target word in any category
-    func isTargetWord(_ text: String) -> (String, String, [String])? {
-        let lowercasedText = text.lowercased()
-        for category in availableCategories {
-            for word in category.words {
-                if word.word.lowercased() == lowercasedText ||
-                    word.hiddenSynonyms?.contains(where: { $0.lowercased() == lowercasedText }) == true {
-                    return (category.name, word.word, word.hiddenSynonyms ?? [])
-                }
-            }
-        }
-        return nil
-    }
 
-    // Check if a word is user-selected allergen
-    private func isSelectedWord(_ word: String) -> Bool {
-        let isMatch = selectedWords.contains { selectedWord in
-            return word.compare(selectedWord, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
-        }
-        print("Ingredient '\(word)' is a selected word: \(isMatch)")
-        return isMatch
-    }
 
     // Preprocess text by removing unwanted characters and normalizing spaces
     func preprocessText(_ text: String) -> String {
