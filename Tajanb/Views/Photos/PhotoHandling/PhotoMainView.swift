@@ -1,13 +1,12 @@
 import SwiftUI
-import SwiftData
+
 struct PhotoMainView: View {
         @StateObject private var categoryManager = CameraViewModel()
         @StateObject private var photoViewModel: PhotoViewModel
         @State private var selectedImage: UIImage?
         @Environment(\.presentationMode) var presentationMode
-        @Environment(\.modelContext) private var modelContext // Access SwiftData model context
-    @State private var showingImagePicker = false
-    @Environment(\.dismiss) var dismiss
+        @State private var showingImagePicker = false
+        @Environment(\.dismiss) var dismiss
 
         init() {
             let categoryManager = CameraViewModel()
@@ -32,6 +31,7 @@ struct PhotoMainView: View {
                             }
                             
                             HStack {
+                                
                                 ForEach(Array(uniqueDetectedWords), id: \.self) { word in
                                     // Find the detected item using a case-insensitive comparison
                                     if let detectedItem = photoViewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
@@ -40,8 +40,9 @@ struct PhotoMainView: View {
                                             Text(detectedItem.word)
                                                 .font(.system(size: 16, weight: .medium))
                                                 .padding(10)
-                                                .background(Color(red: 226/255, green: 66/255, blue: 66/255)) // Allergen detected background
+                                                .background(Color.red)
                                                 .foregroundColor(.white)
+                                        
                                                 .clipShape(Capsule())
                                                 .accessibilityLabel(Text("\(detectedItem.word) allergen"))
                                                 .accessibilityHint(Text("Detected allergen from the selected image"))
@@ -70,8 +71,9 @@ struct PhotoMainView: View {
                     .padding()
                 }
                 .onAppear {
+                    categoryManager.fetchCategories()
                     // Load selected words using SwiftData model context
-                    categoryManager.loadSelectedWords(using: modelContext)
+                    categoryManager.loadSelectedWords()
                 }
                 if let image = selectedImage {
                     Button(action: {

@@ -9,6 +9,8 @@ import SwiftUI
 import AVFoundation
 import UIKit
 import Vision
+import SwiftData
+import CloudKit
 
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
@@ -21,12 +23,11 @@ struct CameraView: View {
     @State private var isCategoriesActive = false
     @State private var isPhotoActive = false
     @State private var allowCameraWithVoiceOver = false
-    @Environment(\.modelContext) private var modelContext
     @State private var isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
     @State private var showRetakeButton = false
     @State private var isCameraRunning = true
     @State private var photoCaptured: UIImage? = nil
-
+    
     var body: some View {
         
         NavigationStack {
@@ -51,15 +52,15 @@ struct CameraView: View {
                         .padding()
                         .multilineTextAlignment(.center)
                 }
-            
+                
                 VStack {
                     Spacer()
-
+                    
                     // Box overlay and instruction text
                     ZStack {
                         CornerBorderView(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
                             .accessibilityHidden(true)
-                        
+                        // For debugging purposes
                         if isCameraRunning && !isVoiceOverRunning {
                             if viewModel.hasDetectedIngredients {
                                 Text("خذ الصورة الآن")
@@ -81,7 +82,7 @@ struct CameraView: View {
                             }
                         }
                     }
-
+                    
                     // Display allergen message or detected ingredients list
                     if !isCameraRunning, let freeAllergenMessage = viewModel.freeAllergenMessage {
                         let isError = freeAllergenMessage.contains("خطأ") || freeAllergenMessage.contains("Error")
@@ -94,7 +95,7 @@ struct CameraView: View {
                             .padding(.top, 10)
                             .accessibilityLabel(freeAllergenMessage)
                     }
-
+                    
                     // Display detected words in a horizontal scroll view
                     if !isCameraRunning, !viewModel.detectedText.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -123,10 +124,10 @@ struct CameraView: View {
                         }
                         .padding()
                     }
-
+                    
                     Spacer()
                 }
-
+                
                 VStack {
                     Spacer()
                     
@@ -147,19 +148,33 @@ struct CameraView: View {
                         .accessibilityHint("Double-tap to view your allergy categories")
                         
                         Spacer()
-
+                        
                         // Capture photo button
                         if isCameraRunning {
-                            Button(action: capturePhoto) {
+                            Button(action: {
+                                viewModel.capturePhoto { image in
+                                       DispatchQueue.main.async {
+                                    photoCaptured = image
+                                    isCameraRunning = false
+                                    showRetakeButton = true
+                                    viewModel.stopSession()
+                                    
+                                    if let capturedPhoto = photoCaptured {
+                                        viewModel.resetPredictions()
+                                        viewModel.startTextRecognition(from: capturedPhoto)
+                                    }
+                                      }
+                                }
+                            }) {
                                 CaptureButtonView()
                             }
                             .padding(.bottom, 10)
                             .accessibilityLabel("Take Photo")
                             .accessibilityHint("Double-tap to take a photo")
                         }
-
+                        
                         Spacer()
-
+                        
                         NavigationLink(value: "photo") {
                             ButtonView(systemImage: "photo", label: "تحميل صورة")
                         }
@@ -177,7 +192,7 @@ struct CameraView: View {
                     .padding(.horizontal, 40)
                     .padding(.bottom, 30)
                 }
-            
+                
                 // Handle navigation based on selected option
                 .navigationDestination(for: String.self) { destination in
                     switch destination {
@@ -195,7 +210,14 @@ struct CameraView: View {
                     VStack {
                         HStack {
                             Spacer()
-                            Button(action: retakePhoto) {
+                            Button(action:{
+                                viewModel.retakePhoto()
+                                isCameraRunning = true
+                                showRetakeButton = false
+                                viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+                                
+                                
+                            }) {
                                 RetakeButtonView()
                             }
                             .padding([.trailing, .top], 20)
@@ -207,7 +229,31 @@ struct CameraView: View {
                     .padding()
                 }
             }
-            .onAppear(perform: onAppearSetup)
+            .onAppear{
+                viewModel.loadSelectedWords()
+                viewModel.fetchCategories()
+
+                      DispatchQueue.main.async {
+                          viewModel.prepareSession()
+                          viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+
+                          if allowCameraWithVoiceOver || !isVoiceOverRunning {
+                              viewModel.startSession()
+                          }
+
+                          NotificationCenter.default.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: .main) { _ in
+                              isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
+                              if isVoiceOverRunning {
+                                  if !allowCameraWithVoiceOver {
+                                      viewModel.stopSession()
+                                  }
+                              } else {
+                                  viewModel.startSession()
+                              }
+                          }
+                      }
+                  
+            }
             .onDisappear {
                 viewModel.stopSession()
                 NotificationCenter.default.removeObserver(self, name: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil)
@@ -216,59 +262,6 @@ struct CameraView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
     }
-    
-    // MARK: - Helper Functions
-    
-    // Capture photo action
-    private func capturePhoto() {
-        viewModel.capturePhoto { image in
-            DispatchQueue.main.async {
-                photoCaptured = image
-                isCameraRunning = false
-                showRetakeButton = true
-                viewModel.stopSession()
-                
-                if let capturedPhoto = photoCaptured {
-                    viewModel.resetPredictions()
-                    viewModel.startTextRecognition(from: capturedPhoto)
-                }
-            }
-        }
-    }
-    
-    // Retake photo action
-    private func retakePhoto() {
-        viewModel.resetState()
-        viewModel.resetPredictions()
-        isCameraRunning = true
-        showRetakeButton = false
-        viewModel.startSession()
-        viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-    }
-    
-    // Setup on view appearance
-    private func onAppearSetup() {
-        DispatchQueue.main.async {
-            viewModel.prepareSession()
-            viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-            viewModel.loadSelectedWords(using: modelContext)
-            viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext)
-
-            if allowCameraWithVoiceOver || !isVoiceOverRunning {
-                viewModel.startSession()
-            }
-
-            NotificationCenter.default.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: .main) { _ in
-                isVoiceOverRunning = UIAccessibility.isVoiceOverRunning
-                if isVoiceOverRunning {
-                    if !allowCameraWithVoiceOver {
-                        viewModel.stopSession()
-                    }
-                } else {
-                    viewModel.startSession()
-                }
-            }
-        }
-    }
 }
+
 
