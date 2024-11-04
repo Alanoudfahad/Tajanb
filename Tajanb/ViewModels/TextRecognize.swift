@@ -61,6 +61,7 @@ extension CameraViewModel {
                }
            } else {
                selectedWords.removeAll { $0 == word }
+
            }
            saveSelectedWords() // Save to UserDefaults whenever selection changes
        }

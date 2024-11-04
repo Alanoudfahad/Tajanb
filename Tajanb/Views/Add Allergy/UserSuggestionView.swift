@@ -59,7 +59,7 @@ struct UserSuggestionView: View {
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Thank You!"),
-                message: Text("We received your suggestion."),
+                message: Text("We received your suggestion, and its under review."),
                 dismissButton: .default(Text("OK")) {
                     dismiss() // Dismiss the sheet when "OK" is pressed
                 }
