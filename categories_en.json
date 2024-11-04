@@ -2,6 +2,7 @@
 [
   {
     "name": "Spices",
+    "icon": "🧂",
     "words": [
       { "word": "Black Pepper", "hiddenSynonyms": ["Ground Black Pepper", "Black Pepper Powder", "Pepper Seeds", "Crushed Pepper", "Pepper"] },
       { "word": "Turmeric", "hiddenSynonyms": ["Safflower", "Turmeric Powder", "Ground Turmeric", "Turmeric"] },
@@ -14,6 +15,7 @@
   },
   {
     "name": "Seeds",
+    "icon": "🌻",
     "words": [
       { "word": "Sesame", "hiddenSynonyms": ["Sesame Seeds", "Sesame Oil", "Roasted Sesame", "Black Sesame", "White Sesame", "Sesame"] },
       { "word": "Chickpeas", "hiddenSynonyms": ["Chickpea Seeds", "Tahini", "Cooked Chickpeas", "Chickpea Paste", "Dried Chickpeas"] },
@@ -26,6 +28,7 @@
   },
   {
     "name": "Wheat (Gluten)",
+    "icon": "🌾",
     "words": [
       { "word": "Flour", "hiddenSynonyms": ["White Flour", "Wheat Flour", "Whole Wheat Flour"] },
       { "word": "Bulgur", "hiddenSynonyms": ["Crushed Wheat", "Coarse Bulgur", "Fine Bulgur"] },
@@ -42,6 +45,7 @@
   },
   {
     "name": "Vegetables",
+    "icon": "🥗",
     "words": [
       { "word": "Carrot", "hiddenSynonyms": ["Fresh Carrot", "Shredded Carrot", "Baby Carrot"] },
       { "word": "Celery", "hiddenSynonyms": ["Celery Stalks", "Celery Leaves"] },
@@ -55,6 +59,7 @@
   },
   {
     "name": "Fruits",
+    "icon": "🍓",
     "words": [
       { "word": "Apple", "hiddenSynonyms": ["Green Apple", "Red Apple", "Yellow Apple"] },
       { "word": "Peach", "hiddenSynonyms": ["Fresh Peach"] },
@@ -68,6 +73,7 @@
   },
   {
     "name": "Dairy Products",
+    "icon": "🥛",
     "words": [
       { "word": "Cow Milk", "hiddenSynonyms": ["Fresh Milk", "Milk"] },
       { "word": "Goat Milk", "hiddenSynonyms": ["Goat's Milk"] },
@@ -83,6 +89,7 @@
   },
   {
     "name": "Nuts",
+    "icon": "🥜",
     "words": [
       { "word": "Peanut", "hiddenSynonyms": ["Crushed Peanut", "Roasted Peanut"] },
       { "word": "Walnut", "hiddenSynonyms": ["English Walnut"] },
@@ -94,6 +101,7 @@
   },
   {
     "name": "Egg",
+    "icon": "🥚",
     "words": [
       { "word": "Egg White", "hiddenSynonyms": ["Albumen"] },
       { "word": "Egg Yolk", "hiddenSynonyms": ["Yolk"] }
@@ -101,6 +109,7 @@
   },
   {
     "name": "Seafood",
+    "icon": "🦀",
     "words": [
       { "word": "Shrimp", "hiddenSynonyms": ["Prawns"] },
       { "word": "Crab", "hiddenSynonyms": ["Crustacean"] },
@@ -109,6 +118,7 @@
   },
   {
     "name": "Fish",
+    "icon": "🐟",
     "words": [
       { "word": "Tuna", "hiddenSynonyms": ["Tuna Fish"] },
       { "word": "Salmon", "hiddenSynonyms": ["Salmon Fish"] },
@@ -117,6 +127,7 @@
   },
   {
     "name": "Legumes",
+    "icon": "🌽",
     "words": [
       { "word": "Lentil", "hiddenSynonyms": ["Red Lentil", "Green Lentil"] },
       { "word": "Bean", "hiddenSynonyms": ["White Bean", "Red Bean"] }

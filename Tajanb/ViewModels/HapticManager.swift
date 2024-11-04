@@ -10,6 +10,8 @@ import CoreHaptics
 // HapticManager handles haptic feedback using CoreHaptics.
 class HapticManager {
     private var hapticEngine: CHHapticEngine?
+    private var hapticsCooldownActive = false
+    private var hapticsCooldownTimer: Timer?
 
     init() {
         prepareHapticEngine()
@@ -34,12 +36,14 @@ class HapticManager {
     func performHapticFeedback() {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
 
-        var events = [CHHapticEvent]()
+        // Check if cooldown is active
+        guard !hapticsCooldownActive else { return }
 
         // Add a continuous haptic event with a duration.
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.4) // Adjust intensity as needed.
-        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.5) // Adjust sharpness as needed.
-        let duration: TimeInterval = 1.0 // Duration of the haptic event in seconds.
+        var events = [CHHapticEvent]()
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.4)
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.5)
+        let duration: TimeInterval = 1.0
 
         let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [intensity, sharpness], relativeTime: 0, duration: duration)
         events.append(event)
@@ -48,6 +52,13 @@ class HapticManager {
             let pattern = try CHHapticPattern(events: events, parameters: [])
             let player = try hapticEngine?.makePlayer(with: pattern)
             try player?.start(atTime: 0)
+
+            // Start cooldown timer to prevent multiple haptic triggers
+            hapticsCooldownActive = true
+            hapticsCooldownTimer?.invalidate()
+            hapticsCooldownTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
+                self?.hapticsCooldownActive = false
+            }
         } catch {
             print("Failed to perform haptic feedback: \(error)")
         }

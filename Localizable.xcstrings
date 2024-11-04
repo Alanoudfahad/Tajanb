@@ -265,6 +265,16 @@
         }
       }
     },
+    "Enter your suggestion here" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أدخل اقتراحك هنا"
+          }
+        }
+      }
+    },
     "Error message" : {
       "localizations" : {
         "ar" : {
@@ -355,6 +365,7 @@
       }
     },
     "My Allergies" : {
+      "comment" : "Label for my allergies",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -381,6 +392,16 @@
         }
       }
     },
+    "OK" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم"
+          }
+        }
+      }
+    },
     "Photo Picker" : {
       "localizations" : {
         "ar" : {
@@ -397,6 +418,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "أشر إلى أحد المكونات لفحصه"
+          }
+        }
+      }
+    },
+    "Save Suggestion" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حفظ"
           }
         }
       }
@@ -429,6 +460,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan Fast for Sure Protection"
+          }
+        }
+      }
+    },
+    "Select All" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختيار الكل"
           }
         }
       }
@@ -483,6 +525,26 @@
         }
       }
     },
+    "Take the picture now" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خذ الصورة الآن!"
+          }
+        }
+      }
+    },
+    "Thank You!" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "شكرا"
+          }
+        }
+      }
+    },
     "The selected image contains no allergens" : {
       "localizations" : {
         "ar" : {
@@ -500,6 +562,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "يستخدم هذا التطبيق الكاميرا لمسح النص من المكونات والتعرف عليه لأغراض الكشف عن مسببات الحساسية"
+          }
+        }
+      }
+    },
+    "upload photo" : {
+      "comment" : "Label for uploading a photo",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "رفع صورة"
           }
         }
       }
@@ -531,6 +604,16 @@
         }
       }
     },
+    "We received your suggestion, and its under review." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تلقينا اقتراحك و سيتم مراجعته."
+          }
+        }
+      }
+    },
     "Welcome to Tajanb!" : {
       "localizations" : {
         "ar" : {
@@ -543,6 +626,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welcome to Tajanb!"
+          }
+        }
+      }
+    },
+    "Your Suggestion!" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اقتراحك"
           }
         }
       }
@@ -563,6 +656,38 @@
         }
       }
     },
+    "اختيار الكل" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختيار الكل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All"
+          }
+        }
+      }
+    },
+    "اضغط مرتين للرجوع." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اضغط مرتين للرجوع"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "click twice to go back"
+          }
+        }
+      }
+    },
     "اقترح حساسية" : {
       "localizations" : {
         "ar" : {
@@ -579,7 +704,24 @@
         }
       }
     },
+    "الرجوع" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الرجوع"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
+    },
     "تحميل صورة" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -629,6 +771,7 @@
       }
     },
     "حساسيني" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -657,6 +800,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Free from food allergy"
+          }
+        }
+      }
+    },
+    "خذ الصورة الآن" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خذ الصورة الآن!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a picture now!"
           }
         }
       }

@@ -5,7 +5,6 @@
 //  Created by Afrah Saleh on 17/04/1446 AH.
 //
 import SwiftUI
-import SwiftData
 
 
 struct Categories: View {
@@ -13,9 +12,8 @@ struct Categories: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.openURL) var openURL
     @State private var selectedCategory: String?
-    @Environment(\.modelContext) private var modelContext
     @State private var isPressed = false // Track button press state
-
+    @State private var isSuggestionSheetPresented = false
     var body: some View {
         VStack {
             
@@ -38,18 +36,18 @@ struct Categories: View {
             Divider()
                 .background(Color.white)
             List(viewModel.availableCategories, id: \.name) { category in
-                ZStack {
-                    NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
-                        // EmptyView()
-                    }
-                    .opacity(0)
+                           ZStack {
+                               NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
+                               }
+                               .opacity(0)
+                               
                     
                     Button(action: {
                         withAnimation {
                             selectedCategory = category.name
                         }
                     }) {
-                        AllergyRow(icon: iconForCategory(category.name), text: category.name)
+                        AllergyRow(icon: category.icon, text: category.name)
                             .background(selectedCategory == category.name ? Color("CustomGreen") : Color("GrayList"))
                             .cornerRadius(10)
                     }
@@ -67,7 +65,9 @@ struct Categories: View {
                     .foregroundStyle(.gray)
                 
             Button(action: {
-                sendEmail()
+                isSuggestionSheetPresented = true
+
+               // sendEmail()
                 // Set the button as pressed and start a delay to keep it green longer
                 withAnimation {
                     isPressed = true
@@ -93,23 +93,27 @@ struct Categories: View {
                     isPressed = pressing // Change color when pressing
                 }
             }, perform: {
-                // Action when the button is released
-                sendEmail()
             })
         }
             .padding()
             .padding(.top,5)
 
-            
+            .sheet(isPresented: $isSuggestionSheetPresented) {
+                UserSuggestionView(viewModel: viewModel)
+                    .presentationDetents([.fraction(0.5)]) // Set the sheet to half-page height
+
+             }
             
                }
+        .onAppear {
+                  viewModel.loadSelectedWords() // Load from UserDefaults
+              }
+
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
                     dismiss()
-                    viewModel.loadSelectedWords(using: modelContext)
-                    viewModel.updateSelectedWords(with: viewModel.selectedWords, using: modelContext) // Ensure latest words are loaded
                 }) {
                     Image(systemName: "chevron.backward")
                         .foregroundColor(.customGreen)
@@ -121,63 +125,11 @@ struct Categories: View {
         .navigationBarBackButtonHidden(true)
         .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
-    
-    func sendEmail() {
-        let email = "tajanbapp@gmail.com"
-        let subject = "اقتراح حساسية جديدة"
-        let body = "مرحبًا، أرغب في اقتراح حساسية جديدة."
-        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        
-        if let url = URL(string: "mailto:\(email)?subject=\(encodedSubject)&body=\(encodedBody)") {
-            openURL(url)
-        }
-    }
 
-    func iconForCategory(_ category: String) -> String {
-        let categoryIcons: [String: String] = [
-            "مشتقات الحليب": "🥛", "Dairy Products": "🥛",
-            "البيض": "🥚", "Egg": "🥚",
-            "البذور": "🌻", "Seeds": "🌻",
-            "الخضار": "🥗", "Vegetables": "🥗",
-            "الفواكة": "🍓", "Fruits": "🍓",
-            "البهارات": "🧂", "Spices": "🧂",
-            "القمح (الجلوتين)": "🌾", "Wheat (Gluten)": "🌾",
-            "المكسرات": "🥜", "Nuts": "🥜",
-            "الكائنات البحرية (القشريات والرخويات)": "🦀", "Seafood": "🦀",
-            "الأسماك": "🐟", "Fish": "🐟",
-            "البقوليات": "🌽", "Legumes": "🌽"
-        ]
-        
-        return categoryIcons[category] ?? "❓"
-    }
+
 }
 
 
-struct AllergyRow: View {
-    var icon: String
-    var text: String
 
-    var body: some View {
-        HStack {
-            Text(icon)
-                .font(.system(size: 24))
-                .padding(.trailing, 8)
-            Text(text)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding()
-        .background(Color("GrayList"))
-        .cornerRadius(10)
-        .accessibilityElement()
-        .accessibilityLabel("\(text) category")
-        .accessibilityHint("Double-tap to view details.")
-    }
-}
 
-//#Preview {
-//    Categories(viewModel: CameraViewModel())
-//        .environment(\.layoutDirection, .rightToLeft) // For Arabic
-//}
 
