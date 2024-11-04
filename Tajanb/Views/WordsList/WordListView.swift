@@ -1,3 +1,6 @@
+
+
+
 import SwiftUI
 
 struct WordListView: View {
@@ -22,25 +25,27 @@ struct WordListView: View {
                     .foregroundColor(.white)
                     .font(.system(size: 18, weight: .medium))
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading ,10)
                 
                 Toggle(isOn: $isSelectAllEnabled) {
                     EmptyView()
                 }
                 .labelsHidden()
                 .toggleStyle(CustomToggleStyle())
-                .padding(.leading, 120)
+                .padding(.leading, 100)
             }
-            .padding()
+            
+            .padding(.vertical,16)
             .background(Color("GrayList"))
-            .cornerRadius(10)
+            .cornerRadius(15)
+            .frame(width: 365)
             .onChange(of: isSelectAllEnabled) { newValue in
-                toggleSelectAll(newValue) // استدعاء لتحديد/إلغاء تحديد الكل
+                handleSelectAllToggleChange(newValue)
             }
 
             Divider()
                 .background(Color.white)
 
- 
             List {
                 ForEach(category.words, id: \.word) { word in
                     HStack {
@@ -52,7 +57,7 @@ struct WordListView: View {
                         Toggle(isOn: Binding(
                             get: { viewModel.selectedWords.contains(word.word) },
                             set: { isSelected in
-                                viewModel.toggleSelection(for: word.word, isSelected: isSelected)
+                                toggleSelection(for: word.word, isSelected: isSelected)
                             }
                         )) {
                             EmptyView()
@@ -94,18 +99,19 @@ struct WordListView: View {
         .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
 
-    // تحديد/إلغاء تحديد كل الكلمات بناءً على حالة "اختيار الكل"
-
- 
-    private func toggleSelectAll(_ isSelected: Bool) {
+    // التعامل مع تبديل "اختيار الكل" بناءً على حالة المستخدم
+    private func handleSelectAllToggleChange(_ isSelected: Bool) {
         let allWords = category.words.map { $0.word }
         
         if isSelected {
-            // إضافة جميع الكلمات إلى selectedWords
+            // إذا تم تفعيل "اختيار الكل"، نضيف كل العناصر
             viewModel.updateSelectedWords(with: allWords)
         } else {
-            // إلغاء تحديد جميع الكلمات إذا كان اختيار الكل معطلاً بشكل صريح
-            viewModel.updateSelectedWords(with: [])
+            // إذا أراد المستخدم إيقاف "اختيار الكل" فقط، نترك الاختيار الحالي
+            if viewModel.selectedWords.count == allWords.count {
+                // إذا كانت جميع العناصر محددة، يتم إلغاء تحديدها كلها
+                viewModel.updateSelectedWords(with: [])
+            }
         }
     }
     
@@ -127,7 +133,12 @@ struct WordListView: View {
     // تحديث حالة "اختيار الكل" بناءً على العناصر الفردية
     private func updateSelectAllStatus() {
         // فعل "اختيار الكل" فقط إذا كانت جميع الكلمات محددة
-        isSelectAllEnabled = viewModel.selectedWords.containsAll(category.words.map { $0.word })
+        let allWords = category.words.map { $0.word }
+        if viewModel.selectedWords.isEmpty {
+            isSelectAllEnabled = false
+        } else if viewModel.selectedWords.containsAll(allWords) {
+            isSelectAllEnabled = true
+        }
     }
 }
 
