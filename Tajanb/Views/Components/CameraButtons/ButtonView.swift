@@ -30,7 +30,7 @@ struct CaptureButtonView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.white, lineWidth: 4)
+                .stroke(Color.customGreen, lineWidth: 3)
                 .frame(width: 80, height: 80)
             Circle()
                 .fill(Color.white)
@@ -43,7 +43,7 @@ struct RetakeButtonView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.customGreen, lineWidth: 2)
+                .foregroundColor(.black.opacity(0.7))
                 .frame(width: 40, height: 40)
             Image(systemName: "xmark")
                 .foregroundColor(.customGreen)

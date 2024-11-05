@@ -15,7 +15,7 @@ import CloudKit
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
     @ObservedObject var photoViewModel: PhotoViewModel
-    
+    @Environment(\.layoutDirection) var layoutDirection
     // UI state and configuration variables
     let boxWidthPercentage: CGFloat = 0.7
     let boxHeightPercentage: CGFloat = 0.3
@@ -134,7 +134,8 @@ struct CameraView: View {
                     // Navigation and action buttons
                     HStack {
                         NavigationLink(value: "categories") {
-                            ButtonView(systemImage: "list.bullet", label: "حساسيني")
+                            ButtonView(systemImage: "text.page", label: NSLocalizedString("My Allergies", comment: "Label for my allergies"))
+                           
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             isCategoriesActive = true
@@ -153,17 +154,17 @@ struct CameraView: View {
                         if isCameraRunning {
                             Button(action: {
                                 viewModel.capturePhoto { image in
-                                       DispatchQueue.main.async {
-                                    photoCaptured = image
-                                    isCameraRunning = false
-                                    showRetakeButton = true
-                                    viewModel.stopSession()
-                                    
-                                    if let capturedPhoto = photoCaptured {
-                                        viewModel.resetPredictions()
-                                        viewModel.startTextRecognition(from: capturedPhoto)
+                                    DispatchQueue.main.async {
+                                        photoCaptured = image
+                                        isCameraRunning = false
+                                        showRetakeButton = true
+                                        viewModel.stopSession()
+                                        
+                                        if let capturedPhoto = photoCaptured {
+                                            viewModel.resetPredictions()
+                                            viewModel.startTextRecognition(from: capturedPhoto)
+                                        }
                                     }
-                                      }
                                 }
                             }) {
                                 CaptureButtonView()
@@ -176,7 +177,7 @@ struct CameraView: View {
                         Spacer()
                         
                         NavigationLink(value: "photo") {
-                            ButtonView(systemImage: "photo", label: "تحميل صورة")
+                            ButtonView(systemImage: "photo", label: NSLocalizedString("upload photo", comment: "Label for uploading a photo"))
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             isPhotoActive = true
@@ -209,24 +210,40 @@ struct CameraView: View {
                 if showRetakeButton {
                     VStack {
                         HStack {
-                            Spacer()
-                            Button(action:{
-                                viewModel.retakePhoto()
-                                isCameraRunning = true
-                                showRetakeButton = false
-                                viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
-                                
-                                
-                            }) {
-                                RetakeButtonView()
+                            if layoutDirection == .rightToLeft {
+                                Spacer()
+                                Button(action: {
+                                    viewModel.retakePhoto()
+                                    isCameraRunning = true
+                                    showRetakeButton = false
+                                    viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+                                }) {
+                                    RetakeButtonView()
+                                }
+                                .padding(.leading, 50) // Adjust padding for RTL
+                                .padding()
+                            } else {
+                                Button(action: {
+                                    viewModel.retakePhoto()
+                                    isCameraRunning = true
+                                    showRetakeButton = false
+                                    viewModel.updateROI(boxWidthPercentage: boxWidthPercentage, boxHeightPercentage: boxHeightPercentage)
+                                }) {
+                                    RetakeButtonView()
+                                }
+                                .padding(.trailing, 50) // Adjust padding for LTR
+                                .padding()
+                                Spacer()
                             }
-                            .padding([.trailing, .top], 20)
-                            .accessibilityLabel("Close and Retake Photo")
-                            .accessibilityHint("Double-tap to retake the photo")
                         }
+                        .padding(.top, 20)
+                        .accessibilityLabel("Close and Retake Photo")
+                        .accessibilityHint("Double-tap to retake the photo")
+                        
                         Spacer()
                     }
                     .padding()
+                    
                 }
             }
             .onAppear{

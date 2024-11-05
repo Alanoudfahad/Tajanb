@@ -365,6 +365,7 @@
       }
     },
     "My Allergies" : {
+      "comment" : "Label for my allergies",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -463,6 +464,17 @@
         }
       }
     },
+    "Select All" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختيار الكل"
+          }
+        }
+      }
+    },
     "Select at least 1" : {
       "localizations" : {
         "ar" : {
@@ -554,6 +566,17 @@
         }
       }
     },
+    "upload photo" : {
+      "comment" : "Label for uploading a photo",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "رفع صورة"
+          }
+        }
+      }
+    },
     "Upload Photo" : {
       "localizations" : {
         "ar" : {
@@ -581,12 +604,12 @@
         }
       }
     },
-    "We received your suggestion." : {
+    "We received your suggestion, and its under review." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "لقد تلقينا اقتراحك"
+            "value" : "تلقينا اقتراحك و سيتم مراجعته."
           }
         }
       }
@@ -633,6 +656,38 @@
         }
       }
     },
+    "اختيار الكل" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختيار الكل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All"
+          }
+        }
+      }
+    },
+    "اضغط مرتين للرجوع." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اضغط مرتين للرجوع"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "click twice to go back"
+          }
+        }
+      }
+    },
     "اقترح حساسية" : {
       "localizations" : {
         "ar" : {
@@ -645,6 +700,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suggest Allergy"
+          }
+        }
+      }
+    },
+    "الرجوع" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الرجوع"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
           }
         }
       }
