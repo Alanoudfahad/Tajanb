@@ -27,7 +27,7 @@ struct PhotoMainView: View {
                             let uniqueDetectedWords = Set(photoViewModel.detectedText.map { $0.word.lowercased() })
                             // Use case-insensitive comparison to check for matches with selected words
                             let hasNoAllergens = uniqueDetectedWords.isEmpty || !uniqueDetectedWords.contains { word in
-                                categoryManager.selectedWords.contains(where: { $0.lowercased() == word })
+                                categoryManager.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == word })
                             }
                             
                             HStack {
@@ -36,7 +36,7 @@ struct PhotoMainView: View {
                                     // Find the detected item using a case-insensitive comparison
                                     if let detectedItem = photoViewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
                                         // Display only if the word matches the user's selected allergens, ignoring case
-                                        if categoryManager.selectedWords.contains(where: { $0.lowercased() == word }) {
+                                        if categoryManager.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
                                             Text(detectedItem.word)
                                                 .font(.system(size: 16, weight: .medium))
                                                 .padding(10)
@@ -71,9 +71,11 @@ struct PhotoMainView: View {
                     .padding()
                 }
                 .onAppear {
-                    categoryManager.fetchCategories()
+                    categoryManager.firestoreViewModel.fetchCategories{
+                        
+                    }
                     // Load selected words using SwiftData model context
-                    categoryManager.loadSelectedWords()
+                    categoryManager.selectedWordsViewModel.loadSelectedWords()
                 }
                 if let image = selectedImage {
                     Button(action: {

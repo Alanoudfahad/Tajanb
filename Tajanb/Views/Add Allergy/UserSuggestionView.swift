@@ -33,7 +33,7 @@ struct UserSuggestionView: View {
                     .frame(height: 100) // Increase height for a larger text area
                 
                 Button(action: {
-                    viewModel.saveSuggestion(suggestionText) { result in
+                    viewModel.firestoreViewModel.saveSuggestion(suggestionText) { result in
                         switch result {
                         case .success:
                             showAlert = true  // Trigger the alert

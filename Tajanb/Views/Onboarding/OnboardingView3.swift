@@ -23,7 +23,7 @@ struct OnboardingView3: View {
                 .padding(.bottom, 20)
             
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 6)], spacing: 16) {
-                ForEach(cameraViewModel.availableCategories, id: \.name) { category in
+                ForEach(cameraViewModel.firestoreViewModel.availableCategories, id: \.name) { category in
                     Button(action: {
                         if selectedCategories.contains(category.name) {
                             selectedCategories.remove(category.name)
@@ -51,7 +51,7 @@ struct OnboardingView3: View {
             Spacer()
 
             Button(action: {
-                cameraViewModel.saveSelectedWords(for: selectedCategories)
+                cameraViewModel.selectedWordsViewModel.saveSelectedWords(for: selectedCategories)
                 hasSeenOnboarding = true
                 navigate = true
                 justCompletedOnboarding = true
@@ -76,9 +76,11 @@ struct OnboardingView3: View {
             Spacer()
         }
         .onAppear {
-            cameraViewModel.fetchCategories()
-            cameraViewModel.startSession()
-            print("Categories fetched: \(cameraViewModel.availableCategories)")
+            cameraViewModel.firestoreViewModel.fetchCategories{
+                
+            }
+            cameraViewModel.cameraManager.startSession()
+            print("Categories fetched: \(cameraViewModel.firestoreViewModel.availableCategories)")
         }
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .navigationBarHidden(true)

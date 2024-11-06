@@ -44,7 +44,13 @@ struct Word: Codable {
         ]
     }
 }
-
+// In CameraViewModel
+struct DetectedTextItem: Identifiable {
+    let id = UUID()
+    let category: String
+    let word: String
+    let hiddenSynonyms: [String]
+}
 
 
 

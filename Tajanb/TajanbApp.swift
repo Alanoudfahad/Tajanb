@@ -18,14 +18,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
-
 @main
 struct TajanbApp: App {
-    // register app delegate for Firebase setup
+    // Register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
     @State private var justCompletedOnboarding: Bool = false // Track if onboarding just completed
     let viewModel = CameraViewModel()
+    
     var body: some Scene {
         WindowGroup {
             if hasSeenOnboarding {
@@ -33,32 +33,35 @@ struct TajanbApp: App {
                 if justCompletedOnboarding {
                     // Directly show the CameraView after onboarding completion
                     CameraView(viewModel: viewModel, photoViewModel: PhotoViewModel(viewmodel: viewModel))
-//                        .onAppear {
-//                                         viewModel.fetchWordMappings() // Ensure mappings are loaded for CameraView
-//                                     }
                 } else {
                     // Show SplashScreen on all subsequent launches
                     SplashScreenView(cameraViewModel: viewModel)
                         .onAppear {
                             // Reset the flag after splash screen displays
                             justCompletedOnboarding = false
-                            //viewModel.fetchCategories()
-                            viewModel.fetchWordMappings()
+                            // Fetch word mappings through firestoreViewModel
+                            viewModel.firestoreViewModel.fetchWordMappings {
+                                // Optionally handle completion here
+                            }
                         }
                 }
             } else {
                 // Show Onboarding on the first launch
                 OnboardingContainerView(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
-                    .onAppear{
-                    //   viewModel.uploadJSONToFirestore()
-                    viewModel.fetchCategories()
-                        viewModel.fetchWordMappings()
-                   }
+                    .onAppear {
+                        // Upload JSON to Firestore if needed
+                        // viewModel.firestoreViewModel.uploadJSONToFirestore()
+                        
+                        // Fetch categories through firestoreViewModel
+                        viewModel.firestoreViewModel.fetchCategories {
+                            // Optionally handle completion here
+                        }
+                        // Fetch word mappings through firestoreViewModel
+                        viewModel.firestoreViewModel.fetchWordMappings {
+                            // Optionally handle completion here
+                        }
+                    }
             }
         }
-
-
     }
-    
 }
-

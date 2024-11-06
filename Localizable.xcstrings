@@ -578,6 +578,7 @@
       }
     },
     "Upload Photo" : {
+      "comment" : "Label for uploading a photo",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

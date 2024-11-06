@@ -15,8 +15,6 @@
 		94052BFF2CD753AE006D2E15 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 94052BFE2CD753AE006D2E15 /* FirebaseFunctions */; };
 		94052C012CD753AE006D2E15 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 94052C002CD753AE006D2E15 /* FirebaseStorage */; };
 		94052C032CD753AE006D2E15 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 94052C022CD753AE006D2E15 /* FirebaseStorageCombine-Community */; };
-		94052C152CD7A3A5006D2E15 /* categories_en.json in Resources */ = {isa = PBXBuildFile; fileRef = 94052C142CD7A3A5006D2E15 /* categories_en.json */; };
-		94052C162CD7A3A5006D2E15 /* categories_ar.json in Resources */ = {isa = PBXBuildFile; fileRef = 94052C132CD7A3A5006D2E15 /* categories_ar.json */; };
 		944AA2962CCC39DB00957CDC /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 944AA2952CCC39DB00957CDC /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
@@ -39,8 +37,6 @@
 
 /* Begin PBXFileReference section */
 		94052BF32CD75355006D2E15 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		94052C132CD7A3A5006D2E15 /* categories_ar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = categories_ar.json; sourceTree = "<group>"; };
-		94052C142CD7A3A5006D2E15 /* categories_en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = categories_en.json; sourceTree = "<group>"; };
 		944AA2952CCC39DB00957CDC /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		BDF7FF072CC4E86700518D46 /* Tajanb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tajanb.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF7FF1B2CC4E86900518D46 /* TajanbTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TajanbTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,8 +117,6 @@
 			isa = PBXGroup;
 			children = (
 				94052BF32CD75355006D2E15 /* GoogleService-Info.plist */,
-				94052C132CD7A3A5006D2E15 /* categories_ar.json */,
-				94052C142CD7A3A5006D2E15 /* categories_en.json */,
 				944AA2952CCC39DB00957CDC /* Localizable.xcstrings */,
 				BDF7FF092CC4E86700518D46 /* Tajanb */,
 				BDF7FF1E2CC4E86900518D46 /* TajanbTests */,
@@ -273,8 +267,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				94052BF42CD75355006D2E15 /* GoogleService-Info.plist in Resources */,
-				94052C152CD7A3A5006D2E15 /* categories_en.json in Resources */,
-				94052C162CD7A3A5006D2E15 /* categories_ar.json in Resources */,
 				944AA2962CCC39DB00957CDC /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
