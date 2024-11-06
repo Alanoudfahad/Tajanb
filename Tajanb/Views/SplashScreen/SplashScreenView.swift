@@ -38,7 +38,7 @@ struct SplashScreenView: View {
                        .animation(.easeInOut(duration: 1.5))
                 }
                 .onAppear {
-                    cameraViewModel.startSession()
+                    cameraViewModel.cameraManager.startSession()
                     withAnimation {
                         self.animateLogo = true
 

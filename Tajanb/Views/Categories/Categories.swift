@@ -36,9 +36,10 @@ struct Categories: View {
             
             Divider()
                 .background(Color.white)
-            List(viewModel.availableCategories, id: \.name) { category in
+            List(viewModel.firestoreViewModel.availableCategories, id: \.name) { category in
                            ZStack {
-                               NavigationLink(destination: WordListView(category: category, viewModel: viewModel)) {
+                               NavigationLink(destination: WordListView(category: category, selectedWordsViewModel: viewModel.selectedWordsViewModel)) {
+
                                }
                                .opacity(0)
                                
@@ -68,7 +69,6 @@ struct Categories: View {
             Button(action: {
                 isSuggestionSheetPresented = true
 
-               // sendEmail()
                 // Set the button as pressed and start a delay to keep it green longer
                 withAnimation {
                     isPressed = true
@@ -107,7 +107,7 @@ struct Categories: View {
             
                }
         .onAppear {
-                  viewModel.loadSelectedWords() // Load from UserDefaults
+            viewModel.selectedWordsViewModel.loadSelectedWords() // Load from UserDefaults
               }
 
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
