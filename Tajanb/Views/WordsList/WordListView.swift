@@ -101,33 +101,31 @@ struct WordListView: View {
 
     // التعامل مع تبديل "اختيار الكل" بناءً على حالة المستخدم
     private func handleSelectAllToggleChange(_ isSelected: Bool) {
-        let allWords = category.words.map { $0.word }
+        let allWords = category.words.flatMap { [$0.word] + $0.hiddenSynonyms }
         
         if isSelected {
-            // إذا تم تفعيل "اختيار الكل"، نضيف كل العناصر
             viewModel.updateSelectedWords(with: allWords)
         } else {
-            // إذا أراد المستخدم إيقاف "اختيار الكل" فقط، نترك الاختيار الحالي
-            if viewModel.selectedWords.count == allWords.count {
-                // إذا كانت جميع العناصر محددة، يتم إلغاء تحديدها كلها
-                viewModel.updateSelectedWords(with: [])
-            }
+            viewModel.updateSelectedWords(with: [])
         }
     }
     
     // Toggle selection for a single word
     private func toggleSelection(for word: String, isSelected: Bool) {
+        guard let categoryWord = category.words.first(where: { $0.word == word }) else { return }
+        
         if isSelected {
             if !viewModel.selectedWords.contains(word) {
                 viewModel.selectedWords.append(word)
+                viewModel.selectedWords.append(contentsOf: categoryWord.hiddenSynonyms)
             }
         } else {
-            viewModel.selectedWords.removeAll { $0 == word }
-            isSelectAllEnabled = false // Turn off "Select All" if any item is manually deselected
+            viewModel.selectedWords.removeAll { $0 == word || categoryWord.hiddenSynonyms.contains($0) }
+            isSelectAllEnabled = false
         }
         
-        viewModel.saveSelectedWords() // Save selection to UserDefaults whenever there’s a change
-        updateSelectAllStatus() // Update "Select All" based on individual selection
+        viewModel.saveSelectedWords()
+        updateSelectAllStatus()
     }
     
     // تحديث حالة "اختيار الكل" بناءً على العناصر الفردية

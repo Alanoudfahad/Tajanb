@@ -57,32 +57,32 @@ extension CameraViewModel {
            print("Words saved: \(wordsToSave)")
        }
     //Toggle Word Selection
-    func toggleSelection(for word: String, language: String, isSelected: Bool) {
-        // Find the word’s ID and mapping in the wordMappings dictionary
-        let wordId = wordMappings.first { language == "ar" ? $0.value.arabic == word : $0.value.english == word }?.key
-        
-        // Make sure the ID exists and has corresponding entries in both languages
-        guard let id = wordId, let mapping = wordMappings[id] else { return }
-        
-        if isSelected {
-            // Add the selected word and its counterpart
-            if !selectedWords.contains(word) {
-                selectedWords.append(word)
-            }
-            
-            let correspondingWord = language == "ar" ? mapping.english : mapping.arabic
-            if !selectedWords.contains(correspondingWord) {
-                selectedWords.append(correspondingWord)
-            }
-        } else {
-            // Remove the selected word and its counterpart
-            selectedWords.removeAll { $0 == word }
-            let correspondingWord = language == "ar" ? mapping.english : mapping.arabic
-            selectedWords.removeAll { $0 == correspondingWord }
-        }
-
-        saveSelectedWords() // Save updated selections
-    }
+//    func toggleSelection(for word: String, language: String, isSelected: Bool) {
+//        // Find the word’s ID and mapping in the wordMappings dictionary
+//        let wordId = wordMappings.first { language == "ar" ? $0.value.arabic == word : $0.value.english == word }?.key
+//        
+//        // Make sure the ID exists and has corresponding entries in both languages
+//        guard let id = wordId, let mapping = wordMappings[id] else { return }
+//        
+//        if isSelected {
+//            // Add the selected word and its counterpart
+//            if !selectedWords.contains(word) {
+//                selectedWords.append(word)
+//            }
+//            
+//            let correspondingWord = language == "ar" ? mapping.english : mapping.arabic
+//            if !selectedWords.contains(correspondingWord) {
+//                selectedWords.append(correspondingWord)
+//            }
+//        } else {
+//            // Remove the selected word and its counterpart
+//            selectedWords.removeAll { $0 == word }
+//            let correspondingWord = language == "ar" ? mapping.english : mapping.arabic
+//            selectedWords.removeAll { $0 == correspondingWord }
+//        }
+//
+//        saveSelectedWords() // Save updated selections
+//    }
 //       func toggleSelection(for word: String, isSelected: Bool) {
 //           if isSelected {
 //               if !selectedWords.contains(word) {
@@ -233,10 +233,18 @@ extension CameraViewModel {
         
         foundAllergens = false  // Reset allergens flag
         
-        // Check each word for allergens
-        for word in words {
-            if checkAllergy(for: word) {
-                foundAllergens = true
+        let maxPhraseLength = 4  // Adjust this as needed for longer phrases
+        let N = words.count
+
+        // Check each word and phrases for allergens
+        for i in 0..<N {
+            for L in 1...maxPhraseLength {
+                if i + L <= N {
+                    let phrase = words[i..<i+L].joined(separator: " ")
+                    if checkAllergy(for: phrase) {
+                        foundAllergens = true
+                    }
+                }
             }
         }
         
@@ -249,6 +257,31 @@ extension CameraViewModel {
         
         print("Free Allergen Message: \(freeAllergenMessage ?? "No Message"), foundAllergens: \(foundAllergens)")
     }
+//    func processAllergensFromCapturedText(_ detectedStrings: [String]) {
+//        let combinedText = detectedStrings.joined(separator: " ")
+//        let cleanedText = preprocessText(combinedText)
+//        
+//        print("Detected Combined Text: \(cleanedText)")
+//        let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
+//        
+//        foundAllergens = false  // Reset allergens flag
+//        
+//        // Check each word for allergens
+//        for word in words {
+//            if checkAllergy(for: word) {
+//                foundAllergens = true
+//            }
+//        }
+//        
+//        // Update allergen-free message if no allergens found
+//        if foundAllergens {
+//            freeAllergenMessage = nil
+//        } else {
+//            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسية" : "Allergen-free"
+//        }
+//        
+//        print("Free Allergen Message: \(freeAllergenMessage ?? "No Message"), foundAllergens: \(foundAllergens)")
+//    }
     
     // Perform a fuzzy search for a keyword in the text
     func fuzzyContains(_ text: String, keyword: String) -> Bool {
@@ -259,22 +292,22 @@ extension CameraViewModel {
     }
 
     // Check if the word matches any selected allergen
-    private func checkAllergy(for word: String) -> Bool {
-        let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
+    private func checkAllergy(for phrase: String) -> Bool {
+        let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
         
-        if let result = isTargetWord(cleanedWord) {
-            if !matchedWordsSet.contains(cleanedWord) {
+        if let result = isTargetWord(cleanedPhrase) {
+            if !matchedWordsSet.contains(cleanedPhrase) {
                 if selectedWords.contains(result.1) {
                     DispatchQueue.main.async {
                         self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
                         self.hapticManager.performHapticFeedback()
-                        self.matchedWordsSet.insert(cleanedWord)
+                        self.matchedWordsSet.insert(cleanedPhrase)
                     }
                     return true
                 }
             }
         } else {
-            matchedWordsSet.remove(cleanedWord)
+            matchedWordsSet.remove(cleanedPhrase)
         }
         return false
     }
@@ -293,6 +326,44 @@ extension CameraViewModel {
 
 
 
+//    func preprocessText(_ text: String) -> String {
+//        var cleanedText = text
+//            .replacingOccurrences(of: "\n", with: " ")
+//            .replacingOccurrences(of: "-", with: " ")
+//            .replacingOccurrences(of: "[^\\p{L}\\p{Z}]", with: " ", options: .regularExpression)
+//            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+//            .trimmingCharacters(in: .whitespacesAndNewlines)
+//
+//        // Common OCR error corrections in Arabic and English
+//        let ocrCorrections: [String: String] = [
+//            // Arabic OCR corrections
+//            "االمكونات": "المكونات",
+//            "تتكوين": "تكوين",
+//            "الترريبه": "التركيبة",
+//            "الممحتويات": "المحتويات",
+//            "منتتج": "منتج",
+//            
+//            // English OCR corrections
+//            "Ingrediants": "Ingredients", // Common OCR misspelling
+//            "Composion": "Composition",
+//            "Ingrdients": "Ingredients",
+//            "Contnts": "Contents"
+//            
+//            // Add additional corrections as needed
+//        ]
+//
+//        for (incorrect, correct) in ocrCorrections {
+//            cleanedText = cleanedText.replacingOccurrences(of: incorrect, with: correct)
+//        }
+//
+//        // Normalize Arabic diacritics and other combining marks for both languages
+//        cleanedText = cleanedText.applyingTransform(.stripCombiningMarks, reverse: false) ?? cleanedText
+//        
+//        // Lowercase for English words to handle case inconsistencies
+//        cleanedText = cleanedText.lowercased()
+//        
+//        return cleanedText
+//    }
     func preprocessText(_ text: String) -> String {
         var cleanedText = text
             .replacingOccurrences(of: "\n", with: " ")
@@ -309,14 +380,11 @@ extension CameraViewModel {
             "الترريبه": "التركيبة",
             "الممحتويات": "المحتويات",
             "منتتج": "منتج",
-            
             // English OCR corrections
             "Ingrediants": "Ingredients", // Common OCR misspelling
             "Composion": "Composition",
             "Ingrdients": "Ingredients",
             "Contnts": "Contents"
-            
-            // Add additional corrections as needed
         ]
 
         for (incorrect, correct) in ocrCorrections {
@@ -325,10 +393,10 @@ extension CameraViewModel {
 
         // Normalize Arabic diacritics and other combining marks for both languages
         cleanedText = cleanedText.applyingTransform(.stripCombiningMarks, reverse: false) ?? cleanedText
-        
+
         // Lowercase for English words to handle case inconsistencies
         cleanedText = cleanedText.lowercased()
-        
+
         return cleanedText
     }
 }

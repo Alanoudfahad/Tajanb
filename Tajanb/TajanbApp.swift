@@ -49,11 +49,11 @@ struct TajanbApp: App {
             } else {
                 // Show Onboarding on the first launch
                 OnboardingContainerView(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
-//                    .onAppear{
-//                     //  viewModel.uploadJSONToFirestore()
-//                 //   viewModel.fetchCategories()
-//                     //   viewModel.fetchWordMappings()
-//                   }
+                    .onAppear{
+                    //   viewModel.uploadJSONToFirestore()
+                    viewModel.fetchCategories()
+                        viewModel.fetchWordMappings()
+                   }
             }
         }
 

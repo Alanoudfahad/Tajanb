@@ -69,15 +69,24 @@ class PhotoViewModel: NSObject, ObservableObject {
 
         print("Detected Combined Text: \(cleanedText)")
 
-        // Split the cleaned text into words and check against selected words
+        // Split the cleaned text into words
         let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
         print("Detected Words List: \(words)")
 
         var foundAllergens = false
 
-        for word in words {
-            if checkAllergy(for: word) {
-                foundAllergens = true
+        let maxPhraseLength = 4 // Adjust this based on the maximum length of phrases you expect
+        let N = words.count
+
+        // Iterate over words and check for phrases
+        for i in 0..<N {
+            for L in 1...maxPhraseLength {
+                if i + L <= N {
+                    let phrase = words[i..<i+L].joined(separator: " ")
+                    if checkAllergy(for: phrase) {
+                        foundAllergens = true
+                    }
+                }
             }
         }
 
@@ -106,30 +115,30 @@ class PhotoViewModel: NSObject, ObservableObject {
         return result
     }
     
-    private func checkAllergy(for word: String) -> Bool {
-        let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased() // Clean the word
-
-        if let result = ViewModel.isTargetWord(cleanedWord) {
-            // Check if this word has already been detected to avoid duplicates
-            if !matchedWordsSet.contains(cleanedWord) {
-                // Check if the detected word matches a selected allergen
+    private func checkAllergy(for phrase: String) -> Bool {
+        let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
+        
+        if let result = ViewModel.isTargetWord(cleanedPhrase) {
+            // Check if this phrase has already been detected to avoid duplicates
+            if !matchedWordsSet.contains(cleanedPhrase) {
+                // Check if the detected phrase matches a selected allergen
                 if ViewModel.selectedWords.contains(result.1) {
                     DispatchQueue.main.async {
                         self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
                         
-                        // Perform haptic feedback only if the detected word matches a selected allergen
+                        // Perform haptic feedback only if the detected phrase matches a selected allergen
                         self.hapticManager.performHapticFeedback()
                         
-                        self.matchedWordsSet.insert(cleanedWord)
+                        self.matchedWordsSet.insert(cleanedPhrase)
                     }
                     return true // Allergen found
                 }
             }
         } else {
-            // Remove the word from the matched set if no longer matching
-            matchedWordsSet.remove(cleanedWord)
+            // Remove the phrase from the matched set if no longer matching
+            matchedWordsSet.remove(cleanedPhrase)
         }
-        return false // No allergen found for this word
+        return false // No allergen found for this phrase
     }
 
     private func getLocalizedMessage() -> String {
