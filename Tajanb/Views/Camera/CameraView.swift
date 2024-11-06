@@ -9,12 +9,11 @@ import SwiftUI
 import AVFoundation
 import UIKit
 import Vision
-import SwiftData
-import CloudKit
 
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
     @ObservedObject var photoViewModel: PhotoViewModel
+    
     @Environment(\.layoutDirection) var layoutDirection
     // UI state and configuration variables
     let boxWidthPercentage: CGFloat = 0.7

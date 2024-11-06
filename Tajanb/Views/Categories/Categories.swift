@@ -9,6 +9,7 @@ import SwiftUI
 
 struct Categories: View {
     @ObservedObject var viewModel: CameraViewModel
+    
     @Environment(\.dismiss) var dismiss
     @Environment(\.openURL) var openURL
     @State private var selectedCategory: String?

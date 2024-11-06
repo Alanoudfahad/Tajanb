@@ -10,12 +10,11 @@ import AVFoundation
 import Vision
 import UIKit
 import SwiftUICore
-//import SwiftData
 import FirebaseFirestore
-import Foundation
 import Combine
 
 class CameraViewModel: NSObject, ObservableObject {
+    var wordMappings: [String: (arabic: String, english: String)] = [:]
 
     @Published var availableCategories = [Category]()
     @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
@@ -26,7 +25,6 @@ class CameraViewModel: NSObject, ObservableObject {
     @Published var liveDetectedText: String = ""
     var matchedWordsSet: Set<String> = []
     var foundAllergens = false
-//    @Environment(\.modelContext) private var modelContext
     private var session: AVCaptureSession = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()
     private var capturedPhotoCompletion: ((UIImage?) -> Void)?
@@ -43,12 +41,51 @@ class CameraViewModel: NSObject, ObservableObject {
             loadSelectedWords() // Load words from UserDefaults
             configureTextRecognitions()  // Configure Vision request for text recognition
             configureCaptureSession()
-
     }
     
 
  
     // MARK: - Fetch categories and their associated words from Firestore
+    
+    func fetchWordMappings() {
+        let db = Firestore.firestore()
+        
+        // Fetch Arabic words
+        db.collection("categories_arabic").getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return } // Safely unwrap `self`
+            guard let documents = snapshot?.documents, error == nil else { return }
+            
+            for document in documents {
+                let data = document.data()
+                if let words = data["words"] as? [[String: Any]] {
+                    for wordData in words {
+                        if let id = wordData["id"] as? String,
+                           let word = wordData["word"] as? String {
+                            self.wordMappings[id] = (arabic: word, english: self.wordMappings[id]?.english ?? "")
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fetch English words
+        db.collection("categories_english").getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return }
+            guard let documents = snapshot?.documents, error == nil else { return }
+            
+            for document in documents {
+                let data = document.data()
+                if let words = data["words"] as? [[String: Any]] {
+                    for wordData in words {
+                        if let id = wordData["id"] as? String,
+                           let word = wordData["word"] as? String {
+                            self.wordMappings[id] = (arabic: self.wordMappings[id]?.arabic ?? "", english: word)
+                        }
+                    }
+                }
+            }
+        }
+    }
     // Fetch categories from Firestore
     func fetchCategories() {
         let db = Firestore.firestore()
@@ -319,3 +356,4 @@ extension CameraViewModel: AVCapturePhotoCaptureDelegate, AVCaptureVideoDataOutp
     
 
 }
+

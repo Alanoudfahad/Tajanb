@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingView3: View {
     @ObservedObject var cameraViewModel = CameraViewModel()
+    
     @State private var selectedCategories: Set<String> = []
     @State private var navigate = false
     @Binding var hasSeenOnboarding: Bool
