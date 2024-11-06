@@ -307,7 +307,7 @@ class CameraViewModel: NSObject, ObservableObject {
         let boxOriginX = (screenBounds.width - boxWidth) / 2
         let boxOriginY = (screenBounds.height - boxHeight) / 2
         regionOfInterest = CGRect(x: boxOriginX, y: boxOriginY, width: boxWidth, height: boxHeight)
-        print("Region of Interest: \(regionOfInterest)")  // Debugging output
+       // print("Region of Interest: \(regionOfInterest)")  // Debugging output
     }
     
     // Transform bounding box from normalized coordinates to screen coordinates
@@ -317,7 +317,7 @@ class CameraViewModel: NSObject, ObservableObject {
         let width = boundingBox.width * screenBounds.width
         let height = boundingBox.height * screenBounds.height
         let transformedRect = CGRect(x: x, y: y, width: width, height: height)
-        print("Transformed Bounding Box: \(transformedRect)")  // Debugging output
+       // print("Transformed Bounding Box: \(transformedRect)")  // Debugging output
         return transformedRect
     }
     // MARK: - Helper Functions for camera view:
