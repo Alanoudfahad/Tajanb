@@ -19,17 +19,21 @@ extension CameraViewModel {
            UserDefaults.standard.set(selectedWords, forKey: userDefaultsKey)
            print("Words successfully saved to UserDefaults: \(selectedWords)")
        }
-       
-       // Load the selected words from UserDefaults
-       func loadSelectedWords() {
-           if let savedWords = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String] {
-               selectedWords = savedWords
-               print("Loaded words from UserDefaults: \(selectedWords)")
-           } else {
-               print("No words found in UserDefaults.")
-           }
-       }
-       
+
+    func loadSelectedWords() {
+        if let savedWords = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String] {
+            selectedWords = savedWords.map { word in
+                // Translate word to current device language
+                if Locale.current.languageCode == "ar" {
+                    // Find the Arabic version if saved in English
+                    return wordMappings.first(where: { $0.value.english == word })?.value.arabic ?? word
+                } else {
+                    // Find the English version if saved in Arabic
+                    return wordMappings.first(where: { $0.value.arabic == word })?.value.english ?? word
+                }
+            }
+        }
+    }
        // Update selected words and save them to UserDefaults
        func updateSelectedWords(with words: [String]) {
            selectedWords = words
@@ -53,18 +57,43 @@ extension CameraViewModel {
            print("Words saved: \(wordsToSave)")
        }
     //Toggle Word Selection
-    
-       func toggleSelection(for word: String, isSelected: Bool) {
-           if isSelected {
-               if !selectedWords.contains(word) {
-                   selectedWords.append(word)
-               }
-           } else {
-               selectedWords.removeAll { $0 == word }
+    func toggleSelection(for word: String, language: String, isSelected: Bool) {
+        // Find the word’s ID and mapping in the wordMappings dictionary
+        let wordId = wordMappings.first { language == "ar" ? $0.value.arabic == word : $0.value.english == word }?.key
+        
+        // Make sure the ID exists and has corresponding entries in both languages
+        guard let id = wordId, let mapping = wordMappings[id] else { return }
+        
+        if isSelected {
+            // Add the selected word and its counterpart
+            if !selectedWords.contains(word) {
+                selectedWords.append(word)
+            }
+            
+            let correspondingWord = language == "ar" ? mapping.english : mapping.arabic
+            if !selectedWords.contains(correspondingWord) {
+                selectedWords.append(correspondingWord)
+            }
+        } else {
+            // Remove the selected word and its counterpart
+            selectedWords.removeAll { $0 == word }
+            let correspondingWord = language == "ar" ? mapping.english : mapping.arabic
+            selectedWords.removeAll { $0 == correspondingWord }
+        }
 
-           }
-           saveSelectedWords() // Save to UserDefaults whenever selection changes
-       }
+        saveSelectedWords() // Save updated selections
+    }
+//       func toggleSelection(for word: String, isSelected: Bool) {
+//           if isSelected {
+//               if !selectedWords.contains(word) {
+//                   selectedWords.append(word)
+//               }
+//           } else {
+//               selectedWords.removeAll { $0 == word }
+//
+//           }
+//           saveSelectedWords() // Save to UserDefaults whenever selection changes
+//       }
     
     
     // MARK: - Text recognition Functions
@@ -157,13 +186,23 @@ extension CameraViewModel {
     func processDetectedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
         let cleanedText = preprocessText(combinedText)
-
+        
         print("Detected Combined Text (Live): \(cleanedText)")  // Debugging
         
         self.liveDetectedText = cleanedText
 
-        // Check for "المكونات" to detect ingredients
-        if fuzzyContains(cleanedText, keyword: "المكونات") {
+        // Define and use expanded synonyms for "ingredients"
+        let ingredientSynonyms = [
+            "المكونات", "مكونات", "مواد", "عناصر", "محتويات", "تركيبة",
+            "تركيب", "خليط", "تركيبات", "مواد خام", "مكونات الغذاء",
+            "مكونات المنتج", "Ingredients", "Contents", "Composition",
+            "Components", "Formula", "Constituents", "Mixture", "Blend",
+            "Ingredients List", "Product Ingredients", "Food Ingredients",
+            "Raw Materials"
+        ]
+
+        // Check if any synonym for "ingredients" is present
+        if ingredientSynonyms.contains(where: { fuzzyContains(cleanedText, keyword: $0) }) {
             hasDetectedIngredients = true
         } else {
             hasDetectedIngredients = false
@@ -174,12 +213,10 @@ extension CameraViewModel {
             freeAllergenMessage = nil
             hasDetectedIngredients = true
         } else {
-            if fuzzyContains(cleanedText, keyword: "المكونات") {
+            if hasDetectedIngredients {
                 freeAllergenMessage = getLocalizedMessage()
-                hasDetectedIngredients = true
             } else {
                 freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خطأ: لم يتم العثور على المكونات" : "Error: Ingredients not found"
-                hasDetectedIngredients = false
             }
         }
 
@@ -256,7 +293,6 @@ extension CameraViewModel {
 
 
 
-    // Preprocess text by removing unwanted characters and normalizing spaces
     func preprocessText(_ text: String) -> String {
         var cleanedText = text
             .replacingOccurrences(of: "\n", with: " ")
@@ -264,10 +300,35 @@ extension CameraViewModel {
             .replacingOccurrences(of: "[^\\p{L}\\p{Z}]", with: " ", options: .regularExpression)
             .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Common OCR error corrections in Arabic and English
+        let ocrCorrections: [String: String] = [
+            // Arabic OCR corrections
+            "االمكونات": "المكونات",
+            "تتكوين": "تكوين",
+            "الترريبه": "التركيبة",
+            "الممحتويات": "المحتويات",
+            "منتتج": "منتج",
+            
+            // English OCR corrections
+            "Ingrediants": "Ingredients", // Common OCR misspelling
+            "Composion": "Composition",
+            "Ingrdients": "Ingredients",
+            "Contnts": "Contents"
+            
+            // Add additional corrections as needed
+        ]
+
+        for (incorrect, correct) in ocrCorrections {
+            cleanedText = cleanedText.replacingOccurrences(of: incorrect, with: correct)
+        }
+
+        // Normalize Arabic diacritics and other combining marks for both languages
+        cleanedText = cleanedText.applyingTransform(.stripCombiningMarks, reverse: false) ?? cleanedText
         
-        // Fix OCR errors like repeated characters in Arabic
-        cleanedText = cleanedText.replacingOccurrences(of: "االمكونات", with: "المكونات")
+        // Lowercase for English words to handle case inconsistencies
+        cleanedText = cleanedText.lowercased()
         
-        return cleanedText.applyingTransform(.stripCombiningMarks, reverse: false) ?? cleanedText
+        return cleanedText
     }
 }

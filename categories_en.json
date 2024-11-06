@@ -1,136 +1,135 @@
-
 [
   {
     "name": "Spices",
     "icon": "🧂",
     "words": [
-      { "word": "Black Pepper", "hiddenSynonyms": ["Ground Black Pepper", "Black Pepper Powder", "Pepper Seeds", "Crushed Pepper", "Pepper"] },
-      { "word": "Turmeric", "hiddenSynonyms": ["Safflower", "Turmeric Powder", "Ground Turmeric", "Turmeric"] },
-      { "word": "Cinnamon", "hiddenSynonyms": ["Cassia", "Cinnamon Powder", "Ground Cinnamon", "Cinnamon Sticks", "Cinnamon"] },
-      { "word": "Cumin", "hiddenSynonyms": ["Ground Cumin", "Cumin Seeds", "Whole Cumin", "Cumin Powder"] },
-      { "word": "Curry", "hiddenSynonyms": ["Curry Spice", "Curry Powder", "Crushed Curry", "Curry"] },
-      { "word": "Chili Pepper", "hiddenSynonyms": ["Chili Flakes", "Crushed Red Pepper", "Ground Chili Pepper", "Red Pepper", "Chili"] },
-      { "word": "Ginger", "hiddenSynonyms": ["Ground Ginger", "Ginger Powder", "Fresh Ginger", "Ginger Root", "Ginger"] }
+      { "id": "pepper_001", "word": "Black Pepper", "hiddenSynonyms": ["Ground Black Pepper", "Black Pepper Powder", "Pepper Seeds", "Crushed Pepper", "Pepper", "Whole Black Pepper", "Peppercorns"] },
+      { "id": "turmeric_002", "word": "Turmeric", "hiddenSynonyms": ["Safflower", "Turmeric Powder", "Ground Turmeric", "Turmeric Root", "Curcumin"] },
+      { "id": "cinnamon_003", "word": "Cinnamon", "hiddenSynonyms": ["Cassia", "Cinnamon Powder", "Ground Cinnamon", "Cinnamon Sticks", "Ceylon Cinnamon", "True Cinnamon"] },
+      { "id": "cumin_004", "word": "Cumin", "hiddenSynonyms": ["Ground Cumin", "Cumin Seeds", "Whole Cumin", "Cumin Powder", "Cumin Spice"] },
+      { "id": "curry_005", "word": "Curry", "hiddenSynonyms": ["Curry Spice", "Curry Powder", "Crushed Curry", "Yellow Curry", "Green Curry"] },
+      { "id": "chili_006", "word": "Chili Pepper", "hiddenSynonyms": ["Chili Flakes", "Crushed Red Pepper", "Ground Chili Pepper", "Red Pepper", "Chili", "Cayenne Pepper"] },
+      { "id": "ginger_007", "word": "Ginger", "hiddenSynonyms": ["Ground Ginger", "Ginger Powder", "Fresh Ginger", "Ginger Root", "Crystallized Ginger"] },
+      { "id": "cloves_008", "word": "Cloves", "hiddenSynonyms": ["Whole Cloves", "Ground Cloves", "Clove Powder", "Clove Buds"] },
+      { "id": "nutmeg_009", "word": "Nutmeg", "hiddenSynonyms": ["Ground Nutmeg", "Nutmeg Seeds", "Whole Nutmeg", "Nutmeg Spice"] },
+      { "id": "cardamom_010", "word": "Cardamom", "hiddenSynonyms": ["Cardamom Pods", "Ground Cardamom", "Whole Cardamom", "Cardamom Spice"] }
     ]
   },
   {
     "name": "Seeds",
     "icon": "🌻",
     "words": [
-      { "word": "Sesame", "hiddenSynonyms": ["Sesame Seeds", "Sesame Oil", "Roasted Sesame", "Black Sesame", "White Sesame", "Sesame"] },
-      { "word": "Chickpeas", "hiddenSynonyms": ["Chickpea Seeds", "Tahini", "Cooked Chickpeas", "Chickpea Paste", "Dried Chickpeas"] },
-      { "word": "Mustard", "hiddenSynonyms": ["Mustard Seeds", "Mustard Powder", "Yellow Mustard", "Mustard"] },
-      { "word": "Flax", "hiddenSynonyms": ["Flax Seeds", "Flax Oil", "Ground Flax"] },
-      { "word": "Sunflower", "hiddenSynonyms": ["Sunflower Seeds", "Sunflower Kernels", "Sunflower Oil"] },
-      { "word": "Pumpkin", "hiddenSynonyms": ["Pumpkin Seeds", "Pumpkin Kernels", "Whole Pumpkin Seeds"] },
-      { "word": "Chia", "hiddenSynonyms": ["Chia Seeds"] }
+      { "id": "sesame_001", "word": "Sesame", "hiddenSynonyms": ["Sesame Seeds", "Sesame Oil", "Roasted Sesame", "Black Sesame", "White Sesame", "Tahini"] },
+      { "id": "chickpeas_002", "word": "Chickpeas", "hiddenSynonyms": ["Chickpea Seeds", "Tahini", "Cooked Chickpeas", "Chickpea Paste", "Dried Chickpeas", "Hummus"] },
+      { "id": "mustard_003", "word": "Mustard", "hiddenSynonyms": ["Mustard Seeds", "Mustard Powder", "Yellow Mustard", "Ground Mustard", "Brown Mustard"] },
+      { "id": "flax_004", "word": "Flax", "hiddenSynonyms": ["Flax Seeds", "Flax Oil", "Ground Flax", "Golden Flax", "Brown Flax"] },
+      { "id": "sunflower_005", "word": "Sunflower", "hiddenSynonyms": ["Sunflower Seeds", "Sunflower Kernels", "Sunflower Oil", "Roasted Sunflower", "Raw Sunflower Seeds"] },
+      { "id": "pumpkin_006", "word": "Pumpkin", "hiddenSynonyms": ["Pumpkin Seeds", "Pumpkin Kernels", "Whole Pumpkin Seeds", "Roasted Pumpkin Seeds"] },
+      { "id": "chia_007", "word": "Chia", "hiddenSynonyms": ["Chia Seeds", "Ground Chia", "Black Chia Seeds", "White Chia Seeds"] }
     ]
   },
   {
     "name": "Wheat (Gluten)",
     "icon": "🌾",
     "words": [
-      { "word": "Flour", "hiddenSynonyms": ["White Flour", "Wheat Flour", "Whole Wheat Flour"] },
-      { "word": "Bulgur", "hiddenSynonyms": ["Crushed Wheat", "Coarse Bulgur", "Fine Bulgur"] },
-      { "word": "Semolina", "hiddenSynonyms": ["Fine Semolina", "Coarse Semolina"] },
-      { "word": "Bran", "hiddenSynonyms": ["Wheat Bran", "Bran"] },
-      { "word": "Bread", "hiddenSynonyms": ["Arabic Bread", "Traditional Bread", "Flat Bread"] },
-      { "word": "Pasta", "hiddenSynonyms": ["Macaroni", "Noodles", "Spaghetti"] },
-      { "word": "Processed Meats", "hiddenSynonyms": ["Preserved Meats", "Cured Meats"] },
-      { "word": "Cereal", "hiddenSynonyms": ["Cornflakes", "Breakfast Cereal", "Cereal"] },
-      { "word": "Couscous", "hiddenSynonyms": ["Couscous"] },
-      { "word": "Vermicelli", "hiddenSynonyms": ["Fine Noodles"] },
-      { "word": "Wheat", "hiddenSynonyms": ["Wheat Grains", "Whole Wheat"] }
+      { "id": "flour_008", "word": "Flour", "hiddenSynonyms": ["White Flour", "Wheat Flour", "Whole Wheat Flour", "All-Purpose Flour", "Bread Flour", "Pastry Flour"] },
+      { "id": "bulgur_009", "word": "Bulgur", "hiddenSynonyms": ["Crushed Wheat", "Coarse Bulgur", "Fine Bulgur", "Parboiled Bulgur", "Dried Bulgur"] },
+      { "id": "semolina_010", "word": "Semolina", "hiddenSynonyms": ["Fine Semolina", "Coarse Semolina", "Durum Semolina", "Semolina Flour"] },
+      { "id": "bran_011", "word": "Bran", "hiddenSynonyms": ["Wheat Bran", "Rice Bran", "Oat Bran", "Bran Flakes"] },
+      { "id": "bread_012", "word": "Bread", "hiddenSynonyms": ["Arabic Bread", "Traditional Bread", "Flat Bread", "Whole Wheat Bread", "Sourdough"] },
+      { "id": "pasta_013", "word": "Pasta", "hiddenSynonyms": ["Macaroni", "Noodles", "Spaghetti", "Penne", "Fusilli", "Lasagna"] },
+      { "id": "processed_meats_014", "word": "Processed Meats", "hiddenSynonyms": ["Preserved Meats", "Cured Meats", "Deli Meats", "Cold Cuts", "Smoked Meats"] },
+      { "id": "cereal_015", "word": "Cereal", "hiddenSynonyms": ["Cornflakes", "Breakfast Cereal", "Oat Cereal", "Granola"] },
+      { "id": "vermicelli_017", "word": "Vermicelli", "hiddenSynonyms": ["Fine Noodles", "Thin Noodles", "Rice Vermicelli"] },
+      { "id": "wheat_018", "word": "Wheat", "hiddenSynonyms": ["Wheat Grains", "Whole Wheat", "Crushed Wheat", "Sprouted Wheat"] }
     ]
   },
   {
     "name": "Vegetables",
     "icon": "🥗",
     "words": [
-      { "word": "Carrot", "hiddenSynonyms": ["Fresh Carrot", "Shredded Carrot", "Baby Carrot"] },
-      { "word": "Celery", "hiddenSynonyms": ["Celery Stalks", "Celery Leaves"] },
-      { "word": "Potato", "hiddenSynonyms": ["Mashed Potato", "French Fries", "Boiled Potato"] },
-      { "word": "Bell Pepper", "hiddenSynonyms": ["Sweet Pepper", "Green Pepper", "Red Pepper"] },
-      { "word": "Cucumber", "hiddenSynonyms": ["Fresh Cucumber"] },
-      { "word": "Onion", "hiddenSynonyms": ["Red Onion", "White Onion", "Yellow Onion"] },
-      { "word": "Garlic", "hiddenSynonyms": ["Crushed Garlic", "Garlic Cloves", "Fresh Garlic"] },
-      { "word": "Spinach", "hiddenSynonyms": ["Fresh Spinach", "Frozen Spinach"] }
+      { "id": "carrot_019", "word": "Carrot", "hiddenSynonyms": ["Fresh Carrot", "Shredded Carrot", "Baby Carrot", "Carrot Sticks", "Carrot Juice"] },
+      { "id": "celery_020", "word": "Celery", "hiddenSynonyms": ["Celery Stalks", "Celery Leaves", "Celery Hearts", "Chopped Celery"] },
+      { "id": "potato_021", "word": "Potato", "hiddenSynonyms": ["Mashed Potato", "French Fries", "Boiled Potato", "Baked Potato", "Potato Wedges"] },
+      { "id": "bell_pepper_022", "word": "Bell Pepper", "hiddenSynonyms": ["Sweet Pepper", "Green Pepper", "Red Pepper", "Yellow Pepper", "Pepper Strips"] },
+      { "id": "cucumber_023", "word": "Cucumber", "hiddenSynonyms": ["Fresh Cucumber", "Sliced Cucumber", "Pickled Cucumber"] },
+      { "id": "onion_024", "word": "Onion", "hiddenSynonyms": ["Red Onion", "White Onion", "Yellow Onion", "Green Onion", "Spring Onion"] },
+      { "id": "garlic_025", "word": "Garlic", "hiddenSynonyms": ["Crushed Garlic", "Garlic Cloves", "Fresh Garlic", "Minced Garlic"] },
+      { "id": "spinach_026", "word": "Spinach", "hiddenSynonyms": ["Fresh Spinach", "Frozen Spinach", "Baby Spinach", "Chopped Spinach"] }
     ]
   },
   {
     "name": "Fruits",
     "icon": "🍓",
     "words": [
-      { "word": "Apple", "hiddenSynonyms": ["Green Apple", "Red Apple", "Yellow Apple"] },
-      { "word": "Peach", "hiddenSynonyms": ["Fresh Peach"] },
-      { "word": "Banana", "hiddenSynonyms": ["Fresh Banana"] },
-      { "word": "Cherry", "hiddenSynonyms": ["Red Cherry", "Black Cherry"] },
-      { "word": "Kiwi", "hiddenSynonyms": ["Kiwi Fruit"] },
-      { "word": "Strawberry", "hiddenSynonyms": ["Fresh Strawberry"] },
-      { "word": "Tomato", "hiddenSynonyms": ["Tomato Juice", "Fresh Tomato"] },
-      { "word": "Orange", "hiddenSynonyms": ["Orange Lemon", "Orange"] }
+      { "id": "apple_027", "word": "Apple", "hiddenSynonyms": ["Green Apple", "Red Apple", "Yellow Apple", "Apple Slices", "Apple Juice"] },
+      { "id": "peach_028", "word": "Peach", "hiddenSynonyms": ["Fresh Peach", "Peach Slices", "Canned Peach", "Dried Peach"] },
+      { "id": "banana_029", "word": "Banana", "hiddenSynonyms": ["Fresh Banana", "Banana Slices", "Dried Banana", "Banana Chips"] },
+      { "id": "cherry_030", "word": "Cherry", "hiddenSynonyms": ["Red Cherry", "Black Cherry", "Cherry Juice", "Dried Cherry"] },
+      { "id": "kiwi_031", "word": "Kiwi", "hiddenSynonyms": ["Kiwi Fruit", "Sliced Kiwi", "Golden Kiwi"] },
+      { "id": "strawberry_032", "word": "Strawberry", "hiddenSynonyms": ["Fresh Strawberry", "Sliced Strawberry", "Frozen Strawberry"] },
+      { "id": "tomato_033", "word": "Tomato", "hiddenSynonyms": ["Tomato Juice", "Fresh Tomato", "Cherry Tomato", "Tomato Paste"] },
+      { "id": "orange_034", "word": "Orange", "hiddenSynonyms": ["Orange Lemon", "Orange", "Blood Orange", "Mandarin"] }
     ]
   },
   {
     "name": "Dairy Products",
     "icon": "🥛",
     "words": [
-      { "word": "Cow Milk", "hiddenSynonyms": ["Fresh Milk", "Milk"] },
-      { "word": "Goat Milk", "hiddenSynonyms": ["Goat's Milk"] },
-      { "word": "Sheep Milk", "hiddenSynonyms": ["Sheep's Milk"] },
-      { "word": "Butter", "hiddenSynonyms": ["Ghee", "Fresh Butter"] },
-      { "word": "Cheese", "hiddenSynonyms": ["Fresh Cheese", "Mozzarella", "Cheddar"] },
-      { "word": "Cream", "hiddenSynonyms": ["Fresh Cream"] },
-      { "word": "Casein", "hiddenSynonyms": ["Milk Protein"] },
-      { "word": "Whey", "hiddenSynonyms": ["Whey Protein"] },
-      { "word": "Lactose", "hiddenSynonyms": ["Milk Sugar"] },
-      { "word": "Milk Powder", "hiddenSynonyms": ["Powdered Milk"] }
+      { "id": "cow_milk_035", "word": "Cow Milk", "hiddenSynonyms": ["Fresh Milk", "Whole Milk", "Skim Milk", "Low-Fat Milk"] },
+      { "id": "goat_milk_036", "word": "Goat Milk", "hiddenSynonyms": ["Fresh Goat Milk", "Goat's Milk", "Low-Fat Goat Milk"] },
+      { "id": "sheep_milk_037", "word": "Sheep Milk", "hiddenSynonyms": ["Sheep's Milk", "Whole Sheep Milk", "Skim Sheep Milk"] },
+      { "id": "butter_038", "word": "Butter", "hiddenSynonyms": ["Ghee", "Salted Butter", "Unsalted Butter", "Clarified Butter"] },
+      { "id": "cheese_039", "word": "Cheese", "hiddenSynonyms": ["Fresh Cheese", "Mozzarella", "Cheddar", "Swiss Cheese", "Blue Cheese"] },
+      { "id": "cream_040", "word": "Cream", "hiddenSynonyms": ["Fresh Cream", "Heavy Cream", "Whipped Cream", "Sour Cream"] },
+      { "id": "lactose_043", "word": "Lactose", "hiddenSynonyms": ["Milk Sugar", "Lactose Powder"] },
+      { "id": "milk_powder_044", "word": "Milk Powder", "hiddenSynonyms": ["Powdered Milk", "Dry Milk", "Whole Milk Powder"] }
     ]
   },
   {
     "name": "Nuts",
     "icon": "🥜",
     "words": [
-      { "word": "Peanut", "hiddenSynonyms": ["Crushed Peanut", "Roasted Peanut"] },
-      { "word": "Walnut", "hiddenSynonyms": ["English Walnut"] },
-      { "word": "Almond", "hiddenSynonyms": ["Roasted Almond", "Ground Almond"] },
-      { "word": "Cashew", "hiddenSynonyms": ["Roasted Cashew"] },
-      { "word": "Hazelnut", "hiddenSynonyms": ["Roasted Hazelnut"] },
-      { "word": "Pistachio", "hiddenSynonyms": ["Roasted Pistachio"] }
+      { "id": "peanut_045", "word": "Peanut", "hiddenSynonyms": ["Crushed Peanut", "Roasted Peanut", "Peanut Butter", "Raw Peanut"] },
+      { "id": "walnut_046", "word": "Walnut", "hiddenSynonyms": ["English Walnut", "Black Walnut", "Walnut Pieces"] },
+      { "id": "almond_047", "word": "Almond", "hiddenSynonyms": ["Roasted Almond", "Ground Almond", "Almond Flour", "Whole Almond"] },
+      { "id": "cashew_048", "word": "Cashew", "hiddenSynonyms": ["Roasted Cashew", "Salted Cashew", "Raw Cashew"] },
+      { "id": "hazelnut_049", "word": "Hazelnut", "hiddenSynonyms": ["Roasted Hazelnut", "Ground Hazelnut", "Whole Hazelnut"] },
+      { "id": "pistachio_050", "word": "Pistachio", "hiddenSynonyms": ["Roasted Pistachio", "Salted Pistachio", "Pistachio Kernels"] }
     ]
   },
   {
     "name": "Egg",
     "icon": "🥚",
     "words": [
-      { "word": "Egg White", "hiddenSynonyms": ["Albumen"] },
-      { "word": "Egg Yolk", "hiddenSynonyms": ["Yolk"] }
+      { "id": "egg_white_051", "word": "Egg White", "hiddenSynonyms": ["Albumen","egg","Egg", "Liquid Egg White", "Powdered Egg White"] },
+      { "id": "egg_yolk_052", "word": "Egg Yolk", "hiddenSynonyms": ["Yolk","egg","Egg","Liquid Yolk", "Powdered Yolk"] }
     ]
   },
   {
     "name": "Seafood",
     "icon": "🦀",
     "words": [
-      { "word": "Shrimp", "hiddenSynonyms": ["Prawns"] },
-      { "word": "Crab", "hiddenSynonyms": ["Crustacean"] },
-      { "word": "Oyster", "hiddenSynonyms": ["Shellfish"] }
+      { "id": "shrimp_053", "word": "Shrimp", "hiddenSynonyms": ["Prawns", "Jumbo Shrimp", "Frozen Shrimp", "Cooked Shrimp"] },
+      { "id": "crab_054", "word": "Crab", "hiddenSynonyms": ["Crustacean", "Fresh Crab", "Crab Meat", "Imitation Crab"] },
+      { "id": "oyster_055", "word": "Oyster", "hiddenSynonyms": ["Shellfish", "Raw Oyster", "Smoked Oyster"] }
     ]
   },
   {
     "name": "Fish",
     "icon": "🐟",
     "words": [
-      { "word": "Tuna", "hiddenSynonyms": ["Tuna Fish"] },
-      { "word": "Salmon", "hiddenSynonyms": ["Salmon Fish"] },
-      { "word": "Mackerel", "hiddenSynonyms": ["Mackerel Fish"] }
+      { "id": "tuna_056", "word": "Tuna", "hiddenSynonyms": ["Tuna Fish", "Canned Tuna", "Fresh Tuna", "Albacore Tuna"] },
+      { "id": "salmon_057", "word": "Salmon", "hiddenSynonyms": ["Salmon Fish", "Smoked Salmon", "Fresh Salmon", "Wild Salmon"] },
+      { "id": "mackerel_058", "word": "Mackerel", "hiddenSynonyms": ["Mackerel Fish", "Fresh Mackerel", "Canned Mackerel"] }
     ]
   },
   {
     "name": "Legumes",
     "icon": "🌽",
     "words": [
-      { "word": "Lentil", "hiddenSynonyms": ["Red Lentil", "Green Lentil"] },
-      { "word": "Bean", "hiddenSynonyms": ["White Bean", "Red Bean"] }
+      { "id": "lentil_059", "word": "Lentil", "hiddenSynonyms": ["Red Lentil", "Green Lentil", "Brown Lentil", "Yellow Lentil"] },
+      { "id": "bean_060", "word": "Bean", "hiddenSynonyms": ["White Bean", "Red Bean", "Black Bean", "Kidney Bean", "Pinto Bean"] }
     ]
   }
 ]

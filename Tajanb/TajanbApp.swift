@@ -33,23 +33,27 @@ struct TajanbApp: App {
                 if justCompletedOnboarding {
                     // Directly show the CameraView after onboarding completion
                     CameraView(viewModel: viewModel, photoViewModel: PhotoViewModel(viewmodel: viewModel))
-
+//                        .onAppear {
+//                                         viewModel.fetchWordMappings() // Ensure mappings are loaded for CameraView
+//                                     }
                 } else {
                     // Show SplashScreen on all subsequent launches
                     SplashScreenView(cameraViewModel: viewModel)
                         .onAppear {
                             // Reset the flag after splash screen displays
                             justCompletedOnboarding = false
-                            viewModel.fetchCategories()
+                            //viewModel.fetchCategories()
+                            viewModel.fetchWordMappings()
                         }
                 }
             } else {
                 // Show Onboarding on the first launch
                 OnboardingContainerView(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
 //                    .onAppear{
-//                        viewModel.uploadJSONToFirestore()
-//                        //viewModel.fetchCategories()
-//                    }
+//                     //  viewModel.uploadJSONToFirestore()
+//                 //   viewModel.fetchCategories()
+//                     //   viewModel.fetchWordMappings()
+//                   }
             }
         }
 

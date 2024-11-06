@@ -4,6 +4,7 @@ struct OnboardingContainerView: View {
     @Binding var hasSeenOnboarding: Bool
     @Binding var justCompletedOnboarding: Bool
     @State private var currentIndex = 0 // Track the current onboarding index
+    @ObservedObject var cameraViewModel = CameraViewModel()
 
     var body: some View {
         VStack {
@@ -58,14 +59,16 @@ struct OnboardingContainerView: View {
                     .tag(0)
                 OnboardingView2(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
                     .tag(1)
-                OnboardingView3(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
+                OnboardingView3(cameraViewModel: cameraViewModel, hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
                     .tag(2)
+
                 
             }
             
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default page indicator
             .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         }
+
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
     }
 }

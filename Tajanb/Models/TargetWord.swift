@@ -16,10 +16,9 @@ class SelectedWord: Identifiable {
         self.category = category
     }
 }
-
 struct Category: Codable {
     var name: String
-    var icon: String //  property for the emoji
+    var icon: String // Property for the emoji
     var words: [Word]
 
     func toDictionary() -> [String: Any] {
@@ -33,16 +32,19 @@ struct Category: Codable {
 }
 
 struct Word: Codable {
+    var id: String // Unique identifier for each word to match across languages
     var word: String
     var hiddenSynonyms: [String]
 
     func toDictionary() -> [String: Any] {
         return [
+            "id": id,
             "word": word,
             "hiddenSynonyms": hiddenSynonyms
         ]
     }
 }
+
 
 
 
