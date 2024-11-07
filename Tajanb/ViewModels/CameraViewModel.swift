@@ -284,11 +284,25 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
         
         if let result = isTargetWord(cleanedPhrase) {
-            if !matchedWordsSet.contains(cleanedPhrase), selectedWordsViewModel.selectedWords.contains(result.1) {
+            let detectedWord = result.1.lowercased()
+            
+            // Use result.2 directly as the synonyms array
+            let synonyms = result.2
+            let allMatchedWords = [detectedWord] + synonyms.map { $0.lowercased() }
+            
+            // Check if any variant of the detected word is already in matchedWordsSet
+            if !allMatchedWords.contains(where: { matchedWordsSet.contains($0) }),
+               selectedWordsViewModel.selectedWords.contains(detectedWord) {
+                
                 DispatchQueue.main.async {
-                    self.detectedText.append(DetectedTextItem(category: result.0, word: result.1, hiddenSynonyms: result.2))
-                    self.hapticManager.performHapticFeedback()
-                    self.matchedWordsSet.insert(cleanedPhrase)
+                    // Append detected item only if it's not already present
+                    if !self.detectedText.contains(where: { $0.word == result.1 }) {
+                        self.detectedText.append(DetectedTextItem(category: result.0, word: result.1, hiddenSynonyms: result.2))
+                        self.hapticManager.performHapticFeedback()
+                        
+                        // Add main word and its synonyms to matchedWordsSet
+                        self.matchedWordsSet.formUnion(allMatchedWords)
+                    }
                 }
                 return true
             }
@@ -297,6 +311,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         }
         return false
     }
+
 
     // Get localized allergen-free message
     private func getLocalizedMessage() -> String {
