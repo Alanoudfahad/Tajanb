@@ -66,7 +66,7 @@ struct WordListView: View {
                     }
                     .padding()
                     .background(Color("GrayList"))
-                    .cornerRadius(10)
+                    .cornerRadius(15)
                 }
                 .listRowBackground(Color.clear)
             }
@@ -86,7 +86,7 @@ struct WordListView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.backward")
-                        .foregroundColor(.customGreen)
+                        .foregroundColor(Color("PrimeryButton"))
                 }
                 .accessibilityLabel("الرجوع")
                 .accessibilityHint("اضغط مرتين للرجوع.")

@@ -370,12 +370,12 @@ struct CameraView: View {
                     
                     // Display allergen message or detected ingredients list
                     if !isCameraRunning, let freeAllergenMessage = viewModel.freeAllergenMessage {
-                        let isError = freeAllergenMessage.contains("خطأ") || freeAllergenMessage.contains("Error")
+                        let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
                         Text(freeAllergenMessage)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.black)
                             .padding()
-                            .background(isError ? Color.yellow : Color("FreeColor"))
+                            .background(isError ? Color.yellow : Color("AllergyFreeColor"))
                             .cornerRadius(20)
                             .padding(.top, 10)
                             .accessibilityLabel(freeAllergenMessage)
@@ -389,7 +389,7 @@ struct CameraView: View {
                                     Text(detectedItem.word)
                                         .font(.system(size: 14, weight: .medium))
                                         .padding(10)
-                                        .background(Color.red.opacity(0.8))
+                                        .background(Color("AllergyWarningColor"))
                                         .foregroundColor(.white)
                                         .cornerRadius(20)
                                 }

@@ -50,7 +50,7 @@ struct Categories: View {
                         }
                     }) {
                         AllergyRow(icon: category.icon, text: category.name)
-                            .background(selectedCategory == category.name ? Color("CustomGreen") : Color("GrayList"))
+                            .background(selectedCategory == category.name ? Color("PrimeryButton") : Color("GrayList"))
                             .cornerRadius(10)
                     }
                     .accessibilityLabel("Category: \(category.name)")
@@ -62,10 +62,12 @@ struct Categories: View {
             .scrollContentBackground(.hidden)
           
             
-            HStack{
-                Text("هل لديك حساسية أخرى؟")
-                    .foregroundStyle(.gray)
-                
+            HStack(alignment: .firstTextBaseline){
+                Text("هل تعاني من نوع أخر من الحساسية؟")
+                    .foregroundColor(Color("BodytextGray"))
+                    .font(.system(size: 14, weight: .medium))
+              //      .multilineTextAlignment(.trailing)
+
             Button(action: {
                 isSuggestionSheetPresented = true
 
@@ -83,8 +85,8 @@ struct Categories: View {
             }) {
                 
                 Text("اقترح حساسية")
-                    .font(.headline)
-                    .foregroundColor(Color("CustomGreen"))
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Color("PrimeryButton"))
                 
             }
             .accessibilityLabel("Suggest an Allergy")
@@ -98,7 +100,7 @@ struct Categories: View {
         }
             .padding()
             .padding(.top,5)
-
+            
             .sheet(isPresented: $isSuggestionSheetPresented) {
                 UserSuggestionView(viewModel: viewModel)
                     .presentationDetents([.fraction(0.5)]) // Set the sheet to half-page height
@@ -117,7 +119,7 @@ struct Categories: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.backward")
-                        .foregroundColor(.customGreen)
+                        .foregroundColor(Color("PrimeryButton"))
                 }
                 .accessibilityLabel("Back")
                 .accessibilityHint("Double-tap to go back.")

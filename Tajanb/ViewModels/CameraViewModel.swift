@@ -238,7 +238,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         } else if hasDetectedIngredients {
             freeAllergenMessage = getLocalizedMessage()
         } else {
-            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خطأ: لم يتم العثور على المكونات" : "Error: Ingredients not found"
+            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "عذرًا، لم نتمكن من اكتشاف أي مكونات. حاول مرة أخرى!" : "Sorry, we couldn't detect any ingredients. Give it another go!"
         }
     }
 
@@ -269,7 +269,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
 
         // Update message if no allergens are found
         if !foundAllergens {
-            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسية" : "Allergen-free"
+            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
         }
     }
 

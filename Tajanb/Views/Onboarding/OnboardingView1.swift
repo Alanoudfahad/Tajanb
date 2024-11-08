@@ -17,7 +17,7 @@ struct OnboardingView1: View {
 
             Text("Welcome to Tajanb!")
                 .font(.system(size: 36, weight: .bold))
-                .foregroundColor(Color("CustomGreen"))
+                .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 8)
 
             Text("Scan Fast for Sure Protection")
