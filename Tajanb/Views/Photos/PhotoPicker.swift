@@ -15,6 +15,7 @@ struct PhotoPicker: View {
                 // Only show this text and button after an image is selected
                 Text("نتيجة المكونات الموضحة في الصورة")
                     .font(.headline)
+                    .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding(.top)
 

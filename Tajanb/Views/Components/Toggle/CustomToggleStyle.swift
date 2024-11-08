@@ -9,7 +9,7 @@ struct CustomToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack {
             RoundedRectangle(cornerRadius: 16)
-                .fill(configuration.isOn ? Color("CustomGreen") : Color("CustomeGrayToggle"))
+                .fill(configuration.isOn ? Color("PrimeryButton") : Color("CustomeGrayToggle"))
                 .frame(width: 50, height: 30)
                 .overlay(
                     Circle()

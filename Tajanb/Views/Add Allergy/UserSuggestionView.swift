@@ -21,6 +21,12 @@ struct UserSuggestionView: View {
                 .edgesIgnoringSafeArea(.all) // Ensures the color extends beyond safe area
             
             VStack {
+                
+                Capsule()
+                    .fill(Color("SecondaryButton"))
+                    .frame(width: 80, height: 4)
+                    .padding(.bottom,60)
+                
                 Text("Your Suggestion!")
                     .font(.headline)
                     .padding(.top, 20)
@@ -47,7 +53,7 @@ struct UserSuggestionView: View {
                         .foregroundColor(.black)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color("CustomGreen"))
+                        .background(Color("PrimeryButton"))
                         .cornerRadius(10)
                         .padding(.horizontal, 20)
                 }
@@ -55,6 +61,8 @@ struct UserSuggestionView: View {
                 .padding(.top, 10)
             }
             .padding()
+            .padding(.bottom, 50)
+
         }
         .alert(isPresented: $showAlert) {
             Alert(

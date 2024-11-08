@@ -83,23 +83,7 @@
         }
       }
     },
-    "Check for allergens in your photos by selecting an image from your camera roll to scan for potentially harmful ingredients." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يمكنك التحقق من المواد المسببة للحساسية عن طريق تحديد صورة من ألبوم الكاميرا للبحث عن المكونات الضارة المحتملة"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Check for allergens in your photos by selecting an image from your camera roll to scan for potentially harmful ingredients."
-          }
-        }
-      }
-    },
-    "Choose type do you have?" : {
+    "Choose type of allergy you have?" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -135,6 +119,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "الكلمات المكتشفة: %@"
+          }
+        }
+      }
+    },
+    "Disclaimer" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تنويه"
           }
         }
       }
@@ -432,22 +426,6 @@
         }
       }
     },
-    "Scan a list of ingredients product, and find out if it is suitable for you." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "قم بمسح قائمة مكونات المنتج، واكتشف ما إذا كان مناسبًا لك"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan a list of ingredients product, and find out if it is suitable for you."
-          }
-        }
-      }
-    },
     "Scan Fast for Sure Protection" : {
       "localizations" : {
         "ar" : {
@@ -464,13 +442,12 @@
         }
       }
     },
-    "Select All" : {
-      "extractionState" : "stale",
+    "Scan the product's ingredient and check its suitability for you. Make sure to capture all components to ensure accurate results." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اختيار الكل"
+            "value" : "قم بمسح قائمة مكونات المنتج وتحقق من مدى ملاءمته لك و تأكد من تغطية كافة المكونات لضمان دقة النتائج."
           }
         }
       }
@@ -541,6 +518,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "شكرا"
+          }
+        }
+      }
+    },
+    "The app is not responsible for failing to capture all components during scanning." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "التطبيق لا يتحمل المسؤولية في حال عدم تغطية جميع المكونات أثناء المسح."
           }
         }
       }
@@ -627,6 +614,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welcome to Tajanb!"
+          }
+        }
+      }
+    },
+    "You can check for allergens by selecting an image from your camera roll to search for potentially harmful ingredients." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمكنك التحقق من المواد المسببة للحساسية عن طريق تحديد صورة من ألبوم الكاميرا للبحث عن المكونات الضارة المحتملة."
           }
         }
       }
@@ -853,18 +850,18 @@
         }
       }
     },
-    "هل لديك حساسية أخرى؟" : {
+    "هل تعاني من نوع أخر من الحساسية؟" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "هل لديك حساسية أخرى؟"
+            "value" : "هل تعاني من نوع أخر من الحساسية؟"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Do you have other allergies?"
+            "value" : "Do you suffer from another allergy?"
           }
         }
       }

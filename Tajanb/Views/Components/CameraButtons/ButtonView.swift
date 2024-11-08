@@ -13,11 +13,11 @@ struct ButtonView: View {
         VStack {
             ZStack {
                 Circle()
-                    .fill(Color.black.opacity(0.7))
+                    .fill(Color("CustomBackground").opacity(0.8))
                     .frame(width: 70, height: 70)
                 Image(systemName: systemImage)
                     .font(.system(size: 24))
-                    .foregroundColor(Color("CustomGreen"))
+                    .foregroundColor(Color("PrimeryButton"))
             }
             Text(label)
                 .font(.system(size: 14, weight: .medium))
@@ -30,7 +30,7 @@ struct CaptureButtonView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.customGreen, lineWidth: 3)
+                .stroke(Color("PrimeryButton"), lineWidth: 3)
                 .frame(width: 80, height: 80)
             Circle()
                 .fill(Color.white)
@@ -46,7 +46,7 @@ struct RetakeButtonView: View {
                 .foregroundColor(.black.opacity(0.7))
                 .frame(width: 40, height: 40)
             Image(systemName: "xmark")
-                .foregroundColor(.customGreen)
+                .foregroundColor(Color("PrimeryButton"))
                 .font(.system(size: 20))
         }
     }

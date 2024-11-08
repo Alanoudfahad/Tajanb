@@ -12,16 +12,16 @@ struct OnboardingContainerView: View {
             HStack(alignment: .center) {
                 HStack {
                     Capsule()
-                        .fill(currentIndex == 0 ? Color("CustomGreen") : Color.white)
+                        .fill(currentIndex == 0 ? Color("PrimeryButton") : Color("SecondaryButton"))
                         .frame(width: 30, height: 4)
                     Capsule()
-                        .fill(currentIndex == 1 ? Color("CustomGreen") : Color.white)
+                        .fill(currentIndex == 1 ? Color("PrimeryButton") : Color("SecondaryButton"))
                         .frame(width: 30, height: 4)
                     Capsule()
-                        .fill(currentIndex == 2 ? Color("CustomGreen") : Color.white)
+                        .fill(currentIndex == 2 ? Color("PrimeryButton") : Color("SecondaryButton"))
                         .frame(width: 30, height: 4)
                 }
-                .padding(.leading, 150)
+                .padding(.leading, 140.0)
                 .padding(.top)
                 
                 Spacer()
@@ -32,8 +32,9 @@ struct OnboardingContainerView: View {
                         currentIndex = 2
                     }) {
                         Text("Skip")
-                            .font(.headline)
-                            .foregroundColor(Color("CustomGreen"))
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color("PrimeryButton"))
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .cornerRadius(10)

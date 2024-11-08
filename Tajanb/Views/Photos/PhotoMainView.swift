@@ -40,7 +40,7 @@ struct PhotoMainView: View {
                                             Text(detectedItem.word)
                                                 .font(.system(size: 16, weight: .medium))
                                                 .padding(10)
-                                                .background(Color.red)
+                                                .background(Color("AllergyWarningColor"))
                                                 .foregroundColor(.white)
                                         
                                                 .clipShape(Capsule())
@@ -60,7 +60,7 @@ struct PhotoMainView: View {
                             Text(freeAllergenMessage)
                                 .font(.system(size: 16, weight: .medium))
                                 .padding(10)
-                                .background(isError ? Color.yellow : Color(red: 163/255, green: 234/255, blue: 11/255)) // Yellow for error, green for allergen-free
+                                .background(isError ? Color.yellow : Color("AllergyFreeColor")) // Yellow for error, green for allergen-free
                                 .foregroundColor(isError ? .black : .white) // Black text for error message for better contrast
                                 .clipShape(Capsule())
                                 .padding(.vertical)
@@ -86,13 +86,13 @@ struct PhotoMainView: View {
                             .foregroundColor(.black)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color(red: 163/255, green: 234/255, blue: 11/255))
+                            .background(Color("PrimeryButton"))
                             .cornerRadius(10)
                     }
                     .padding()
                     .accessibilityLabel(Text("Done"))
                     .accessibilityHint(Text("Double-tap to go back to the previous screen."))
-                    .background(Color(red: 30/255, green: 30/255, blue: 30/255))
+                 //   .background(Color(red: 30/255, green: 30/255, blue: 30/255))
                 }  else {
                     // Button to trigger the image picker
                     Button(action: {
@@ -103,7 +103,7 @@ struct PhotoMainView: View {
                             .foregroundColor(.black)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color(red: 163/255, green: 234/255, blue: 11/255))
+                            .background(Color("PrimeryButton"))
                             .cornerRadius(10)
                     }
                     .padding()
@@ -113,14 +113,14 @@ struct PhotoMainView: View {
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(image: $selectedImage)
             }
-        .background(Color(red: 30/255, green: 30/255, blue: 30/255).edgesIgnoringSafeArea(.all))
+        .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.backward")
-                        .foregroundColor(.customGreen)
+                        .foregroundColor(Color("PrimeryButton"))
                 }
                 .accessibilityLabel("Back")
                 .accessibilityHint("Double-tap to go back.")

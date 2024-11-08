@@ -12,9 +12,9 @@ struct OnboardingView3: View {
         VStack {
             Spacer()
 
-            Text("Choose type do you have?")
-                .font(.system(size: 25, weight: .bold))
-                .foregroundColor(Color("CustomGreen"))
+            Text("Choose type of allergy you have?")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 8)
             
             Text("Select at least 1")
@@ -33,15 +33,15 @@ struct OnboardingView3: View {
                     }) {
                         HStack(spacing: 8) {
                             Text(category.icon)
-                                .font(.system(size: 20))
+                                .font(.system(size: 18))
                             Text(category.name)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.system(size: 12))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(selectedCategories.contains(category.name) ? Color("CustomGreen") : Color.gray.opacity(0.2))
+                        .background(selectedCategories.contains(category.name) ? Color("PrimeryButton") : Color("SecondaryButton"))
                         .clipShape(Capsule())
                     }
                 }
@@ -61,7 +61,7 @@ struct OnboardingView3: View {
                     .foregroundColor(.black)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(selectedCategories.isEmpty ? Color.gray : Color("CustomGreen"))
+                    .background(selectedCategories.isEmpty ? Color("SecondaryButton") : Color("PrimeryButton"))
                     .cornerRadius(10)
                     .padding(.horizontal, 20)
             }
