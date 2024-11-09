@@ -87,6 +87,7 @@ struct Categories: View {
                 Text("اقترح حساسية")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color("PrimeryButton"))
+                    .underline()
                 
             }
             .accessibilityLabel("Suggest an Allergy")

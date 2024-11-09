@@ -3,13 +3,25 @@ import SwiftUI
 struct OnboardingView2: View {
     @Binding var hasSeenOnboarding: Bool
     @Binding var justCompletedOnboarding: Bool
+    // Create a computed property for the styled disclaimer text
+       var disclaimerText: AttributedString {
+           var attributedText = AttributedString(NSLocalizedString("Disclaimer: The app is not responsible for failing to capture all components during scanning.", comment: ""))
+           
+           // Apply styling to the word "Disclaimer"
+           if let range = attributedText.range(of: NSLocalizedString("Disclaimer", comment: "")) {
+               attributedText[range].foregroundColor = Color("TextColor")  // Apply custom color
+               attributedText[range].underlineStyle = .single  // Underline the word
+           }
+           
+           return attributedText
+       }
 
     var body: some View {
         VStack {
             Spacer()
 
             Text("How it works")
-                .font(.system(size: 25, weight: .bold))
+                .font(.system(size: 26, weight: .bold))
                 .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 20)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,13 +58,15 @@ struct OnboardingView2: View {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading) {
                         Text("Ingredient Scanner")
-                            .font(.headline)
+                            .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.white)
+                            .padding(.bottom,2)
                         Text("Scan the product's ingredient and check its suitability for you. Make sure to capture all components to ensure accurate results.")
-                            .font(.subheadline)
+                            .font(.system(size: 16, weight: .regular))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
+                            .padding(.bottom,4)
                         Image("PhotoScan")
                             .resizable()
                             .scaledToFit()
@@ -63,14 +77,16 @@ struct OnboardingView2: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Upload Photo")
-                            .font(.headline)
+                            .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.white)
+                            .padding(.bottom,2)
                         
                         Text("You can check for allergens by selecting an image from your camera roll to search for potentially harmful ingredients.")
-                            .font(.subheadline)
+                            .font(.system(size: 16, weight: .regular))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
+                            .padding(.bottom,4)
                         
                         Image("UploadPhoto")
                             .resizable()
@@ -79,11 +95,7 @@ struct OnboardingView2: View {
                             .cornerRadius(10)
                             .clipped()
                     }
-                    
-                    Spacer()
-                    
-               
-                    
+ 
                     
                 }
                 .padding(.horizontal, 10)
@@ -91,29 +103,20 @@ struct OnboardingView2: View {
                 
             }
             .padding(.horizontal, 16)
-
-            Spacer()
             
-            // Disclaimer Text
-            VStack(alignment: .leading) {
-                Text("Disclaimer")
-                    .foregroundColor(Color("TextColor"))
-                    .font(.headline)
-                    .bold()
-                
-                Text("The app is not responsible for failing to capture all components during scanning.")
-                    .foregroundColor(Color("WhiteText"))
-                    .lineSpacing(4)
-                    .font(.subheadline)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-
-
-            }
-            .padding(.bottom, 20)
-            .padding(.leading,20)
-
-            
+        // Disclaimer Text
+                      VStack(alignment: .leading) {
+                          // Use the computed property for the attributed text
+                          Text(disclaimerText)
+                              .foregroundColor(Color("WhiteText"))
+                              .font(.system(size: 16))
+                              .lineSpacing(4)
+                              .multilineTextAlignment(.leading)
+                              .fixedSize(horizontal: false, vertical: true)
+                              .padding(.bottom, 20)
+                              .padding(.leading, 20)
+                      }
+                      .padding()
             
             
         }

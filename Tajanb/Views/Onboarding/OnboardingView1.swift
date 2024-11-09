@@ -29,3 +29,7 @@ struct OnboardingView1: View {
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
     }
 }
+
+#Preview {
+    OnboardingView1(hasSeenOnboarding: .constant(false), justCompletedOnboarding: .constant(false))
+}

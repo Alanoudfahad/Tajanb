@@ -25,11 +25,25 @@ class CameraManager: NSObject {
     private let videoOutput = AVCaptureVideoDataOutput()
     private let queue = DispatchQueue(label: "cameraQueue")  // Queue for video output processing
     private var capturedPhotoCompletion: ((UIImage?) -> Void)?  // Completion handler for captured photo
+    // Add this property to track flash status
+     private var isFlashOn: Bool = false
+    private var videoDevice: AVCaptureDevice? {
+           return (session.inputs.first as? AVCaptureDeviceInput)?.device
+       }
+       
+    // MARK: - Zoom Properties
+         private var currentZoomFactor: CGFloat = 1.0
+      private var maxZoomFactor: CGFloat = 6.0  // Adjust based on device capabilities
+         private let minZoomFactor: CGFloat = 1.0
 
     // Initialize and configure the camera session
     override init() {
         super.init()
         configureCaptureSession()
+        // Update maxZoomFactor based on device capabilities
+        if let device = videoDevice {
+            maxZoomFactor = min(device.activeFormat.videoMaxZoomFactor, 6.0)
+        }
     }
     
     // MARK: - Camera functions
@@ -37,8 +51,17 @@ class CameraManager: NSObject {
     // Configures the capture session with necessary inputs and outputs
     func configureCaptureSession() {
         session.beginConfiguration()
-        session.sessionPreset = .high  // Set resolution to 720p
+       // session.sessionPreset = .high  // Set resolution to 720p
            // .hd1280x720
+        if session.canSetSessionPreset(.hd4K3840x2160) {
+                   session.sessionPreset = .hd4K3840x2160
+               } else if session.canSetSessionPreset(.hd1920x1080) {
+                   session.sessionPreset = .hd1920x1080
+               } else if session.canSetSessionPreset(.hd1280x720) {
+                   session.sessionPreset = .hd1280x720
+               } else {
+                   session.sessionPreset = .high
+               }
         // Remove any existing input to avoid conflicts
         if let currentInput = session.inputs.first {
             session.removeInput(currentInput)
@@ -81,6 +104,94 @@ class CameraManager: NSObject {
         // Set the video output delegate to handle each video frame
         videoOutput.setSampleBufferDelegate(self, queue: queue)
     }
+    // MARK: - Zoom Methods
+         
+         /// Sets the zoom factor for the camera. Clamped between `minZoomFactor` and `maxZoomFactor`.
+         /// - Parameter factor: The desired zoom factor.
+         func setZoomFactor(_ factor: CGFloat) {
+             guard let device = videoDevice else { return }
+             let zoomFactor = max(min(factor, maxZoomFactor), minZoomFactor)
+             
+             DispatchQueue.global(qos: .userInitiated).async {
+                 do {
+                     try device.lockForConfiguration()
+                     device.videoZoomFactor = zoomFactor
+                     device.unlockForConfiguration()
+                     
+                     DispatchQueue.main.async {
+                         self.currentZoomFactor = zoomFactor
+                     }
+                 } catch {
+                     print("Failed to set zoom factor: \(error)")
+                 }
+             }
+         }
+    /// Increases the zoom factor by a specified step.
+         /// - Parameter step: The amount to increase the zoom factor.
+         func zoomIn(step: CGFloat = 1.0) {
+             setZoomFactor(currentZoomFactor + step)
+         }
+         
+         /// Decreases the zoom factor by a specified step.
+         /// - Parameter step: The amount to decrease the zoom factor.
+         func zoomOut(step: CGFloat = 1.0) {
+             setZoomFactor(currentZoomFactor - step)
+         }
+         
+         /// Resets the zoom factor to the minimum.
+         func resetZoom() {
+             setZoomFactor(minZoomFactor)
+         }
+    // Add this method to toggle the torch
+       func toggleFlash(isOn: Bool) {
+           guard let device = videoDevice else { return }
+           if device.hasTorch {
+               do {
+                   try device.lockForConfiguration()
+                   if isOn {
+                       try device.setTorchModeOn(level: AVCaptureDevice.maxAvailableTorchLevel)
+                       self.isFlashOn = true
+                   } else {
+                       device.torchMode = .off
+                       self.isFlashOn = false
+                   }
+                   device.unlockForConfiguration()
+               } catch {
+                   print("Error setting torch: \(error)")
+               }
+           }
+       }
+    // MARK: - Focus Methods
+      
+      /// Sets the focus and exposure point to the specified normalized coordinates
+      /// - Parameter point: CGPoint with x and y in [0, 1]
+      func setFocusPoint(_ point: CGPoint) {
+          guard let device = videoDevice else { return }
+          
+          DispatchQueue.global(qos: .userInitiated).async {
+              do {
+                  try device.lockForConfiguration()
+                  
+                  // Set focus point
+                  if device.isFocusPointOfInterestSupported && device.isFocusModeSupported(.autoFocus) {
+                      device.focusPointOfInterest = point
+                      device.focusMode = .autoFocus
+                  }
+                  
+                  // Set exposure point
+                  if device.isExposurePointOfInterestSupported && device.isExposureModeSupported(.autoExpose) {
+                      device.exposurePointOfInterest = point
+                      device.exposureMode = .autoExpose
+                  }
+                  
+                  device.unlockForConfiguration()
+              } catch {
+                  print("Failed to set focus/exposure point: \(error)")
+              }
+          }
+      }
+
+    
     
     // Capture a still photo and call the completion handler with the captured image
     func capturePhoto(completion: @escaping (UIImage?) -> Void) {
@@ -148,6 +259,8 @@ class CameraManager: NSObject {
         configureCaptureSession()
         startSession()
     }
+    
+
 }
 
 extension CameraManager: AVCapturePhotoCaptureDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -169,6 +282,8 @@ extension CameraManager: AVCapturePhotoCaptureDelegate, AVCaptureVideoDataOutput
     
     // Continuously process video frames and pass them to the delegate for real-time analysis
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        let settings = AVCapturePhotoSettings()
+        settings.flashMode = isFlashOn ? .on : .off  // Set flash mode
         delegate?.cameraManager(self, didOutput: sampleBuffer)
     }
 }
