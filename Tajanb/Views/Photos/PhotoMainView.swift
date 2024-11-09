@@ -16,12 +16,11 @@ struct PhotoMainView: View {
 
         var body: some View {
             VStack {
-                ScrollView {
                     VStack {
                         PhotoPicker(selectedImage: $selectedImage, photoViewModel: photoViewModel)
                             .accessibilityLabel("Photo Picker")
                             .accessibilityHint("Double-tap to select an image for allergen detection")
-                        
+
                         if let _ = selectedImage {
                             // Create a set of detected words in lowercase for easier comparison
                             let uniqueDetectedWords = Set(photoViewModel.detectedText.map { $0.word.lowercased() })
@@ -30,27 +29,26 @@ struct PhotoMainView: View {
                                 categoryManager.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == word })
                             }
                             
-                            HStack {
-                                
-                                ForEach(Array(uniqueDetectedWords), id: \.self) { word in
-                                    // Find the detected item using a case-insensitive comparison
-                                    if let detectedItem = photoViewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
-                                        // Display only if the word matches the user's selected allergens, ignoring case
-                                        if categoryManager.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
-                                            Text(detectedItem.word)
-                                                .font(.system(size: 16, weight: .medium))
-                                                .padding(10)
-                                                .background(Color("AllergyWarningColor"))
-                                                .foregroundColor(.white)
-                                        
-                                                .clipShape(Capsule())
-                                                .accessibilityLabel(Text("\(detectedItem.word) allergen"))
-                                                .accessibilityHint(Text("Detected allergen from the selected image"))
+                                // Scrollable view for words only
+                                ScrollView(.vertical) {
+                                    FlowLayouts(items: Array(uniqueDetectedWords), horizontalSpacing: 10, verticalSpacing: 10) { word in
+                                        if let detectedItem = photoViewModel.detectedText.first(where: { $0.word.lowercased() == word }) {
+                                            if categoryManager.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == word }) {
+                                                Text(detectedItem.word)
+                                                    .font(.system(size: 14, weight: .medium))
+                                                    .padding(8)
+                                                    .background(Color("AllergyWarningColor"))
+                                                    .foregroundColor(.white)
+                                                    .clipShape(Capsule())
+                                                    .accessibilityLabel(Text("\(detectedItem.word) allergen"))
+                                                    .accessibilityHint(Text("Detected allergen from the selected image"))
+                                            }
                                         }
                                     }
+                                    .padding(.horizontal, 20)
+                                    .padding(.bottom, 20)
                                 }
-                                .padding(.vertical)
-                            }
+                                .frame(height: 200) // Constrain the height of the scrollable area for words
                         }
                         
                         // Check for the presence of the word "المكونات" and display error message if not found
@@ -68,8 +66,7 @@ struct PhotoMainView: View {
                                 .accessibilityHint(Text(isError ? "Ingredients not found" : "The selected image contains no allergens"))
                         }
                     }
-                    .padding()
-                }
+                
                 .onAppear {
                     categoryManager.firestoreViewModel.fetchCategories{
                         
@@ -77,6 +74,7 @@ struct PhotoMainView: View {
                     // Load selected words using SwiftData model context
                     categoryManager.selectedWordsViewModel.loadSelectedWords()
                 }
+                Spacer()
                 if let image = selectedImage {
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()
@@ -90,6 +88,7 @@ struct PhotoMainView: View {
                             .cornerRadius(10)
                     }
                     .padding()
+                    .padding(.bottom, 10)
                     .accessibilityLabel(Text("Done"))
                     .accessibilityHint(Text("Double-tap to go back to the previous screen."))
                  //   .background(Color(red: 30/255, green: 30/255, blue: 30/255))
@@ -105,6 +104,8 @@ struct PhotoMainView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color("PrimeryButton"))
                             .cornerRadius(10)
+                            .padding(.bottom, 10)
+
                     }
                     .padding()
                 }

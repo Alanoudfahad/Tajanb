@@ -13,12 +13,12 @@ struct OnboardingView3: View {
             Spacer()
 
             Text("Choose type of allergy you have?")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 26, weight: .bold))
                 .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 8)
             
             Text("Select at least 1")
-                .font(.system(size: 16))
+                .font(.system(size: 18))
                 .foregroundColor(.gray)
                 .padding(.bottom, 20)
             
@@ -36,9 +36,11 @@ struct OnboardingView3: View {
                                 .font(.system(size: 18))
                             Text(category.name)
                                 .font(.system(size: 12))
-                                .foregroundColor(.white)
+                              //  .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
+                                .foregroundColor(selectedCategories.contains(category.name) ? .black : Color("WhiteText"))
                         }
+                        
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(selectedCategories.contains(category.name) ? Color("PrimeryButton") : Color("SecondaryButton"))
@@ -58,13 +60,14 @@ struct OnboardingView3: View {
             }) {
                 Text("Get Started")
                     .font(.headline)
-                    .foregroundColor(.black)
+                    //.foregroundColor(.black)
+                    .foregroundColor(selectedCategories.isEmpty ? Color("WhiteText") : Color(.black))
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(selectedCategories.isEmpty ? Color("SecondaryButton") : Color("PrimeryButton"))
                     .cornerRadius(10)
-                    .padding(.horizontal, 20)
             }
+            .padding()
             .disabled(selectedCategories.isEmpty)
 
             NavigationLink(
@@ -87,4 +90,8 @@ struct OnboardingView3: View {
         .navigationBarBackButtonHidden(true)
     }
 
+}
+
+#Preview {
+    OnboardingView3(hasSeenOnboarding: .constant(false), justCompletedOnboarding: .constant(false))
 }

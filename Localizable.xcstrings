@@ -36,7 +36,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تجنب مسببات حساسيتك"
+            "value" : "تجنب ردود الفعل التحسسية لديك"
           }
         },
         "en" : {
@@ -113,22 +113,22 @@
         }
       }
     },
-    "Detected words: %@" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "الكلمات المكتشفة: %@"
-          }
-        }
-      }
-    },
     "Disclaimer" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تنويه"
+            "value" : "تنويه:"
+          }
+        }
+      }
+    },
+    "Disclaimer: The app is not responsible for failing to capture all components during scanning." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تنويه: التطبيق لا يتحمل المسؤولية في حال عدم تغطية جميع المكونات أثناء المسح."
           }
         }
       }
@@ -215,6 +215,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "انقر نقرًا مزدوجًا لإعادة التقاط الصورة"
+          }
+        }
+      }
+    },
+    "Double-tap to toggle flash" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انقر نقرًا مزدوجًا لتشغيل الفلاش"
           }
         }
       }
@@ -431,7 +441,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "مسح سريع لحماية مؤكدة"
+            "value" : "مسح سريع للحماية المؤكدة"
           }
         },
         "en" : {
@@ -477,12 +487,19 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اقترح الحساسية"
+            "value" : " اقترح الحساسية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggest an allergy"
           }
         }
       }
     },
     "Swipe through detected words" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -522,16 +539,6 @@
         }
       }
     },
-    "The app is not responsible for failing to capture all components during scanning." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "التطبيق لا يتحمل المسؤولية في حال عدم تغطية جميع المكونات أثناء المسح."
-          }
-        }
-      }
-    },
     "The selected image contains no allergens" : {
       "localizations" : {
         "ar" : {
@@ -553,8 +560,29 @@
         }
       }
     },
+    "Turn flash off" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اطفاء الفلاش"
+          }
+        }
+      }
+    },
+    "Turn flash on" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تشغيل الفلاش"
+          }
+        }
+      }
+    },
     "upload photo" : {
       "comment" : "Label for uploading a photo",
+      "extractionState" : "manual",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -855,7 +883,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "هل تعاني من نوع أخر من الحساسية؟"
+            "value" : "هل تعاني من نوع آخر من الحساسية؟  "
           }
         },
         "en" : {
