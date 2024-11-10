@@ -16,6 +16,7 @@ struct OnboardingView3: View {
                 .font(.system(size: 26, weight: .bold))
                 .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 8)
+                .multilineTextAlignment(TextAlignment.center)
             
             Text("Select at least 1")
                 .font(.system(size: 18))

@@ -20,23 +20,27 @@ struct UserSuggestionView: View {
             Color("CustomBackground")
                 .edgesIgnoringSafeArea(.all) // Ensures the color extends beyond safe area
             
-            VStack {
+            VStack(spacing: 40) {
                 
                 Capsule()
                     .fill(Color("SecondaryButton"))
                     .frame(width: 80, height: 4)
-                    .padding(.bottom,60)
+                    .padding(.bottom,30)
                 
-                Text("Your Suggestion!")
+                VStack( alignment: .leading ,spacing: 5 ){
+                Text("Your Suggestion")
                     .font(.headline)
                     .padding(.top, 20)
                     .foregroundColor(.white)
-
+                   // .padding(.trailing,220)
+                
                 TextField("Enter your suggestion here", text: $suggestionText)
                     .padding() // Add padding inside the text field
                     .background(Color.white) // Background color for readability
                     .cornerRadius(8) // Rounded corners
-                    .frame(height: 100) // Increase height for a larger text area
+                    .frame(height: 70) // Increase height for a larger text area
+            }
+                
                 
                 Button(action: {
                     viewModel.firestoreViewModel.saveSuggestion(suggestionText) { result in
@@ -48,7 +52,7 @@ struct UserSuggestionView: View {
                         }
                     }
                 }) {
-                    Text("Save Suggestion")
+                    Text("Send")
                         .font(.headline)
                         .foregroundColor(.black)
                         .padding()

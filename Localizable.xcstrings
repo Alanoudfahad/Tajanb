@@ -83,6 +83,16 @@
         }
       }
     },
+    "Check for any allergens in your photos by selecting an image from your Album to detect potentially harmful ingredients." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمكنك التحقق من المواد المسببة للحساسية عن طريق تحديد صورة من ألبوم الصور للبحث عن المكونات الضارة المحتملة."
+          }
+        }
+      }
+    },
     "Choose type of allergy you have?" : {
       "localizations" : {
         "ar" : {
@@ -123,12 +133,12 @@
         }
       }
     },
-    "Disclaimer: The app is not responsible for failing to capture all components during scanning." : {
+    "Disclaimer: The app is not responsible for any missed ingredients during scanning." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تنويه: التطبيق لا يتحمل المسؤولية في حال عدم تغطية جميع المكونات أثناء المسح."
+            "value" : "تنويه: التطبيق لا يتحمل المسؤولية في حال عدم تغطية جميع المكونات اثناء المسح"
           }
         }
       }
@@ -426,12 +436,12 @@
         }
       }
     },
-    "Save Suggestion" : {
+    "Scan a product’s ingredients to find out if it is suitable for you. Ensure all ingredients are captured for accurate results." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "حفظ"
+            "value" : "قم بمسح قائمة مكونات المنتج و تحقق من مدى ملاءمته لك ،  و تأكد من تغطية كافة المكونات لضمان دقة النتائج."
           }
         }
       }
@@ -452,22 +462,22 @@
         }
       }
     },
-    "Scan the product's ingredient and check its suitability for you. Make sure to capture all components to ensure accurate results." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "قم بمسح قائمة مكونات المنتج وتحقق من مدى ملاءمته لك و تأكد من تغطية كافة المكونات لضمان دقة النتائج."
-          }
-        }
-      }
-    },
     "Select at least 1" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "على الأقل ١"
+          }
+        }
+      }
+    },
+    "Send" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ارسل"
           }
         }
       }
@@ -646,17 +656,7 @@
         }
       }
     },
-    "You can check for allergens by selecting an image from your camera roll to search for potentially harmful ingredients." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يمكنك التحقق من المواد المسببة للحساسية عن طريق تحديد صورة من ألبوم الكاميرا للبحث عن المكونات الضارة المحتملة."
-          }
-        }
-      }
-    },
-    "Your Suggestion!" : {
+    "Your Suggestion" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {

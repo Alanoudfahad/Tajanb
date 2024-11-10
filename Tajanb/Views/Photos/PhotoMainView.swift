@@ -53,12 +53,12 @@ struct PhotoMainView: View {
                         
                         // Check for the presence of the word "المكونات" and display error message if not found
                         if let freeAllergenMessage = photoViewModel.freeAllergenMessage {
-                            let isError = freeAllergenMessage.contains("خطأ") || freeAllergenMessage.contains("Error")
+                            let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
                             
                             Text(freeAllergenMessage)
                                 .font(.system(size: 16, weight: .medium))
                                 .padding(10)
-                                .background(isError ? Color.yellow : Color("AllergyFreeColor")) // Yellow for error, green for allergen-free
+                                .background(isError ? Color("YellowText") : Color("AllergyFreeColor")) // Yellow for error, green for allergen-free
                                 .foregroundColor(isError ? .black : .white) // Black text for error message for better contrast
                                 .clipShape(Capsule())
                                 .padding(.vertical)

@@ -112,7 +112,7 @@ class PhotoViewModel: NSObject, ObservableObject {
                 freeAllergenMessage = getLocalizedMessage()  // Display allergen-free message
             } else {
                 // Display error if no ingredient-related keywords found
-                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خطأ: لم يتم العثور على المكونات" : "Error: Ingredients not found"
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." : "Sorry, no ingredients found. Please try again."
             }
         } else {
             freeAllergenMessage = nil  // Clear message if allergens found
