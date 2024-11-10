@@ -5,7 +5,7 @@ struct OnboardingView2: View {
     @Binding var justCompletedOnboarding: Bool
     // Create a computed property for the styled disclaimer text
        var disclaimerText: AttributedString {
-           var attributedText = AttributedString(NSLocalizedString("Disclaimer: The app is not responsible for failing to capture all components during scanning.", comment: ""))
+           var attributedText = AttributedString(NSLocalizedString("Disclaimer: The app is not responsible for any missed ingredients during scanning.", comment: ""))
            
            // Apply styling to the word "Disclaimer"
            if let range = attributedText.range(of: NSLocalizedString("Disclaimer", comment: "")) {
@@ -31,10 +31,10 @@ struct OnboardingView2: View {
                 VStack {
                     ZStack {
                         Circle()
-                            .fill(Color("GrayList"))
+                            .fill(Color("CamerasButton"))
                             .frame(width: 45, height: 45)
                         Image(systemName: "doc.text.magnifyingglass")
-                            .foregroundColor(Color("PrimeryButton"))
+                            .foregroundColor(Color("TextColor"))
                             .font(.system(size: 18.57))
                     }
 
@@ -45,10 +45,10 @@ struct OnboardingView2: View {
 
                     ZStack {
                         Circle()
-                            .fill(Color("GrayList"))
+                            .fill(Color("CamerasButton"))
                             .frame(width: 45, height: 45)
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(Color("PrimeryButton"))
+                        Image(systemName: "photo")
+                            .foregroundColor(Color("TextColor"))
                             .font(.system(size: 18.45))
                     }
 
@@ -61,9 +61,9 @@ struct OnboardingView2: View {
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.bottom,2)
-                        Text("Scan the product's ingredient and check its suitability for you. Make sure to capture all components to ensure accurate results.")
+                        Text("Scan a product’s ingredients to find out if it is suitable for you. Ensure all ingredients are captured for accurate results.")
                             .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color("BodytextGray"))
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.bottom,4)
@@ -81,9 +81,9 @@ struct OnboardingView2: View {
                             .foregroundColor(.white)
                             .padding(.bottom,2)
                         
-                        Text("You can check for allergens by selecting an image from your camera roll to search for potentially harmful ingredients.")
+                        Text("Check for any allergens in your photos by selecting an image from your Album to detect potentially harmful ingredients.")
                             .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color("BodytextGray"))
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.bottom,4)

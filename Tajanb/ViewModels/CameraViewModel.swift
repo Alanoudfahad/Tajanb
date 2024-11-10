@@ -252,7 +252,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         } else if hasDetectedIngredients {
             freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
         } else {
-            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "خطأ: لم يتم العثور على المكونات" : "Error:Ingredients not found"
+            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." : "Sorry, no ingredients found. Please try again."
         }
     }
 

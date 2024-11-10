@@ -13,7 +13,7 @@ struct ButtonView: View {
         VStack {
             ZStack {
                 Circle()
-                    .fill(Color("CustomBackground").opacity(0.8))
+                    .fill(Color("CamerasButton"))
                     .frame(width: 70, height: 70)
                 Image(systemName: systemImage)
                     .font(.system(size: 24))
@@ -43,7 +43,7 @@ struct RetakeButtonView: View {
     var body: some View {
         ZStack {
             Circle()
-                .foregroundColor(.black.opacity(0.7))
+                .foregroundColor(Color("CamerasButton"))
                 .frame(width: 40, height: 40)
             Image(systemName: "xmark")
                 .foregroundColor(Color("PrimeryButton"))
