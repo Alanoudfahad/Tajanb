@@ -107,7 +107,7 @@ struct CameraView: View {
                                 viewModel.toggleFlash(isOn: isFlashOn)
                             }) {
                                 Image(systemName: isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-                                    .foregroundColor(isFlashOn ? .yellow : .white)  // Change color based on isFlashOn state
+                                    .foregroundColor(isFlashOn ? Color("YellowText"): .white)  // Change color based on isFlashOn state
                                     .padding()
                                     .font(.system(size: 25))  // Increase the size of the icon
 
@@ -128,10 +128,10 @@ struct CameraView: View {
                         if isCameraRunning && !isVoiceOverRunning {
                             if viewModel.hasDetectedIngredients {
                                 Text("خذ الصورة الآن")
-                                    .foregroundColor(.yellow)
+                                    .foregroundColor(Color("YellowText"))
                                     .font(.system(size: 20, weight: .bold))
                                     .padding(.horizontal, 10)
-                                    .background(Color.black.opacity(0.7))
+                                    .background(Color("SecondaryButton"))
                                     .cornerRadius(10)
                                     .padding(.top, 20)
                                     .accessibilityLabel("Take the picture now")
@@ -140,7 +140,7 @@ struct CameraView: View {
                                     .foregroundColor(.white)
                                     .font(.system(size: 17, weight: .medium))
                                     .padding(.horizontal, 8)
-                                    .background(Color.black.opacity(0.5))
+                                    .background(Color("SecondaryButton"))
                                     .cornerRadius(8)
                                     .accessibilityLabel("Point to an ingredient to scan")
                             }
@@ -149,12 +149,12 @@ struct CameraView: View {
                     
                     // Display allergen message or detected ingredients list
                     if !isCameraRunning, let freeAllergenMessage = viewModel.freeAllergenMessage {
-                        let isError = freeAllergenMessage.contains("خطأ") || freeAllergenMessage.contains("Error")
+                        let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
                         Text(freeAllergenMessage)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.black)
                             .padding()
-                            .background(isError ? Color.yellow : Color("AllergyFreeColor"))
+                            .background(isError ? Color("YellowText") : Color("AllergyFreeColor"))
                             .cornerRadius(20)
                             .padding(.top, 10)
                             .accessibilityLabel(freeAllergenMessage)
