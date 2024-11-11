@@ -1,8 +1,8 @@
 import SwiftUI
-
+import SwiftData
 struct OnboardingView3: View {
     @ObservedObject var cameraViewModel = CameraViewModel()
-    
+    @Environment(\.modelContext) var modelContext
     @State private var selectedCategories: Set<String> = []
     @State private var navigate = false
     @Binding var hasSeenOnboarding: Bool
@@ -80,8 +80,9 @@ struct OnboardingView3: View {
             Spacer()
         }
         .onAppear {
+            cameraViewModel.selectedWordsViewModel.modelContext = modelContext
             cameraViewModel.firestoreViewModel.fetchCategories{
-                
+          
             }
             cameraViewModel.cameraManager.startSession()
             print("Categories fetched: \(cameraViewModel.firestoreViewModel.availableCategories)")

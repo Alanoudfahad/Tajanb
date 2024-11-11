@@ -13,38 +13,30 @@ import Combine
 
 // Main ViewModel to handle camera input, text recognition, and allergen detection
 class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
-    // Published properties to update UI with detected text, allergen messages, and camera permissions
-    @Published var detectedText: [DetectedTextItem] = []
+    @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
     @Published var freeAllergenMessage: String?
     @Published var cameraPermissionGranted: Bool = false
     @Published var hasDetectedIngredients: Bool = false
     @Published var liveDetectedText: String = ""
-    
-    // Haptic feedback generator
     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-    // Set to keep track of matched words to avoid duplicates
     var matchedWordsSet: Set<String> = []
-    // Flag to track if allergens have been found in the text
     var foundAllergens = false
-
-    // ViewModels to manage Firebase and user-selected allergen words
     let firestoreViewModel: FirestoreViewModel
     let selectedWordsViewModel: SelectedWordsViewModel
     let cameraManager: CameraManager  // Manages camera input
-    
-    // Vision request for text recognition
+    let cameraFunctions: CameraFunctionalitiesViewModel
     var textRequest = VNRecognizeTextRequest(completionHandler: nil)
     var hapticManager = HapticManager()  // Manages haptic feedback
-
-    // Zoom related properties
-          @Published var currentZoom: CGFloat = 1.0  // Bind to UI if needed
+    @Published var currentZoom: CGFloat = 1.0  // Bind to UI if needed
     
-    // Initialize with dependencies and configure text recognition
     override init() {
         self.firestoreViewModel = FirestoreViewModel()
         self.selectedWordsViewModel = SelectedWordsViewModel(firestoreViewModel: firestoreViewModel)
         self.cameraManager = CameraManager()
+        self.cameraFunctions = CameraFunctionalitiesViewModel(CameraManager: cameraManager)
+        
         super.init()
+        
         cameraManager.delegate = self
         configureTextRecognitions()
     }
@@ -57,16 +49,6 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
        processFrame(sampleBuffer: sampleBuffer)
    }
 
-   // Called when a photo is captured, initiates text recognition on the photo
-   func cameraManager(_ manager: CameraManager, didCapturePhoto image: UIImage?) {
-       guard let image = image else { return }
-       startTextRecognition(from: image)
-       
-       // Process text from live preview and detect allergens
-       let detectedTextArray = liveDetectedText.split(separator: " ").map { String($0) }
-       processAllergensFromCapturedText(detectedTextArray)
-   }
-    
     // MARK: - Camera Permission and Session Handling
       
       // Request camera permission and update the UI
@@ -92,7 +74,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
          /// Sets the focus at the given normalized point
          /// - Parameter point: CGPoint with x and y in [0, 1]
          func setFocus(at point: CGPoint) {
-             cameraManager.setFocusPoint(point)
+             cameraFunctions.setFocusPoint(point)
          }
 
     
@@ -146,7 +128,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
 
     // MARK: - Text Recognition Functions
     
-    // Configure Vision text recognition request with region of interest and error handling
+     //Configure Vision text recognition request with region of interest and error handling
     func configureTextRecognitions() {
         textRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard let self = self else { return }
@@ -170,45 +152,80 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         textRequest.recognitionLevel = .accurate
         textRequest.recognitionLanguages = ["ar", "en"]
         textRequest.usesLanguageCorrection = true
-        textRequest.minimumTextHeight = 0.01  // Filter out very small text
+        textRequest.minimumTextHeight = 0.01
+        textRequest.revision = 1 // Ensures proper handling of different text formats
     }
 
-    // Check if text matches a target allergen word
     func isTargetWord(_ text: String) -> (String, String, [String])? {
-        let lowercasedText = text.lowercased()
         for category in firestoreViewModel.availableCategories {
             for word in category.words {
-                if word.word.lowercased() == lowercasedText ||
-                    word.hiddenSynonyms.contains(where: { $0.lowercased() == lowercasedText }) == true {
+                if word.word.compare(text, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame ||
+                   word.hiddenSynonyms.contains(where: { $0.compare(text, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame }) {
                     return (category.name, word.word, word.hiddenSynonyms)
                 }
             }
         }
         return nil
     }
-
     // Verify if a word is selected by the user as an allergen
     private func isSelectedWord(_ word: String) -> Bool {
         return selectedWordsViewModel.selectedWords.contains { selectedWord in
             word.compare(selectedWord, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
         }
     }
-    
-    // Start text recognition from a static image
+
     func startTextRecognition(from image: UIImage) {
         guard let cgImage = image.cgImage else {
             print("Failed to convert UIImage to CGImage")
             return
         }
 
+        let request = VNRecognizeTextRequest { [weak self] request, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                print("Error recognizing text from image: \(error)")
+                return
+            }
+
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                print("No recognized text found")
+                return
+            }
+
+            // Filter out text with low confidence
+            let detectedStrings = observations.compactMap { observation -> String? in
+                guard let topCandidate = observation.topCandidates(1).first else {
+                    return nil
+                }
+                // Use confidence threshold (e.g., 0.8)
+                return observation.confidence >= 0.8 ? topCandidate.string : nil
+            }
+
+            DispatchQueue.main.async {
+                let combinedText = detectedStrings.joined(separator: " ")
+                let cleanedText = self.preprocessText(combinedText)
+
+                // Update 'liveDetectedText' and other variables as needed
+                self.liveDetectedText = cleanedText
+
+                // Process allergens from the captured text
+                self.processAllergensFromCapturedText(cleanedText)
+            }
+        }
+
+        request.recognitionLevel = .accurate
+        request.recognitionLanguages = ["ar", "en"]
+        request.usesLanguageCorrection = true
+        request.minimumTextHeight = 0.01  // set as needed
+
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
-            try handler.perform([textRequest])
+            try handler.perform([request])
         } catch {
             print("Failed to perform text recognition request: \(error.localizedDescription)")
         }
     }
-
     // Reset detected text and flags
     func resetState() {
         DispatchQueue.main.async {
@@ -221,7 +238,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         }
     }
 
-    // Process detected text, checking for allergen-related keywords
+   //  Process detected text, checking for allergen-related keywords
     func processDetectedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
         let cleanedText = preprocessText(combinedText)
@@ -245,24 +262,10 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             hasDetectedIngredients = false
         }
 
-        // Update allergen-free message based on detection
-        if foundAllergens {
-            freeAllergenMessage = nil
-            hasDetectedIngredients = true
-        } else if hasDetectedIngredients {
-            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
-        } else {
-            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." : "Sorry, no ingredients found. Please try again."
-        }
     }
 
-
-    
-    // Process allergens in detected text and update message state
-    func processAllergensFromCapturedText(_ detectedStrings: [String]) {
-        let combinedText = detectedStrings.joined(separator: " ")
-        let cleanedText = preprocessText(combinedText)
-        let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
+    func processAllergensFromCapturedText(_ text: String) {
+        let words = text.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
         
         foundAllergens = false  // Reset allergens flag
         
@@ -270,22 +273,57 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         let maxPhraseLength = 4
         let N = words.count
 
+        // Look for allergens in the captured text
         for i in 0..<N {
             for L in 1...maxPhraseLength {
                 if i + L <= N {
                     let phrase = words[i..<i+L].joined(separator: " ")
                     if checkAllergy(for: phrase) {
                         foundAllergens = true
+                        break
                     }
                 }
             }
         }
 
-        // Update message if no allergens are found
-        if !foundAllergens {
-            freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
+        // If allergens are found, do not display any free allergen message
+        if foundAllergens {
+            freeAllergenMessage = nil
+        } else {
+            // If allergens are not found, check for ingredient-related synonyms
+            let ingredientSynonyms = [
+                "المكونات", "مكونات", "مواد", "عناصر", "المحتويات", "محتويات", "تركيبة",
+                "تركيب", "خليط", "تركيبات", "مواد خام", "مكونات الغذاء",
+                "مكونات المنتج", "Ingredients", "Contents", "Composition",
+                "Components", "Formula", "Constituents", "Mixture", "Blend",
+                "Ingredients List", "Product Ingredients", "Food Ingredients",
+                "Raw Materials"
+            ]
+            
+            // Check if any of the ingredient-related synonyms exist in the text
+            let containsIngredients = ingredientSynonyms.contains(where: { fuzzyContains(text, keyword: $0) })
+            
+            // Update the allergen-free message based on detection
+            if containsIngredients {
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
+            } else {
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." : "Sorry, no ingredients found. Please try again."
+            }
         }
     }
+
+    func capturePhoto(completion: @escaping (UIImage?) -> Void) {
+        cameraManager.capturePhoto { [weak self] (image: UIImage?) in  // Specify the type of 'image'
+            if let capturedImage = image {
+                // Process the captured image to enhance it
+                if let processedImage = self?.cameraManager.processCapturedImageForTextRecognition(capturedImage) {
+                    // Use processed image for text recognition
+                    self?.startTextRecognition(from: processedImage)
+                }
+            }
+        }
+    }
+
 
     // Helper for fuzzy matching keywords in text
     func fuzzyContains(_ text: String, keyword: String) -> Bool {
@@ -293,36 +331,36 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         return text.range(of: pattern, options: [.regularExpression, .caseInsensitive, .diacriticInsensitive]) != nil
     }
 
-    // Check if a phrase matches any user-selected allergens
-    private func checkAllergy(for phrase: String) -> Bool {
+    
+    func checkAllergy(for phrase: String) -> Bool {
         let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        
+
         if let result = isTargetWord(cleanedPhrase) {
             let detectedWord = result.1.lowercased()
+
+            // Match any synonym variations
+            let synonyms = result.2.map { $0.lowercased() }
+            let allMatchedWords = [detectedWord] + synonyms
+
+                // Check if any variant of the detected word is already in matchedWordsSet
+                if !allMatchedWords.contains(where: { matchedWordsSet.contains($0) }),
+                   selectedWordsViewModel.selectedWords.contains(detectedWord) {
             
-            // Use result.2 directly as the synonyms array
-            let synonyms = result.2
-            let allMatchedWords = [detectedWord] + synonyms.map { $0.lowercased() }
-            
-            // Check if any variant of the detected word is already in matchedWordsSet
-            if !allMatchedWords.contains(where: { matchedWordsSet.contains($0) }),
-               selectedWordsViewModel.selectedWords.contains(detectedWord) {
-                
+            // Check if any variant of the detected word matches the user's selection
+            if selectedWordsViewModel.selectedWords.contains(where: { selectedWord in
+                allMatchedWords.contains { $0.compare(selectedWord, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame }
+            }) {
                 DispatchQueue.main.async {
-                    // Append detected item only if it's not already present
-                    if !self.detectedText.contains(where: { $0.word == result.1 }) {
-                        self.detectedText.append(DetectedTextItem(category: result.0, word: result.1, hiddenSynonyms: result.2))
-                        self.hapticManager.performHapticFeedback()
-                        
-                        // Add main word and its synonyms to matchedWordsSet
-                        self.matchedWordsSet.formUnion(allMatchedWords)
-                    }
+                    // Proceed with allergen detection logic
+                    self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
+                    self.hapticManager.performHapticFeedback()
                 }
                 return true
             }
-        } else {
-            matchedWordsSet.remove(cleanedPhrase)
-        }
+            }
+        }else {
+              matchedWordsSet.remove(cleanedPhrase)
+            }
         return false
     }
 
@@ -353,51 +391,22 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         .replacingOccurrences(of: "أ", with: "ا")
         .replacingOccurrences(of: "إ", with: "ا")
         .replacingOccurrences(of: "آ", with: "ا")
+        .replacingOccurrences(of: "\n", with: " ") // Replace newline characters with spaces
+        .replacingOccurrences(of: "-", with: " ") // Replace hyphens with spaces (common OCR artifact)
+        .trimmingCharacters(in: .whitespacesAndNewlines) // Trim any leading or trailing whitespace
+        .applyingTransform(.stripCombiningMarks, reverse: false) ?? text // Remove combining marks (diacritics)
+        .replacingOccurrences(of: "٬", with: ",") // Replace Arabic comma with standard comma
+        .replacingOccurrences(of: "؟", with: "?") // Replace Arabic question mark with standard one
+        .replacingOccurrences(of: "ـ", with: " ") // Remove Arabic tatweel (used for stretching text)
+        .replacingOccurrences(of: "«", with: "\"") // Replace Arabic opening quotation marks
+        .replacingOccurrences(of: "»", with: "\"") // Replace Arabic closing quotation marks
+        .replacingOccurrences(of: "٠", with: "0") // Replace Arabic numeral zero with standard zero
+        .replacingOccurrences(of: "١", with: "1") // Replace Arabic numeral one with standard one
+        .replacingOccurrences(of: "٢", with: "2") // Replace Arabic numeral two with standard two
+        .replacingOccurrences(of: "٣", with: "3") // Replace Arabic numeral three with standard three
         return cleanedText.lowercased()
     }
-//    func preprocessText(_ text: String) -> String {
-//        let cleanedText = text
 
-//        
-//            // Replace newline characters with spaces
-//            .replacingOccurrences(of: "\n", with: " ")
-//            // Replace hyphens with spaces (common OCR artifact)
-//            .replacingOccurrences(of: "-", with: " ")
-//            // Replace commas or other punctuation marks that may erroneously appear between words
-//            .replacingOccurrences(of: ",", with: " ")
-//            // Replace Arabic comma (٫) and Arabic full stop (۔) with spaces
-//            .replacingOccurrences(of: "٫", with: " ")
-//            .replacingOccurrences(of: "۔", with: " ")
-//            // Replace Arabic semicolon (؛) with a space
-//            .replacingOccurrences(of: "؛", with: " ")
-//            // Replace Arabic quotation marks with regular quotation marks (for OCR mistakes)
-//            .replacingOccurrences(of: "«", with: "\"")
-//            .replacingOccurrences(of: "»", with: "\"")
-//            // Remove Arabic diacritics (marks above/below letters) which may appear due to OCR errors
-//            .replacingOccurrences(of: "[\\u064B-\\u0652]", with: "", options: .regularExpression)
-//            // Remove Arabic tatweel (ـ) used for stretching text and can be misinterpreted by OCR
-//            .replacingOccurrences(of: "ـ", with: " ")
-//            // Normalize Arabic letter forms that may be misinterpreted due to OCR
-//            .replacingOccurrences(of: "أ", with: "ا")
-//            .replacingOccurrences(of: "إ", with: "ا")
-//            .replacingOccurrences(of: "آ", with: "ا")
-//            .replacingOccurrences(of: "ؤ", with: "و")
-//            .replacingOccurrences(of: "ئ", with: "ي")
-//            .replacingOccurrences(of: "ج", with: "غ") // Handle possible misrecognition of similar characters
-//            // Handle Arabic letters that might be confused with English letters
-//            .replacingOccurrences(of: "ل", with: "ل") // Special cases for misrecognized Arabic letters
-//            .replacingOccurrences(of: "ع", with: "ع") // Handle OCR-specific errors
-//            // Remove non-alphabetic characters that might have appeared due to OCR artifacts
-//            .replacingOccurrences(of: "[^\\p{L}\\p{Z}]", with: " ", options: .regularExpression)
-//            // Reduce multiple spaces to a single space
-//            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-//            // Trim any leading or trailing whitespace
-//            .trimmingCharacters(in: .whitespacesAndNewlines)
-//            // Remove combining marks (diacritics, etc.)
-//            .applyingTransform(.stripCombiningMarks, reverse: false) ?? text
-//        return cleanedText.lowercased()
-//    }
-    
     // MARK: - Camera View Helper Functions
     
     // Reset predictions and clear stored matches

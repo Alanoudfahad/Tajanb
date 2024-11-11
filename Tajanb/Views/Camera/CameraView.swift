@@ -6,11 +6,12 @@
 ////
 
 import SwiftUI
-
+import SwiftData
 struct CameraView: View {
     @ObservedObject var viewModel: CameraViewModel
     @ObservedObject var photoViewModel: PhotoViewModel
-    
+    @Environment(\.modelContext) var modelContext
+
     @Environment(\.layoutDirection) var layoutDirection
     // UI state and configuration variables
     let boxWidthPercentage: CGFloat = 0.7
@@ -30,23 +31,24 @@ struct CameraView: View {
     @State private var focusIndicatorPosition: CGPoint = .zero
     @State private var showFocusIndicator: Bool = false
     
-    
     // Computed properties
     private var uniqueDetectedWords: [String] {
         let wordsSet = Set(viewModel.detectedText.map { $0.word.lowercased() })
         return Array(wordsSet).sorted()
     }
-    
+
     private var detectedWordsSummary: String {
         uniqueDetectedWords.joined(separator: ", ")
     }
-    
-    private var detectedItemsToDisplay: [DetectedTextItem] {
-        viewModel.detectedText.filter { item in
-            viewModel.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == item.word.lowercased() })
-        }
+
+    private var detectedWordsToDisplay: [String] {
+        viewModel.detectedText
+            .map { $0.word.lowercased() }
+            .filter { word in
+                viewModel.selectedWordsViewModel.selectedWords.contains { $0.lowercased() == word }
+            }
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -85,11 +87,14 @@ struct CameraView: View {
                         }
                     }else
                     if let capturedPhoto = photoCaptured {
-                        Image(uiImage: capturedPhoto)
-                            .resizable()
-                            .scaledToFill()
-                            .edgesIgnoringSafeArea(.all)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        withAnimation(.easeIn(duration: 0.3)) {
+                            Image(uiImage: capturedPhoto)
+                                   .resizable()
+                                   .scaledToFill()  // Make sure the image fills the entire area
+                                   .clipped()  // Crop any parts that overflow beyond the bounds
+                                   .edgesIgnoringSafeArea(.all)  // Extend beyond safe area
+                                   .frame(maxWidth: .infinity, maxHeight: .infinity)  // Ensure the image fills the available space
+                           }
                     }
                 } else {
                     Text("Camera permission is required to scan ingredients.")
@@ -161,9 +166,9 @@ struct CameraView: View {
                     }
                     
                     // Display detected items in a flow layout
-                    if !isCameraRunning, !detectedItemsToDisplay.isEmpty {
-                        FlowLayout(items: detectedItemsToDisplay) { detectedItem in
-                            Text(detectedItem.word)
+                    if !isCameraRunning, !detectedWordsToDisplay.isEmpty {
+                        FlowLayout(items: detectedWordsToDisplay) { detectedItem in
+                            Text(detectedItem.capitalized)
                                 .font(.system(size: 14, weight: .medium))
                                 .padding(10)
                                 .background(Color("AllergyWarningColor"))
@@ -203,20 +208,25 @@ struct CameraView: View {
                         // Capture photo button
                         if isCameraRunning {
                             Button(action: {
-                                viewModel.cameraManager.capturePhoto { image in
-                                    DispatchQueue.main.async {
-                                        photoCaptured = image
-                                        isCameraRunning = false
-                                        showRetakeButton = true
-                                        isFlashOn = false
-                                        viewModel.cameraManager.stopSession()
-                                        
-                                        if let capturedPhoto = photoCaptured {
-                                            viewModel.resetPredictions()
-                                            viewModel.startTextRecognition(from: capturedPhoto)
-                                        }
-                                    }
-                                }
+                                // Provide feedback to stabilize the image before capturing
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                // Wait for a moment before capturing
+                                   DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                       viewModel.cameraManager.capturePhoto { image in
+                                           DispatchQueue.main.async {
+                                               photoCaptured = image
+                                               isCameraRunning = false
+                                               showRetakeButton = true
+                                               isFlashOn = false
+                                               viewModel.cameraManager.stopSession()
+                                               
+                                               if let capturedPhoto = photoCaptured {
+                                                   viewModel.resetPredictions()
+                                                   viewModel.startTextRecognition(from: capturedPhoto)
+                                               }
+                                           }
+                                       }
+                                   }
                             }) {
                                 CaptureButtonView()
                             }
@@ -297,6 +307,7 @@ struct CameraView: View {
                 }
             }
             .onAppear {
+                viewModel.selectedWordsViewModel.modelContext = modelContext
                 viewModel.selectedWordsViewModel.loadSelectedWords()
                 viewModel.firestoreViewModel.fetchCategories(completion: {
                     // Handle completion if needed

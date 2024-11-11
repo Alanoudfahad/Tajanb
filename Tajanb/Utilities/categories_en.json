@@ -55,7 +55,15 @@
       { "id": "cucumber_023", "word": "Cucumber", "hiddenSynonyms": ["Fresh Cucumber", "Sliced Cucumber", "Pickled Cucumber"] },
       { "id": "onion_024", "word": "Onion", "hiddenSynonyms": ["Red Onion", "White Onion", "Yellow Onion", "Green Onion", "Spring Onion"] },
       { "id": "garlic_025", "word": "Garlic", "hiddenSynonyms": ["Crushed Garlic", "Garlic Cloves", "Fresh Garlic", "Minced Garlic"] },
-      { "id": "spinach_026", "word": "Spinach", "hiddenSynonyms": ["Fresh Spinach", "Frozen Spinach", "Baby Spinach", "Chopped Spinach"] }
+      { "id": "spinach_026", "word": "Spinach", "hiddenSynonyms": ["Fresh Spinach", "Frozen Spinach", "Baby Spinach", "Chopped Spinach"] },
+      { "id": "broccoli_027", "word": "Broccoli", "hiddenSynonyms": ["Fresh Broccoli", "Broccoli Florets", "Chopped Broccoli", "Steamed Broccoli"] },
+      { "id": "cauliflower_028", "word": "Cauliflower", "hiddenSynonyms": ["Fresh Cauliflower", "Cauliflower Florets", "Chopped Cauliflower", "Steamed Cauliflower"] },
+      { "id": "zucchini_029", "word": "Zucchini", "hiddenSynonyms": ["Sliced Zucchini", "Grated Zucchini", "Baby Zucchini", "Courgette"] },
+      { "id": "lettuce_030", "word": "Lettuce", "hiddenSynonyms": ["Fresh Lettuce", "Iceberg Lettuce", "Romaine Lettuce", "Chopped Lettuce"] },
+      { "id": "mushroom_031", "word": "Mushroom", "hiddenSynonyms": ["Button Mushroom", "Sliced Mushroom", "Portobello", "Cremini Mushroom"] },
+      { "id": "cabbage_032", "word": "Cabbage", "hiddenSynonyms": ["Green Cabbage", "Red Cabbage", "Shredded Cabbage", "Savoy Cabbage"] },
+      { "id": "beetroot_033", "word": "Beetroot", "hiddenSynonyms": ["Beet", "Red Beet", "Sliced Beetroot", "Fresh Beetroot"] },
+      { "id": "pumpkin_034", "word": "Pumpkin", "hiddenSynonyms": ["Pumpkin Puree", "Sliced Pumpkin", "Roasted Pumpkin"] }
     ]
   },
   {
@@ -69,7 +77,15 @@
       { "id": "kiwi_031", "word": "Kiwi", "hiddenSynonyms": ["Kiwi Fruit", "Sliced Kiwi", "Golden Kiwi"] },
       { "id": "strawberry_032", "word": "Strawberry", "hiddenSynonyms": ["Fresh Strawberry", "Sliced Strawberry", "Frozen Strawberry"] },
       { "id": "tomato_033", "word": "Tomato", "hiddenSynonyms": ["Tomato Juice", "Fresh Tomato", "Cherry Tomato", "Tomato Paste"] },
-      { "id": "orange_034", "word": "Orange", "hiddenSynonyms": ["Orange Lemon", "Orange", "Blood Orange", "Mandarin"] }
+      { "id": "orange_034", "word": "Orange", "hiddenSynonyms": ["Orange Lemon", "Orange", "Blood Orange", "Mandarin"] },
+      { "id": "grape_035", "word": "Grape", "hiddenSynonyms": ["Green Grape", "Red Grape", "Black Grape", "Fresh Grape"] },
+      { "id": "mango_036", "word": "Mango", "hiddenSynonyms": ["Fresh Mango", "Mango Slices", "Ripe Mango", "Mango Puree"] },
+      { "id": "blueberry_037", "word": "Blueberry", "hiddenSynonyms": ["Fresh Blueberry", "Wild Blueberry", "Blueberry Jam"] },
+      { "id": "raspberry_038", "word": "Raspberry", "hiddenSynonyms": ["Fresh Raspberry", "Red Raspberry", "Raspberry Jam"] },
+      { "id": "blackberry_039", "word": "Blackberry", "hiddenSynonyms": ["Fresh Blackberry", "Wild Blackberry", "Blackberry Jam"] },
+      { "id": "watermelon_040", "word": "Watermelon", "hiddenSynonyms": ["Fresh Watermelon", "Watermelon Slices", "Watermelon Juice"] },
+      { "id": "pineapple_041", "word": "Pineapple", "hiddenSynonyms": ["Fresh Pineapple", "Pineapple Slices", "Pineapple Juice"] },
+      { "id": "pomegranate_042", "word": "Pomegranate", "hiddenSynonyms": ["Fresh Pomegranate", "Pomegranate Seeds", "Pomegranate Juice"] }
     ]
   },
   {
@@ -130,6 +146,31 @@
     "words": [
       { "id": "lentil_059", "word": "Lentil", "hiddenSynonyms": ["Red Lentil", "Green Lentil", "Brown Lentil", "Yellow Lentil"] },
       { "id": "bean_060", "word": "Bean", "hiddenSynonyms": ["White Bean", "Red Bean", "Black Bean", "Kidney Bean", "Pinto Bean"] }
+    ]
+  },
+  {
+    "name": "Sweets",
+    "icon": "🍫",
+    "words": [
+      { "id": "chocolate_061", "word": "Chocolate", "hiddenSynonyms": ["Dark Chocolate", "Milk Chocolate", "White Chocolate", "Chocolate Bar", "Chocolate Pieces"] },
+      { "id": "candy_062", "word": "Candy", "hiddenSynonyms": ["Sugary Candy", "Lollipops", "Sweet Candy", "Confectionery"] },
+      { "id": "caramel_063", "word": "Caramel", "hiddenSynonyms": ["Caramel Sauce", "Caramel Cream", "Toffee Caramel"] },
+      { "id": "jelly_064", "word": "Jelly", "hiddenSynonyms": ["Fruit Jelly", "Gelatin", "Gummy Jelly", "Jelly Candy"] },
+      { "id": "honey_065", "word": "Honey", "hiddenSynonyms": ["Bee Honey", "Natural Honey", "Honey"] },
+      { "id": "marshmallow_066", "word": "Marshmallow", "hiddenSynonyms": ["Soft Marshmallow", "Sweet Marshmallow"] },
+      { "id": "toffee_067", "word": "Toffee", "hiddenSynonyms": ["Toffee Candy", "Sweet Toffee"] },
+      { "id": "lollipop_068", "word": "Lollipop", "hiddenSynonyms": ["Candy Pop", "Sucker", "Sweet Lollipop"] },
+      { "id": "cookies_069", "word": "Cookies", "hiddenSynonyms": ["Chocolate Cookies", "Filled Cookies", "Biscuits"] },
+      { "id": "cake_070", "word": "Cake", "hiddenSynonyms": ["Chocolate Cake", "Vanilla Cake", "Sponge Cake"] },
+      { "id": "donut_071", "word": "Donut", "hiddenSynonyms": ["Glazed Donut", "Filled Donut", "Ring Donut"] },
+      { "id": "muffin_072", "word": "Muffin", "hiddenSynonyms": ["Chocolate Muffin", "Blueberry Muffin"] },
+      { "id": "brownie_073", "word": "Brownie", "hiddenSynonyms": ["Chocolate Brownie", "Fudge Brownie", "Brownie Cake"] },
+      { "id": "pudding_074", "word": "Pudding", "hiddenSynonyms": ["Vanilla Pudding", "Chocolate Pudding", "Sweet Pudding"] },
+      { "id": "ice_cream_075", "word": "Ice Cream", "hiddenSynonyms": ["Frozen Dessert", "Gelato", "Soft Serve"] },
+      { "id": "halva_076", "word": "Halva", "hiddenSynonyms": ["Sesame Halva", "Sweet Halva"] },
+      { "id": "nougat_077", "word": "Nougat", "hiddenSynonyms": ["Soft Nougat", "Nut Nougat"] },
+      { "id": "baklava_078", "word": "Baklava", "hiddenSynonyms": ["Sweet Baklava", "Layered Baklava"] },
+      { "id": "tart_079", "word": "Tart", "hiddenSynonyms": ["Fruit Tart", "Chocolate Tart"] }
     ]
   }
 ]
