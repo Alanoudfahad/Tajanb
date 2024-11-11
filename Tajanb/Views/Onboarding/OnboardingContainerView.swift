@@ -4,8 +4,8 @@ struct OnboardingContainerView: View {
     @Binding var hasSeenOnboarding: Bool
     @Binding var justCompletedOnboarding: Bool
     @State private var currentIndex = 0 // Track the current onboarding index
-    @ObservedObject var cameraViewModel = CameraViewModel()
-
+    @ObservedObject var cameraViewModel: CameraViewModel
+    
     var body: some View {
         VStack {
             // Custom progress indicator
@@ -78,6 +78,6 @@ struct OnboardingContainerView: View {
 #Preview {
     OnboardingContainerView(
         hasSeenOnboarding: .constant(false),
-        justCompletedOnboarding: .constant(false)
+        justCompletedOnboarding: .constant(false), cameraViewModel: CameraViewModel()
     )
 }

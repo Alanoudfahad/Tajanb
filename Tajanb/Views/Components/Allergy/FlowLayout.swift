@@ -4,48 +4,6 @@
 //
 //  Created by Afrah Saleh on 07/05/1446 AH.
 //
-import SwiftUI
-// FlowLayout definition
-struct FlowLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    var items: Data
-    var content: (Data.Element) -> Content
-    
-    @State private var totalHeight = CGFloat.zero       // Tracks height
-    
-    var body: some View {
-        GeometryReader { geometry in
-            self.generateContent(in: geometry)
-        }
-    }
-    
-    private func generateContent(in geometry: GeometryProxy) -> some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
-        
-        return ZStack(alignment: .topLeading) {
-            ForEach(items, id: \.self) { item in
-                content(item)
-                    .padding([.horizontal, .vertical], 4)
-                    .alignmentGuide(.leading, computeValue: { d in
-                        if (abs(width - d.width) > geometry.size.width) {
-                            width = 0       // Move to next line
-                            height -= d.height
-                        }
-                        let result = width
-                        if item == items.last! {
-                            width = 0       // Last item
-                        } else {
-                            width -= d.width
-                        }
-                        return result
-                    })
-                    .alignmentGuide(.top, computeValue: { _ in height })
-            }
-        }
-        .frame(height: geometry.size.height)
-    }
-    
-}
 
 import SwiftUI
 
@@ -102,4 +60,46 @@ struct FlowLayouts<Content: View>: View {
             }
         }
     }
+}
+
+
+struct FlowLayout<Content: View>: View  {
+    var items: [String]
+    var content: (String) -> Content
+    
+    @State private var totalHeight = CGFloat.zero       // Tracks height
+    
+    var body: some View {
+        GeometryReader { geometry in
+            self.generateContent(in: geometry)
+        }
+    }
+    
+    private func generateContent(in geometry: GeometryProxy) -> some View {
+        var width = CGFloat.zero
+        var height = CGFloat.zero
+        
+        return ZStack(alignment: .topLeading) {
+            ForEach(items, id: \.self) { item in
+                content(item)
+                    .padding([.horizontal, .vertical], 4)
+                    .alignmentGuide(.leading, computeValue: { d in
+                        if (abs(width - d.width) > geometry.size.width) {
+                            width = 0       // Move to next line
+                            height -= d.height
+                        }
+                        let result = width
+                        if item == items.last! {
+                            width = 0       // Last item
+                        } else {
+                            width -= d.width
+                        }
+                        return result
+                    })
+                    .alignmentGuide(.top, computeValue: { _ in height })
+            }
+        }
+        .frame(height: geometry.size.height)
+    }
+    
 }

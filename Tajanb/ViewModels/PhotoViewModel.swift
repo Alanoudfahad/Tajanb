@@ -152,7 +152,7 @@ class PhotoViewModel: NSObject, ObservableObject {
 
     // Get localized message for allergen-free status
     private func getLocalizedMessage() -> String {
-        return Locale.current.language.languageCode == "ar" ? "خالي من مسببات الحساسية" : "Allergen-free"
+        return Locale.current.language.languageCode  == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
     }
 
     // Reset detected text and clear matched words

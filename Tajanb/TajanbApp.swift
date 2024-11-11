@@ -47,7 +47,7 @@ struct TajanbApp: App {
                 }
             } else {
                 // Show Onboarding on the first launch
-                OnboardingContainerView(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding)
+                OnboardingContainerView(hasSeenOnboarding: $hasSeenOnboarding, justCompletedOnboarding: $justCompletedOnboarding, cameraViewModel: viewModel)
                     .onAppear {
                         // Upload JSON to Firestore if needed
                         // viewModel.firestoreViewModel.uploadJSONToFirestore()
@@ -62,6 +62,6 @@ struct TajanbApp: App {
                         }
                     }
             }
-        }
+        } .modelContainer(for: [SelectedWord.self])
     }
 }
