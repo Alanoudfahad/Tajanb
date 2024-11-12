@@ -26,7 +26,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "خالي من مك،نات الحساسية"
+            "value" : "خالي من مكونات الحساسية"
           }
         }
       }
@@ -279,6 +279,23 @@
         }
       }
     },
+    "Enjoy Your food, Avoid Allergens" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تجنب مسببات الحساسية ، و تمتع بغذائك"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enjoy Your food, Avoid Allergens"
+          }
+        }
+      }
+    },
     "Enter your suggestion here" : {
       "localizations" : {
         "ar" : {
@@ -442,22 +459,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "قم بمسح قائمة مكونات المنتج و تحقق من مدى ملاءمته لك ،  و تأكد من تغطية كافة المكونات لضمان دقة النتائج."
-          }
-        }
-      }
-    },
-    "Scan Fast for Sure Protection" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "مسح سريع للحماية المؤكدة"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan Fast for Sure Protection"
           }
         }
       }
