@@ -13,7 +13,7 @@ struct FocusIndicator: View {
 
     var body: some View {
         Rectangle()
-            .stroke(Color.white, lineWidth: 2)
+            .stroke(Color.clear, lineWidth: 2)
             .frame(width: 80, height: 80)
             .scaleEffect(scale)
             .opacity(opacity)
@@ -29,5 +29,3 @@ struct FocusIndicator: View {
             }
     }
 }
-
-

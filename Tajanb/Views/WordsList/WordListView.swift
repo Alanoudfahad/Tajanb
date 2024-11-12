@@ -1,15 +1,16 @@
 
-
-
 import SwiftUI
+import SwiftData
 
 struct WordListView: View {
     let category: Category
     @ObservedObject var selectedWordsViewModel: SelectedWordsViewModel
     @Environment(\.dismiss) var dismiss
-    
+    @Environment(\.modelContext) var modelContext
+
     var body: some View {
         VStack {
+            // Category Name Header
             Text(category.name)
                 .foregroundColor(.white)
                 .font(.system(size: 24, weight: .bold))
@@ -17,14 +18,15 @@ struct WordListView: View {
                 .padding(.bottom, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
-            
+
+            // Select All Toggle
             HStack {
                 Text("اختيار الكل")
                     .foregroundColor(.white)
                     .font(.system(size: 18, weight: .medium))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading ,10)
-                
+                    .padding(.leading, 10)
+
                 Toggle(isOn: $selectedWordsViewModel.isSelectAllEnabled) {
                     EmptyView()
                 }
@@ -32,18 +34,18 @@ struct WordListView: View {
                 .toggleStyle(CustomToggleStyle())
                 .padding(.leading, 100)
             }
-            
-            .padding(.vertical,16)
+            .padding(.vertical, 16)
             .background(Color("GrayList"))
             .cornerRadius(15)
             .frame(width: 365)
             .onChange(of: selectedWordsViewModel.isSelectAllEnabled) { newValue in
                 selectedWordsViewModel.handleSelectAllToggleChange(for: category, isSelected: newValue)
             }
-            
+
             Divider()
                 .background(Color.white)
-            
+
+            // Word List with Individual Toggles
             List {
                 ForEach(category.words, id: \.word) { word in
                     HStack {
@@ -74,10 +76,11 @@ struct WordListView: View {
             .background(Color("CustomBackground"))
         }
         .onAppear {
-            selectedWordsViewModel.updateSelectAllStatus(for: category)
+            selectedWordsViewModel.modelContext = modelContext  // Assign modelContext for SwiftData
+            selectedWordsViewModel.updateSelectAllStatus(for: category)  // Sync Select All toggle
         }
         .onDisappear {
-            selectedWordsViewModel.saveSelectedWords()
+            selectedWordsViewModel.saveSelectedWords()  // Save changes on exit
         }
         .background(Color("CustomBackground"))
         .toolbar {

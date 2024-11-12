@@ -1,5 +1,5 @@
 import SwiftUI
-
+import SwiftData
 struct PhotoMainView: View {
         @StateObject private var categoryManager = CameraViewModel()
         @StateObject private var photoViewModel: PhotoViewModel
@@ -7,6 +7,8 @@ struct PhotoMainView: View {
         @Environment(\.presentationMode) var presentationMode
         @State private var showingImagePicker = false
         @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext
+
 
         init() {
             let categoryManager = CameraViewModel()
@@ -28,7 +30,7 @@ struct PhotoMainView: View {
                             let hasNoAllergens = uniqueDetectedWords.isEmpty || !uniqueDetectedWords.contains { word in
                                 categoryManager.selectedWordsViewModel.selectedWords.contains(where: { $0.lowercased() == word })
                             }
-                            
+                            ZStack{
                                 // Scrollable view for words only
                                 ScrollView(.vertical) {
                                     FlowLayouts(items: Array(uniqueDetectedWords), horizontalSpacing: 10, verticalSpacing: 10) { word in
@@ -49,27 +51,31 @@ struct PhotoMainView: View {
                                     .padding(.bottom, 20)
                                 }
                                 .frame(height: 200) // Constrain the height of the scrollable area for words
+                                
+                                // Check for the presence of the word "المكونات" and display error message if not found
+                                if let freeAllergenMessage = photoViewModel.freeAllergenMessage {
+                                    let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
+                                    
+                                    Text(freeAllergenMessage)
+                                        .font(.system(size: 16, weight: .medium))
+                                        .padding(10)
+                                        .background(isError ? Color("YellowText") : Color("AllergyFreeColor")) // Yellow for error, green for allergen-free
+                                        .multilineTextAlignment(.center)
+                                        .foregroundColor(isError ? .black : .white) // Black text for error message for better contrast
+                                        .clipShape(Capsule())
+                                        .padding(.vertical)
+                                        .accessibilityLabel(Text(isError ? "Error message" : "Allergen-free message"))
+                                        .accessibilityHint(Text(isError ? "Ingredients not found" : "The selected image contains no allergens"))
+                                }
+                            } .padding()
                         }
-                        
-                        // Check for the presence of the word "المكونات" and display error message if not found
-                        if let freeAllergenMessage = photoViewModel.freeAllergenMessage {
-                            let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
-                            
-                            Text(freeAllergenMessage)
-                                .font(.system(size: 16, weight: .medium))
-                                .padding(10)
-                                .background(isError ? Color("YellowText") : Color("AllergyFreeColor")) // Yellow for error, green for allergen-free
-                                .foregroundColor(isError ? .black : .white) // Black text for error message for better contrast
-                                .clipShape(Capsule())
-                                .padding(.vertical)
-                                .accessibilityLabel(Text(isError ? "Error message" : "Allergen-free message"))
-                                .accessibilityHint(Text(isError ? "Ingredients not found" : "The selected image contains no allergens"))
-                        }
+           
                     }
                 
                 .onAppear {
+                    categoryManager.selectedWordsViewModel.modelContext = modelContext
                     categoryManager.firestoreViewModel.fetchCategories{
-                        
+      
                     }
                     // Load selected words using SwiftData model context
                     categoryManager.selectedWordsViewModel.loadSelectedWords()

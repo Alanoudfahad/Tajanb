@@ -5,11 +5,12 @@
 //  Created by Afrah Saleh on 17/04/1446 AH.
 //
 import SwiftUI
-
+import SwiftData
 
 struct Categories: View {
     @ObservedObject var viewModel: CameraViewModel
-    
+    @Environment(\.modelContext) var modelContext
+
     @Environment(\.dismiss) var dismiss
     @Environment(\.openURL) var openURL
     @State private var selectedCategory: String?
@@ -111,6 +112,8 @@ struct Categories: View {
                }
         .onAppear {
             viewModel.selectedWordsViewModel.loadSelectedWords() // Load from UserDefaults
+            viewModel.selectedWordsViewModel.modelContext = modelContext
+
               }
 
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))

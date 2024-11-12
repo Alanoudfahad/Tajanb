@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 import Combine
 
 // ViewModel for managing selected allergen words, including saving to and loading from UserDefaults
@@ -15,112 +16,117 @@ class SelectedWordsViewModel: ObservableObject {
 
     private let userDefaultsKey = "selectedWords"  // Key to store words in UserDefaults
     private let firestoreViewModel: FirestoreViewModel  // Reference to Firestore for word mappings
+    var modelContext: ModelContext?  // SwiftData context to interact with database
 
-    // Initialize with FirestoreViewModel and load any previously selected words
     init(firestoreViewModel: FirestoreViewModel) {
         self.firestoreViewModel = firestoreViewModel
         loadSelectedWords()
     }
 
-    // Save the currently selected words to UserDefaults for persistent storage
-    func saveSelectedWords() {
-        UserDefaults.standard.set(selectedWords, forKey: userDefaultsKey)
-        print("Words successfully saved to UserDefaults: \(selectedWords)")
-    }
-
-    // Load selected words from UserDefaults, translating them based on the device's current language
-    func loadSelectedWords() {
-        if let savedWords = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String] {
-            selectedWords = savedWords.map { word in
-                // Translate each word to the current device language
-                if Locale.current.languageCode == "ar" {
-                    // Convert English word to Arabic if saved in English
-                    return self.firestoreViewModel.wordMappings.first(where: { $0.value.english == word })?.value.arabic ?? word
-                } else {
-                    // Convert Arabic word to English if saved in Arabic
-                    return self.firestoreViewModel.wordMappings.first(where: { $0.value.arabic == word })?.value.english ?? word
-                }
-            }
-        }
-    }
-
-    // Update the list of selected words and save to UserDefaults
-    func updateSelectedWords(with words: [String]) {
-        selectedWords = words
-        saveSelectedWords()
-        print("Selected words updated: \(selectedWords)")
-    }
-
-    // Save words from specific categories as selected, including hidden synonyms
-    func saveSelectedWords(for selectedCategories: Set<String>) {
-        var wordsToSave: [String] = []
-
-        // Add words and their synonyms from each selected category
-        for category in firestoreViewModel.availableCategories where selectedCategories.contains(category.name) {
-            for word in category.words {
-                wordsToSave.append(word.word)
-                wordsToSave.append(contentsOf: word.hiddenSynonyms)
-            }
-        }
-
-        updateSelectedWords(with: wordsToSave)
-        print("Words saved: \(wordsToSave)")
-    }
+    
+    // MARK: - Load Selected Words from SwiftData
+       func loadSelectedWords() {
+           guard let modelContext = modelContext else { return }
+           
+           let fetchDescriptor = FetchDescriptor<SelectedWord>()
+           if let fetchedWords = try? modelContext.fetch(fetchDescriptor) {
+               selectedWords = fetchedWords.map { $0.word }
+               print("Loaded selected words from SwiftData: \(selectedWords)")
+           }
+       }
 
     
-    // MARK: - Functions Toggles in WordListView
+       // MARK: - Save Selected Words to SwiftData
+       func saveSelectedWords() {
+           guard let modelContext = modelContext else { return }
+           
+           // Clear existing selected words in the database
+           let fetchDescriptor = FetchDescriptor<SelectedWord>()
+           if let fetchedWords = try? modelContext.fetch(fetchDescriptor) {
+               fetchedWords.forEach { modelContext.delete($0) }
+           }
+           
+           // Save each word in selectedWords to SwiftData
+           for word in selectedWords {
+               let newSelectedWord = SelectedWord(word: word, category: "General") // Adjust category as needed
+               modelContext.insert(newSelectedWord)
+           }
+           
+           try? modelContext.save()
+           print("Selected words saved to SwiftData: \(selectedWords)")
+       }
 
-    // Handle "Select All" toggle for a specific category
-    func handleSelectAllToggleChange(for category: Category, isSelected: Bool) {
-        let allWords = category.words.flatMap { [$0.word] + $0.hiddenSynonyms }
+    
+       // MARK: - Update Selected Words with SwiftData
+       func updateSelectedWords(with words: [String]) {
+           selectedWords = words
+           saveSelectedWords()
+           print("Selected words updated: \(selectedWords)")
+       }
 
-        if isSelected {
-            // Add all words in the category to selectedWords if not already selected
-            selectedWords.append(contentsOf: allWords.filter { !selectedWords.contains($0) })
-        } else {
-            // Remove all words in the category from selectedWords
-            selectedWords.removeAll { allWords.contains($0) }
-        }
+    
+       // MARK: - Save Words for Specific Categories
+       func saveSelectedWords(for selectedCategories: Set<String>) {
+           var wordsToSave: [String] = []
 
-        saveSelectedWords()  // Save updated selectedWords to UserDefaults
-        updateSelectAllStatus(for: category)  // Update the "Select All" status
-    }
+           // Add words and their synonyms from each selected category
+           for category in firestoreViewModel.availableCategories where selectedCategories.contains(category.name) {
+               for word in category.words {
+                   wordsToSave.append(word.word)
+                   wordsToSave.append(contentsOf: word.hiddenSynonyms)
+               }
+           }
 
-    // Toggle selection for a single word within a category
-    func toggleSelection(for category: Category, word: String, isSelected: Bool) {
-        guard let categoryWord = category.words.first(where: { $0.word == word }) else { return }
+           updateSelectedWords(with: wordsToSave)
+           print("Words saved: \(wordsToSave)")
+       }
 
-        if isSelected {
-            // Add word and its synonyms if not already selected
-            if !selectedWords.contains(word) {
-                selectedWords.append(word)
-                selectedWords.append(contentsOf: categoryWord.hiddenSynonyms)
-            }
-        } else {
-            // Remove the word and its synonyms from selectedWords
-            selectedWords.removeAll { $0 == word || categoryWord.hiddenSynonyms.contains($0) }
-            isSelectAllEnabled = false  // Disable "Select All" if deselecting an item
-        }
+    
+       // MARK: - Toggle and Selection Management
 
-        saveSelectedWords()  // Save updated selectedWords to UserDefaults
-        updateSelectAllStatus(for: category)  // Update "Select All" status for the category
-    }
+       func handleSelectAllToggleChange(for category: Category, isSelected: Bool) {
+           let allWords = category.words.flatMap { [$0.word] + $0.hiddenSynonyms }
 
-    // Update the "Select All" status based on the selection of individual words in the category
-    func updateSelectAllStatus(for category: Category) {
-        let allWords = category.words.map { $0.word }
+           if isSelected {
+               selectedWords.append(contentsOf: allWords.filter { !selectedWords.contains($0) })
+           } else {
+               selectedWords.removeAll { allWords.contains($0) }
+           }
 
-        // Enable "Select All" only if all words in the category are selected
-        if selectedWords.isEmpty {
-            isSelectAllEnabled = false
-        } else if selectedWords.containsAll(allWords) {
-            isSelectAllEnabled = true
-        } else {
-            isSelectAllEnabled = false
-        }
-    }
-}
+           saveSelectedWords()  // Persist updated selection to SwiftData
+           updateSelectAllStatus(for: category)
+       }
 
+    
+       func toggleSelection(for category: Category, word: String, isSelected: Bool) {
+           guard let categoryWord = category.words.first(where: { $0.word == word }) else { return }
+
+           if isSelected {
+               if !selectedWords.contains(word) {
+                   selectedWords.append(word)
+                   selectedWords.append(contentsOf: categoryWord.hiddenSynonyms)
+               }
+           } else {
+               selectedWords.removeAll { $0 == word || categoryWord.hiddenSynonyms.contains($0) }
+               isSelectAllEnabled = false
+           }
+
+           saveSelectedWords()
+           updateSelectAllStatus(for: category)
+       }
+
+       func updateSelectAllStatus(for category: Category) {
+           let allWords = category.words.map { $0.word }
+
+           if selectedWords.isEmpty {
+               isSelectAllEnabled = false
+           } else if allWords.allSatisfy({ selectedWords.contains($0) }) {
+               isSelectAllEnabled = true
+           } else {
+               isSelectAllEnabled = false
+           }
+       }
+   }
 // Extension to check if a collection contains all elements from another array
 extension Collection where Element: Equatable {
     func containsAll(_ elements: [Element]) -> Bool {

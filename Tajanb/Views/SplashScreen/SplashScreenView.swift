@@ -16,7 +16,7 @@ import SwiftUI
 struct SplashScreenView: View {
     @State private var animateLogo = false
     @State private var isActive = false
-    @ObservedObject var cameraViewModel: CameraViewModel
+    @ObservedObject var cameraViewModel = CameraViewModel()
 
     var body: some View {
         VStack {
@@ -52,8 +52,8 @@ struct SplashScreenView: View {
         }
     }
 }
-struct SplashScreenView_Previews: PreviewProvider {
-    static var previews: some View {
-        SplashScreenView(cameraViewModel: CameraViewModel())
-    }
-}
+//struct SplashScreenView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SplashScreenView(cameraViewModel: CameraViewModel())
+//    }
+//}
