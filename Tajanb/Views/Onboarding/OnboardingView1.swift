@@ -20,7 +20,7 @@ struct OnboardingView1: View {
                 .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 8)
 
-            Text("Scan Fast for Sure Protection")
+            Text("Enjoy Your food, Avoid Allergens")
                 .font(.system(size: 20))
                 .foregroundColor(.white)
 
