@@ -14,7 +14,6 @@ class SelectedWordsViewModel: ObservableObject {
     @Published var selectedWords: [String] = []  // List of selected allergen words
     @Published var isSelectAllEnabled: Bool = false  // Tracks "Select All" state for UI
 
-    private let userDefaultsKey = "selectedWords"  // Key to store words in UserDefaults
     private let firestoreViewModel: FirestoreViewModel  // Reference to Firestore for word mappings
     var modelContext: ModelContext?  // SwiftData context to interact with database
 

@@ -12,7 +12,7 @@ import CoreImage
 // Protocol defining delegate methods to handle camera output (photo or video frame)
 protocol CameraManagerDelegate: AnyObject {
     func cameraManager(_ manager: CameraManager, didOutput sampleBuffer: CMSampleBuffer)
-   // func cameraManager(_ manager: CameraManager, didCapturePhoto image: UIImage?)
+   func cameraManager(_ manager: CameraManager, didCapturePhoto image: UIImage?)
 }
 
 // Manages camera session, capturing photos and frames for real-time processing
@@ -247,14 +247,15 @@ extension CameraManager: AVCapturePhotoCaptureDelegate, AVCaptureVideoDataOutput
         guard error == nil, let imageData = photo.fileDataRepresentation() else {
             print("Error capturing photo: \(error?.localizedDescription ?? "Unknown error")")
             capturedPhotoCompletion?(nil)
-           // delegate?.cameraManager(self, didCapturePhoto: nil)
+            delegate?.cameraManager(self, didCapturePhoto: nil)
             return
         }
         
         // Convert captured data to UIImage and call the completion handler
         let image = UIImage(data: imageData)
         capturedPhotoCompletion?(image)
-       // delegate?.cameraManager(self, didCapturePhoto: image)
+        
+        delegate?.cameraManager(self, didCapturePhoto: image)
     }
     
     // Continuously process video frames and pass them to the delegate for real-time analysis
