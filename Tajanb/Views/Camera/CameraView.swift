@@ -152,19 +152,24 @@ struct CameraView: View {
                         }
                     }
                     
+
                     // Display allergen message or detected ingredients list
                     if !isCameraRunning, let freeAllergenMessage = viewModel.freeAllergenMessage {
                         let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
+                        let isLanguagePrompt = freeAllergenMessage.contains("change your app language") || freeAllergenMessage.contains("يرجى تغيير لغة التطبيق")
+
                         Text(freeAllergenMessage)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.black)
                             .padding()
-                            .background(isError ? Color("YellowText") : Color("AllergyFreeColor"))
+                            .background(
+                                isError ? Color("YellowText") :
+                                (isLanguagePrompt ? Color.blue : Color("AllergyFreeColor"))
+                            )
                             .cornerRadius(20)
                             .padding(.top, 10)
                             .accessibilityLabel(freeAllergenMessage)
                     }
-                    
                     // Display detected items in a flow layout
                     if !isCameraRunning, !detectedWordsToDisplay.isEmpty {
                         FlowLayout(items: detectedWordsToDisplay) { detectedItem in
