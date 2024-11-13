@@ -13,13 +13,13 @@ struct OnboardingView3: View {
             Spacer()
 
             Text("Choose type of allergy you have?")
-                .font(.system(size: 26, weight: .bold))
+                .font(.system(size: 22, weight: .bold))
                 .foregroundColor(Color("TextColor"))
                 .padding(.bottom, 8)
                 .multilineTextAlignment(TextAlignment.center)
             
-            Text("Select at least 1")
-                .font(.system(size: 18))
+            Text("You can customize specific allergens through 'My Allergies'")
+                .font(.system(size: 12))
                 .foregroundColor(.gray)
                 .padding(.bottom, 20)
             

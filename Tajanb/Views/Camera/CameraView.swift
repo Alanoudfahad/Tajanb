@@ -155,21 +155,28 @@ struct CameraView: View {
 
                     // Display allergen message or detected ingredients list
                     if !isCameraRunning, let freeAllergenMessage = viewModel.freeAllergenMessage {
+                        // Determine the type of message
                         let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
-                        let isLanguagePrompt = freeAllergenMessage.contains("change your app language") || freeAllergenMessage.contains("يرجى تغيير لغة التطبيق")
-
+                        let isLanguagePrompt = freeAllergenMessage.contains("Please") || freeAllergenMessage.contains("يرجى")
+                        
+                        // Display the message with appropriate styling
                         Text(freeAllergenMessage)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.black)
+                            .foregroundColor(
+                                isLanguagePrompt ? .black : (isError ? Color(.black) : Color(.white))
+                            ) // Consistent foreground for better contrast
                             .padding()
                             .background(
-                                isError ? Color("YellowText") :
-                                (isLanguagePrompt ? Color.blue : Color("AllergyFreeColor"))
+                                // Set background color based on the message type
+                                isLanguagePrompt ? Color("YellowText") : (isError ? Color("YellowText") : Color("AllergyFreeColor"))
                             )
                             .cornerRadius(20)
                             .padding(.top, 10)
+                            .multilineTextAlignment(.center)
                             .accessibilityLabel(freeAllergenMessage)
+                            .accessibilityHint(isError ? "Error message" : (isLanguagePrompt ? "Language prompt message" : "Allergen-free message"))
                     }
+
                     // Display detected items in a flow layout
                     if !isCameraRunning, !detectedWordsToDisplay.isEmpty {
                         FlowLayout(items: detectedWordsToDisplay) { detectedItem in

@@ -55,14 +55,21 @@ struct PhotoMainView: View {
                                 // Check for the presence of the word "المكونات" and display error message if not found
                                 if let freeAllergenMessage = photoViewModel.freeAllergenMessage {
                                     let isError = freeAllergenMessage.contains("عذرًا") || freeAllergenMessage.contains("Sorry")
-                                    
+                                    let isLanguagePrompt = freeAllergenMessage.contains("Please") || freeAllergenMessage.contains("يرجى")
+
                                     Text(freeAllergenMessage)
                                         .font(.system(size: 16, weight: .medium))
-                                        .padding(10)
-                                        .background(isError ? Color("YellowText") : Color("AllergyFreeColor")) // Yellow for error, green for allergen-free
-                                        .multilineTextAlignment(.center)
                                         .foregroundColor(isError ? .black : .white) // Black text for error message for better contrast
-                                        .clipShape(Capsule())
+                                        .padding(10)
+                                        .background(
+                                            isError ? Color("YellowText") :
+                                            (isLanguagePrompt ? Color("YellowText") : Color("AllergyFreeColor"))
+                                        ) // Yellow for error, green for allergen-free
+                                        .multilineTextAlignment(.center)
+                                        .foregroundColor(
+                                            isLanguagePrompt ? .black : (isError ? Color(.black) : Color(.white))
+                                        )
+                                        .cornerRadius(20)
                                         .padding(.vertical)
                                         .accessibilityLabel(Text(isError ? "Error message" : "Allergen-free message"))
                                         .accessibilityHint(Text(isError ? "Ingredients not found" : "The selected image contains no allergens"))
@@ -97,7 +104,6 @@ struct PhotoMainView: View {
                     .padding(.bottom, 10)
                     .accessibilityLabel(Text("Done"))
                     .accessibilityHint(Text("Double-tap to go back to the previous screen."))
-                 //   .background(Color(red: 30/255, green: 30/255, blue: 30/255))
                 }  else {
                     // Button to trigger the image picker
                     Button(action: {

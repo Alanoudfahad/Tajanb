@@ -1,10 +1,3 @@
-//
-//  PhotoViewModel.swift
-//  Tajanb
-//
-//  Created by Alanoud Alshuaibi on 19/04/1446 AH.
-//
-
 import Foundation
 import Vision
 import UIKit
@@ -86,6 +79,13 @@ class PhotoViewModel: NSObject, ObservableObject {
 
         print("Detected Combined Text: \(cleanedText)")
 
+        // Check for language mismatch and set message if needed
+        checkLanguageAndPrompt(detectedText: combinedText)
+        if freeAllergenMessage != nil {
+            // If checkLanguageAndPrompt sets a message, stop further processing
+            return
+        }
+
         // Split combined text into words and clean each
         let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
         print("Detected Words List: \(words)")
@@ -118,6 +118,7 @@ class PhotoViewModel: NSObject, ObservableObject {
             freeAllergenMessage = nil  // Clear message if allergens found
         }
     }
+
 
     // Fuzzy search to check if the keyword is present in the text
     func fuzzyContains(_ text: String, keyword: String) -> Bool {
@@ -181,4 +182,28 @@ class PhotoViewModel: NSObject, ObservableObject {
             }
         }
     }
+
+    // Check and prompt if the language of the detected text doesn't match the app's language
+    private func checkLanguageAndPrompt(detectedText: String) {
+        let arabicCode = "ar"
+        let englishCode = "en"
+
+        // Get the current app language code
+        let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
+        let containsArabic = detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil
+
+        // Set the message for a language mismatch
+        if containsArabic && currentLanguageCode != arabicCode {
+            freeAllergenMessage = currentLanguageCode == arabicCode
+                ? "يرجى تغيير لغة التطبيق إلى العربية للحصول على نتائج أفضل."
+                : "Please change the app language to Arabic for better results."
+        } else if !containsArabic && currentLanguageCode != englishCode {
+            freeAllergenMessage = currentLanguageCode == arabicCode
+                ? "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
+                : "Please change the app language to English for better results."
+        } else {
+            freeAllergenMessage = nil  // Clear the message if no mismatch
+        }
+    }
+
 }

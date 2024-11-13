@@ -248,6 +248,13 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             }
         }
 
+        // Check for language mismatch first
+        checkLanguageAndPrompt(detectedText: combinedText)
+        if freeAllergenMessage != nil {
+            // If a language mismatch message is set, skip further processing
+            return
+        }
+
         // Update detectedText with unique items
         detectedText = Array(uniqueDetectedAllergens.values)
         
@@ -260,38 +267,37 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
                 "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." :
                 "Sorry, no ingredients found. Please try again."
         }
-
-        // Check if the language matches the preferred language for allergen detection
-        checkLanguageAndPrompt(detectedText: combinedText)
     }
+
 
     func checkLanguageAndPrompt(detectedText: String) {
         let arabicCode = "ar"
         let englishCode = "en"
         
-        // Get the current language code as a String
+        // Get the current app language code
         let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
         
-        // Check if detected text is predominantly Arabic
-        if detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil {
-            if currentLanguageCode != arabicCode {
-                // Display a prompt suggesting the user switch to Arabic
-                //freeAllergenMessage = "Please change your app language to Arabic for better results."
-                freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
-                                "يرجى تغيير لغة التطبيق للغة العربي للحصول على نتائج افضل" :
-                                "change your app language to Arabic for better results."
-            }
+        // Check if detected text contains predominantly Arabic characters
+        let containsArabic = detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil
+        
+        // Determine the mismatch between text language and app language
+        if containsArabic && currentLanguageCode != arabicCode {
+            // Mismatch: Arabic text detected, app is not in Arabic
+            freeAllergenMessage = currentLanguageCode == arabicCode
+                ? "يرجى تغيير لغة التطبيق إلى العربية للحصول على نتائج أفضل."
+                : "Please change the app language to Arabic for better results."
+        } else if !containsArabic && currentLanguageCode != englishCode {
+            // Mismatch: Non-Arabic text detected, app is not in English
+            freeAllergenMessage = currentLanguageCode == arabicCode
+                ? "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
+                : "Please change the app language to English for better results."
         } else {
-            // If detected text is not Arabic, assume it's English and prompt if needed
-            if currentLanguageCode != englishCode {
-                // Display a prompt suggesting the user switch to English
-                freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
-                                "يرجى تغيير لغة التطبيق للغة الانجليزية للحصول على نتائج افصل" :
-                                "change your app language to English for better results."
-               // freeAllergenMessage = "Please change your app language to English for better results."
-            }
+            // No mismatch, clear the message
+            freeAllergenMessage = nil
         }
     }
+
+
 
     // Helper for fuzzy matching keywords in text
     func fuzzyContains(_ text: String, keyword: String) -> Bool {

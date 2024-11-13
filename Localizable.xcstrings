@@ -385,6 +385,16 @@
         }
       }
     },
+    "Language prompt message" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "رسالة اللغة"
+          }
+        }
+      }
+    },
     "Live camera preview" : {
       "localizations" : {
         "ar" : {
@@ -459,16 +469,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "قم بمسح قائمة مكونات المنتج و تحقق من مدى ملاءمته لك ،  و تأكد من تغطية كافة المكونات لضمان دقة النتائج."
-          }
-        }
-      }
-    },
-    "Select at least 1" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "على الأقل ١"
           }
         }
       }
@@ -653,6 +653,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welcome to Tajanb!"
+          }
+        }
+      }
+    },
+    "You can customize specific allergens through 'My Allergies'" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمكنك تخصيص أنواع الحساسية الفرعية من خلال حساسياتي"
           }
         }
       }
