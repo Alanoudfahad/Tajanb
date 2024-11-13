@@ -56,15 +56,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
    func cameraManager(_ manager: CameraManager, didOutput sampleBuffer: CMSampleBuffer) {
        processFrame(sampleBuffer: sampleBuffer)
    }
-    // Called when a photo is captured, initiates text recognition on the photo
-//    func cameraManager(_ manager: CameraManager, didCapturePhoto image: UIImage?) {
-//        guard let image = image else { return }
-//        startTextRecognition(from: image)
-//        
-//        // Process text from live preview and detect allergens
-//        let detectedTextArray = liveDetectedText.split(separator: " ").map { String($0) }
-//        processAllergensFromCapturedText(detectedTextArray)
-//    }
+
     func cameraManager(_ manager: CameraManager, didCapturePhoto image: UIImage?) {
         guard let image = image else { return }
         startTextRecognition(from: image)
@@ -225,54 +217,82 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             hasDetectedIngredients = false
         }
     }
-
     func processAllergensFromCapturedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
         let cleanedText = preprocessText(combinedText)
         let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
         
         foundAllergens = false  // Reset allergens flag
-        detectedText.removeAll() // Remove previous detections
-        matchedWordsSet.removeAll()  // Reset matched words set
+        detectedText.removeAll() // Clear previous detections
+        matchedWordsSet.removeAll()  // Clear previous matched words set
+
+        // Use a dictionary to track detected allergens and avoid duplicates
+        var uniqueDetectedAllergens: [String: (category: String, word: String, hiddenSynonyms: [String])] = [:]
         
         // Check for allergens in phrases
         let maxPhraseLength = 4
         let N = words.count
 
-        // Look for allergens in the captured text
-           for i in 0..<N {
-               for L in 1...maxPhraseLength {
-                   if i + L <= N {
-                       let phrase = words[i..<i+L].joined(separator: " ")
+        for i in 0..<N {
+            for L in 1...maxPhraseLength {
+                if i + L <= N {
+                    let phrase = words[i..<i+L].joined(separator: " ")
+                    let cleanedPhrase = preprocessText(phrase)
 
-                       // Prevent duplicate phrases from being processed
-                       let cleanedPhrase = preprocessText(phrase)
+                    if let allergenInfo = checkAllergy(for: phrase), !uniqueDetectedAllergens.keys.contains(allergenInfo.word) {
+                        // Add to dictionary if not already detected
+                        uniqueDetectedAllergens[allergenInfo.word] = allergenInfo
+                        foundAllergens = true
+                    }
+                }
+            }
+        }
 
-                       // Check if this phrase has already been processed
-                       if !matchedWordsSet.contains(cleanedPhrase) {
-                           if checkAllergy(for: phrase) {
-                               foundAllergens = true
-                               matchedWordsSet.insert(cleanedPhrase)  // Mark this phrase as processed
-                               break
-                           }
-                       }
-                   }
-               }
-           }
-
+        // Update detectedText with unique items
+        detectedText = Array(uniqueDetectedAllergens.values)
+        
         if foundAllergens {
-            // Allergens found; display them
             freeAllergenMessage = nil
         } else if ingredientSynonyms.contains(where: { fuzzyContains(cleanedText, keyword: $0) }) {
-            // No allergens found but ingredients detected
-            freeAllergenMessage = getLocalizedMessage()  // Display allergen-free message
+            freeAllergenMessage = getLocalizedMessage()
         } else {
-            // No ingredients found
             freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
                 "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." :
                 "Sorry, no ingredients found. Please try again."
         }
+
+        // Check if the language matches the preferred language for allergen detection
+        checkLanguageAndPrompt(detectedText: combinedText)
     }
+
+    func checkLanguageAndPrompt(detectedText: String) {
+        let arabicCode = "ar"
+        let englishCode = "en"
+        
+        // Get the current language code as a String
+        let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
+        
+        // Check if detected text is predominantly Arabic
+        if detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil {
+            if currentLanguageCode != arabicCode {
+                // Display a prompt suggesting the user switch to Arabic
+                //freeAllergenMessage = "Please change your app language to Arabic for better results."
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
+                                "يرجى تغيير لغة التطبيق للغة العربي للحصول على نتائج افضل" :
+                                "change your app language to Arabic for better results."
+            }
+        } else {
+            // If detected text is not Arabic, assume it's English and prompt if needed
+            if currentLanguageCode != englishCode {
+                // Display a prompt suggesting the user switch to English
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
+                                "يرجى تغيير لغة التطبيق للغة الانجليزية للحصول على نتائج افصل" :
+                                "change your app language to English for better results."
+               // freeAllergenMessage = "Please change your app language to English for better results."
+            }
+        }
+    }
+
     // Helper for fuzzy matching keywords in text
     func fuzzyContains(_ text: String, keyword: String) -> Bool {
         let pattern = "\\b\(keyword)\\b"
@@ -311,8 +331,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             }
         }
     }
-
-    func checkAllergy(for phrase: String) -> Bool {
+    func checkAllergy(for phrase: String) -> (category: String, word: String, hiddenSynonyms: [String])? {
         let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
         
         if let result = isTargetWord(cleanedPhrase) {
@@ -332,16 +351,15 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             if normalizedSelectedWords.contains(where: { selectedWord in
                 normalizedMatchedWords.contains { $0 == selectedWord }
             }) {
-                // Proceed with allergen detection logic
                 DispatchQueue.main.async {
-                    self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
                     self.hapticManager.performHapticFeedback()
                 }
-                return true
+                return (category: result.0, word: result.1, hiddenSynonyms: result.2)
             }
         }
-        return false
+        return nil
     }
+
 
     func preprocessText(_ text: String) -> String {
         var cleanedText = text
@@ -421,4 +439,6 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         cameraManager.startSession()
         cameraManager.toggleFlash(isOn: false)
     }
+    
+    
 }
