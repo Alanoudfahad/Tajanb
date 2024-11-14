@@ -19,3 +19,8 @@ struct Word: Codable {
         ]
     }
 }
+struct SearchableWord: Identifiable {
+    var id: String
+    var wordText: String
+    var category: Category
+}

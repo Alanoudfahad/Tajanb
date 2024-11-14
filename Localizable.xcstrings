@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "%@ allergen" : {
       "localizations" : {
         "ar" : {
@@ -113,6 +116,16 @@
         }
       }
     },
+    "Close Search" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اغلق البحث"
+          }
+        }
+      }
+    },
     "Detected allergen from the selected image" : {
       "localizations" : {
         "ar" : {
@@ -153,6 +166,16 @@
         }
       }
     },
+    "Do you have another type of allergy?" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "هل تعاني من نوع آخر من الحساسية؟ "
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "ar" : {
@@ -165,6 +188,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Done"
+          }
+        }
+      }
+    },
+    "Double-tap to %@." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انقر مرتين"
           }
         }
       }
@@ -443,6 +476,16 @@
         }
       }
     },
+    "Open Search" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "افتح البحث"
+          }
+        }
+      }
+    },
     "Photo Picker" : {
       "localizations" : {
         "ar" : {
@@ -473,6 +516,17 @@
         }
       }
     },
+    "Search Allergies" : {
+      "comment" : "Placeholder for searching allergies",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ابحث عن حساسية"
+          }
+        }
+      }
+    },
     "Send" : {
       "localizations" : {
         "ar" : {
@@ -489,6 +543,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "تخطي"
+          }
+        }
+      }
+    },
+    "Suggest an allergy" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اقترح حساسية"
           }
         }
       }
@@ -725,22 +789,6 @@
         }
       }
     },
-    "اقترح حساسية" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اقترح حساسية"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suggest Allergy"
-          }
-        }
-      }
-    },
     "الرجوع" : {
       "localizations" : {
         "ar" : {
@@ -885,22 +933,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The result of the ingredients shown in the picture"
-          }
-        }
-      }
-    },
-    "هل تعاني من نوع أخر من الحساسية؟" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هل تعاني من نوع آخر من الحساسية؟  "
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Do you suffer from another allergy?"
           }
         }
       }
