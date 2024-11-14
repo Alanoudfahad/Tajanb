@@ -59,7 +59,10 @@ struct PhotoMainView: View {
 
                                     Text(freeAllergenMessage)
                                         .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(isError ? .black : .white) // Black text for error message for better contrast
+                                        .foregroundColor(
+                                            isLanguagePrompt ? .black : isError ? Color(.black) : Color(.white)
+                                                                        
+                                        )
                                         .padding(10)
                                         .background(
                                             isError ? Color("YellowText") :
