@@ -110,18 +110,29 @@ class FirestoreViewModel: ObservableObject {
       }
       
       // Helper to process documents for both Arabic and English categories
+
     private func processWordDocuments(_ documents: [QueryDocumentSnapshot], isArabic: Bool) {
         for document in documents {
             let data = document.data()
             if let words = data["words"] as? [[String: Any]] {
                 for wordData in words {
-                    if let id = wordData["id"] as? String, let word = wordData["word"] as? String {
+                    if let id = wordData["id"] as? String, let wordText = wordData["word"] as? String {
                         if isArabic {
-                            // Add/Update Arabic word and ensure the English word is also fetched
-                            self.wordMappings[id] = (arabic: word, english: self.wordMappings[id]?.english ?? "")
+                            // Update the mapping with the Arabic word
+                            if var existingPair = self.wordMappings[id] {
+                                existingPair.arabic = wordText
+                                self.wordMappings[id] = existingPair
+                            } else {
+                                self.wordMappings[id] = (arabic: wordText, english: "")
+                            }
                         } else {
-                            // Add/Update English word and ensure the Arabic word is also fetched
-                            self.wordMappings[id] = (arabic: self.wordMappings[id]?.arabic ?? "", english: word)
+                            // Update the mapping with the English word
+                            if var existingPair = self.wordMappings[id] {
+                                existingPair.english = wordText
+                                self.wordMappings[id] = existingPair
+                            } else {
+                                self.wordMappings[id] = (arabic: "", english: wordText)
+                            }
                         }
                     }
                 }
@@ -129,7 +140,6 @@ class FirestoreViewModel: ObservableObject {
         }
         print(isArabic ? "Processed Arabic words." : "Processed English words.")
     }
-
       // MARK: - Fetch categories with daily refresh check
       func fetchCategories(completion: @escaping () -> Void) {
           let oneDayAgo = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
