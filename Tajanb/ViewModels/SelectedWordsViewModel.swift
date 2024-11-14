@@ -65,21 +65,28 @@ class SelectedWordsViewModel: ObservableObject {
 
     
        // MARK: - Save Words for Specific Categories
-       func saveSelectedWords(for selectedCategories: Set<String>) {
-           var wordsToSave: [String] = []
 
-           // Add words and their synonyms from each selected category
-           for category in firestoreViewModel.availableCategories where selectedCategories.contains(category.name) {
-               for word in category.words {
-                   wordsToSave.append(word.word)
-                   wordsToSave.append(contentsOf: word.hiddenSynonyms)
-               }
-           }
+    func saveSelectedWords(for selectedCategories: Set<String>) {
+        var wordsToSave: [String] = []
 
-           updateSelectedWords(with: wordsToSave)
-           print("Words saved: \(wordsToSave)")
-       }
+        // Add words and their synonyms from each selected category
+        for category in firestoreViewModel.availableCategories where selectedCategories.contains(category.name) {
+            for word in category.words {
+                // Fetch the Arabic and English words using the wordMappings
+                if let wordPair = firestoreViewModel.wordMappings[word.id] {
+                    wordsToSave.append(wordPair.arabic)
+                    wordsToSave.append(wordPair.english)
+                } else {
+                    // Fallback to the word data if mapping is not available
+                    wordsToSave.append(word.word)
+                    wordsToSave.append(contentsOf: word.hiddenSynonyms)
+                }
+            }
+        }
 
+        updateSelectedWords(with: wordsToSave)
+        print("Words saved: \(wordsToSave)")
+    }
     
        // MARK: - Toggle and Selection Management
     func handleSelectAllToggleChange(for category: Category, isSelected: Bool) {
