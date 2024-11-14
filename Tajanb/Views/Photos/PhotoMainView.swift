@@ -78,15 +78,25 @@ struct PhotoMainView: View {
                         }
            
                     }
-                
-                .onAppear {
-                    categoryManager.selectedWordsViewModel.modelContext = modelContext
-                    categoryManager.firestoreViewModel.fetchCategories{
-      
+                    .onAppear {
+                        categoryManager.selectedWordsViewModel.modelContext = modelContext
+                        categoryManager.firestoreViewModel.fetchCategories{
+                            print("Categories fetched and updated in CameraView.")
+                        }
+                        categoryManager.firestoreViewModel.fetchWordMappings {
+                            print("Word mappings fetched and updated in CameraView.")
+                        }
+                        // Load selected words using SwiftData model context
+                        categoryManager.selectedWordsViewModel.loadSelectedWords()
                     }
-                    // Load selected words using SwiftData model context
-                    categoryManager.selectedWordsViewModel.loadSelectedWords()
-                }
+//                .onAppear {
+//                    categoryManager.selectedWordsViewModel.modelContext = modelContext
+//                    categoryManager.firestoreViewModel.fetchCategories{
+//      
+//                    }
+//                    // Load selected words using SwiftData model context
+//                    categoryManager.selectedWordsViewModel.loadSelectedWords()
+//                }
                 Spacer()
                 if let image = selectedImage {
                     Button(action: {

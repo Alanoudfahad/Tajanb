@@ -111,10 +111,10 @@ struct Categories: View {
             
                }
         .onAppear {
-            viewModel.selectedWordsViewModel.loadSelectedWords() // Load from UserDefaults
+            viewModel.selectedWordsViewModel.loadSelectedWords()
             viewModel.selectedWordsViewModel.modelContext = modelContext
-
-              }
+            print("Categories view appeared. Current categories: \(viewModel.firestoreViewModel.availableCategories.map { $0.name })")
+        }
 
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .toolbar {

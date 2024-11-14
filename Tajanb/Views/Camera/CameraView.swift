@@ -321,10 +321,13 @@ struct CameraView: View {
             .onAppear {
                 viewModel.selectedWordsViewModel.modelContext = modelContext
                 viewModel.selectedWordsViewModel.loadSelectedWords()
-                viewModel.firestoreViewModel.fetchCategories(completion: {
-                    // Handle completion if needed
-                })
-                
+                // Fetch categories and word mappings
+                viewModel.firestoreViewModel.fetchCategories {
+                    print("Categories fetched and updated in CameraView.")
+                }
+                viewModel.firestoreViewModel.fetchWordMappings {
+                    print("Word mappings fetched and updated in CameraView.")
+                }
                 DispatchQueue.main.async {
                     viewModel.prepareSession()
                     

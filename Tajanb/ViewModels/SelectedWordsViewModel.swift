@@ -82,49 +82,71 @@ class SelectedWordsViewModel: ObservableObject {
 
     
        // MARK: - Toggle and Selection Management
+    func handleSelectAllToggleChange(for category: Category, isSelected: Bool) {
+        // Retrieve all words and their hidden synonyms in the category
+        let allWords = category.words.flatMap { [$0.word] + $0.hiddenSynonyms }
 
-       func handleSelectAllToggleChange(for category: Category, isSelected: Bool) {
-           let allWords = category.words.flatMap { [$0.word] + $0.hiddenSynonyms }
+        // Retrieve both Arabic and English versions for each word, defaulting to an empty array if no mapping is found
+        let allWordsWithTranslations = allWords.flatMap { word -> [String] in
+            if let wordMapping = firestoreViewModel.wordMappings.first(where: { $0.value.arabic == word || $0.value.english == word }) {
+                return [wordMapping.value.arabic, wordMapping.value.english]
+            }
+            return []
+        }
 
+        if isSelected {
+            // Append only words not already selected to avoid duplicates
+            selectedWords.append(contentsOf: allWordsWithTranslations.filter { !selectedWords.contains($0) })
+        } else {
+            // Remove all related translations
+            selectedWords.removeAll { allWordsWithTranslations.contains($0) }
+        }
+
+        saveSelectedWords()  // Persist updated selection to SwiftData
+        updateSelectAllStatus(for: category)
+    }
+
+    func toggleSelection(for category: Category, word: String, isSelected: Bool) {
+           // Check if word exists in `wordMappings` to fetch both languages
+           guard let wordMapping = firestoreViewModel.wordMappings.first(where: { $0.value.arabic == word || $0.value.english == word }) else { return }
+
+           // Update selection for both language variants
+           let arabicWord = wordMapping.value.arabic
+           let englishWord = wordMapping.value.english
+           
            if isSelected {
-               selectedWords.append(contentsOf: allWords.filter { !selectedWords.contains($0) })
+               if !selectedWords.contains(arabicWord) { selectedWords.append(arabicWord) }
+               if !selectedWords.contains(englishWord) { selectedWords.append(englishWord) }
            } else {
-               selectedWords.removeAll { allWords.contains($0) }
-           }
-
-           saveSelectedWords()  // Persist updated selection to SwiftData
-           updateSelectAllStatus(for: category)
-       }
-
-    
-       func toggleSelection(for category: Category, word: String, isSelected: Bool) {
-           guard let categoryWord = category.words.first(where: { $0.word == word }) else { return }
-
-           if isSelected {
-               if !selectedWords.contains(word) {
-                   selectedWords.append(word)
-                   selectedWords.append(contentsOf: categoryWord.hiddenSynonyms)
-               }
-           } else {
-               selectedWords.removeAll { $0 == word || categoryWord.hiddenSynonyms.contains($0) }
-               isSelectAllEnabled = false
+               selectedWords.removeAll { $0 == arabicWord || $0 == englishWord }
            }
 
            saveSelectedWords()
            updateSelectAllStatus(for: category)
        }
+    
 
-       func updateSelectAllStatus(for category: Category) {
-           let allWords = category.words.map { $0.word }
+    func updateSelectAllStatus(for category: Category) {
+        // Retrieve all primary words in the category
+        let allWords = category.words.map { $0.word }
 
-           if selectedWords.isEmpty {
-               isSelectAllEnabled = false
-           } else if allWords.allSatisfy({ selectedWords.contains($0) }) {
-               isSelectAllEnabled = true
-           } else {
-               isSelectAllEnabled = false
-           }
-       }
+        // Retrieve both Arabic and English versions for each word, defaulting to an empty array if no mapping is found
+        let allWordsWithTranslations = allWords.flatMap { word -> [String] in
+            if let wordMapping = firestoreViewModel.wordMappings.first(where: { $0.value.arabic == word || $0.value.english == word }) {
+                return [wordMapping.value.arabic, wordMapping.value.english]
+            }
+            return []
+        }
+
+        // Check if all translated words are in selectedWords
+        if selectedWords.isEmpty {
+            isSelectAllEnabled = false
+        } else if allWordsWithTranslations.allSatisfy({ selectedWords.contains($0) }) {
+            isSelectAllEnabled = true
+        } else {
+            isSelectAllEnabled = false
+        }
+    }
    }
 // Extension to check if a collection contains all elements from another array
 extension Collection where Element: Equatable {
