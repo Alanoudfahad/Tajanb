@@ -1,3 +1,4 @@
+
 //
 //  TajanbApp.swift
 //  Tajanb
@@ -9,12 +10,27 @@ import SwiftUI
 import SwiftData
 import FirebaseCore
 import Firebase
+import FirebaseFirestore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        FirebaseApp.configure()
-        return true
+                // Initialize Firebase
+               FirebaseApp.configure()
+               
+               // Get the Firestore instance
+               let firestore = Firestore.firestore()
+               
+               // Set Firestore settings
+               let settings = FirestoreSettings()
+
+               // set a custom cache size (in bytes). For example, 100 MB.
+               settings.cacheSettings = PersistentCacheSettings(sizeBytes: 100 * 1024 * 1024 as NSNumber) // 100MB cache size
+               
+               // Apply the settings to Firestore
+               firestore.settings = settings
+               
+               return true
     }
 }
 
@@ -37,13 +53,10 @@ struct TajanbApp: App {
                     // Show SplashScreen on all subsequent launches
                     SplashScreenView(cameraViewModel: viewModel)
                         .onAppear {
-                            // Reset the flag after splash screen displays
-                            justCompletedOnboarding = false
-                            // Fetch word mappings through firestoreViewModel
-                            viewModel.firestoreViewModel.fetchWordMappings {
-                                // Optionally handle completion here
-                            }
-                        }
+                           justCompletedOnboarding = false
+
+                       }
+
                 }
             } else {
                 // Show Onboarding on the first launch

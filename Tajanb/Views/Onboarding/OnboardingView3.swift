@@ -81,9 +81,9 @@ struct OnboardingView3: View {
         }
         .onAppear {
             cameraViewModel.selectedWordsViewModel.modelContext = modelContext
-            cameraViewModel.firestoreViewModel.fetchCategories{
-          
-            }
+//            cameraViewModel.firestoreViewModel.fetchCategories{
+//          
+//            }
             cameraViewModel.cameraManager.startSession()
             print("Categories fetched: \(cameraViewModel.firestoreViewModel.availableCategories)")
         }
