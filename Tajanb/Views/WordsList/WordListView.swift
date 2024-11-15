@@ -7,6 +7,11 @@ struct WordListView: View {
     @ObservedObject var selectedWordsViewModel: SelectedWordsViewModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
+    var selectedWord: String? // Add this line
+
+    // Add a state variable to control the animation
+    @State private var animateHighlight = false
+    @State private var hasScrolledToSelectedWord = false // To ensure scrolling happens only once
 
     var body: some View {
         VStack {
@@ -44,44 +49,72 @@ struct WordListView: View {
 
             Divider()
                 .background(Color.white)
+            // Wrap the List in a ScrollViewReader
+                      ScrollViewReader { scrollViewProxy in
+                          List {
+                              ForEach(category.words, id: \.word) { word in
+                                  HStack {
+                                      Text(word.word)
+                                          .foregroundColor(.white)
+                                          .font(.system(size: 18, weight: .medium))
+                                          .frame(maxWidth: .infinity, alignment: .leading)
+                                      
+                                      Toggle(isOn: Binding(
+                                          get: { selectedWordsViewModel.selectedWords.contains(word.word) },
+                                          set: { isSelected in
+                                              selectedWordsViewModel.toggleSelection(for: category, word: word.word, isSelected: isSelected)
+                                          }
+                                      )) {
+                                          EmptyView()
+                                      }
+                                      .labelsHidden()
+                                      .toggleStyle(CustomToggleStyle())
+                                      .padding(.leading, 120)
+                                  }
+                                  .padding()
+                                  .background(
+                                      // Apply the animation to the selected word
+                                      (word.word == selectedWord && animateHighlight) ?
+                                      Color("PrimeryButton") : Color("GrayList")
+                                  )
+                                  .cornerRadius(15)
+                                  .id(word.word) // Assign ID to each row
+                              }
+                              .listRowBackground(Color.clear)
+                          }
+                          .listStyle(PlainListStyle())
+                          .background(Color("CustomBackground"))
+                          .onAppear {
+                              // Scroll to the selected word when the view appears
+                              if let selectedWord = selectedWord, !hasScrolledToSelectedWord {
+                                  scrollViewProxy.scrollTo(selectedWord, anchor: .center)
+                                  hasScrolledToSelectedWord = true
+                              }
+                          }
+                      }
+                  }
+                  .onAppear {
+                      selectedWordsViewModel.modelContext = modelContext  // Assign modelContext for SwiftData
+                      selectedWordsViewModel.updateSelectAllStatus(for: category)  // Sync Select All toggle
 
-            // Word List with Individual Toggles
-            List {
-                ForEach(category.words, id: \.word) { word in
-                    HStack {
-                        Text(word.word)
-                            .foregroundColor(.white)
-                            .font(.system(size: 18, weight: .medium))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Toggle(isOn: Binding(
-                            get: { selectedWordsViewModel.selectedWords.contains(word.word) },
-                            set: { isSelected in
-                                selectedWordsViewModel.toggleSelection(for: category, word: word.word, isSelected: isSelected)
-                            }
-                        )) {
-                            EmptyView()
-                        }
-                        .labelsHidden()
-                        .toggleStyle(CustomToggleStyle())
-                        .padding(.leading, 120)
-                    }
-                    .padding()
-                    .background(Color("GrayList"))
-                    .cornerRadius(15)
-                }
-                .listRowBackground(Color.clear)
-            }
-            .listStyle(PlainListStyle())
-            .background(Color("CustomBackground"))
-        }
-        .onAppear {
-            selectedWordsViewModel.modelContext = modelContext  // Assign modelContext for SwiftData
-            selectedWordsViewModel.updateSelectAllStatus(for: category)  // Sync Select All toggle
-        }
-        .onDisappear {
-            selectedWordsViewModel.saveSelectedWords()  // Save changes on exit
-        }
+                      // Start the animation for the selected word
+                      if selectedWord != nil {
+                          withAnimation(Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                              animateHighlight = true
+                          }
+                          // Stop the animation after 6 seconds
+                          DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                             withAnimation {
+                                 animateHighlight = false
+                             }
+                          }
+                      }
+                  }
+                  .onDisappear {
+                      selectedWordsViewModel.saveSelectedWords()  // Save changes on exit
+                      animateHighlight = false // Stop the animation when the view disappears
+                  }
+
         .background(Color("CustomBackground"))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

@@ -192,12 +192,12 @@ struct Categories: View {
         .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
     }
 
-    // Destination view when navigating to a selected word
     func destinationView() -> some View {
         if let word = selectedWord {
             return AnyView(WordListView(
                 category: word.category,
-                selectedWordsViewModel: viewModel.selectedWordsViewModel
+                selectedWordsViewModel: viewModel.selectedWordsViewModel,
+                selectedWord: word.wordText // Pass the selected word here
             ))
         } else {
             return AnyView(EmptyView())
