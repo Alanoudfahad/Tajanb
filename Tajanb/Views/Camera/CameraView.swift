@@ -163,7 +163,8 @@ struct CameraView: View {
                         Text(freeAllergenMessage)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(
-                                isLanguagePrompt ? .black : (isError ? Color(.black) : Color(.white))
+                                isLanguagePrompt ? .black : isError ? Color(.black) : Color(.white)
+                                                            
                             ) // Consistent foreground for better contrast
                             .padding()
                             .background(
