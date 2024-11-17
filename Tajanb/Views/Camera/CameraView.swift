@@ -203,7 +203,7 @@ struct CameraView: View {
                     // Navigation and action buttons
                     HStack {
                         NavigationLink(value: "categories") {
-                            ButtonView(systemImage: "text.page", label: NSLocalizedString("My Allergies", comment: "Label for my allergies"))
+                            ButtonView(systemImage: "text.page", label: NSLocalizedString("Allergies", comment: "Label for allergies"))
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             isCategoriesActive = true
@@ -213,7 +213,7 @@ struct CameraView: View {
                                 viewModel.cameraManager.stopSession()
                             }
                         })
-                        .accessibilityLabel("My Allergies")
+                        .accessibilityLabel("Allergies")
                         .accessibilityHint("Double-tap to view your allergy categories")
                         
                         Spacer()

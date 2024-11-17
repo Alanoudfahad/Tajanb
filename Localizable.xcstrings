@@ -34,6 +34,17 @@
         }
       }
     },
+    "Allergies" : {
+      "comment" : "Label for allergies",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الحساسيات"
+          }
+        }
+      }
+    },
     "Avoid your allergic reactions" : {
       "localizations" : {
         "ar" : {
@@ -116,16 +127,6 @@
         }
       }
     },
-    "Close Search" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اغلق البحث"
-          }
-        }
-      }
-    },
     "Detected allergen from the selected image" : {
       "localizations" : {
         "ar" : {
@@ -188,16 +189,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Done"
-          }
-        }
-      }
-    },
-    "Double-tap to %@." : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "انقر مرتين"
           }
         }
       }
@@ -318,7 +309,7 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تجنب مسببات الحساسية ، و تمتع بغذائك"
+            "value" : "تجنب مسببات الحساسية، وتمتع بغذائك"
           }
         },
         "en" : {
@@ -438,23 +429,6 @@
         }
       }
     },
-    "My Allergies" : {
-      "comment" : "Label for my allergies",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حساسياتي"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "My Allergies"
-          }
-        }
-      }
-    },
     "My Allergies Title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -472,16 +446,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "تم"
-          }
-        }
-      }
-    },
-    "Open Search" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "افتح البحث"
           }
         }
       }
@@ -721,12 +685,12 @@
         }
       }
     },
-    "You can customize specific allergens through 'My Allergies'" : {
+    "You can customize specific allergens through 'Allergies'" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يمكنك تخصيص أنواع الحساسية الفرعية من خلال حساسياتي"
+            "value" : "يمكنك تخصيص أنواع الحساسية الفرعية من خلال الحساسيات"
           }
         }
       }
