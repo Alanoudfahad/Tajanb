@@ -2,17 +2,14 @@ import Foundation
 import Vision
 import UIKit
 import Photos
-
-// ViewModel for handling photo-based text recognition and allergen detection
 class PhotoViewModel: NSObject, ObservableObject {
-    @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []  // Holds detected allergens with categories and synonyms
-    @Published var freeAllergenMessage: String?  // Message indicating allergen-free status or error
-    private var textRequest = VNRecognizeTextRequest(completionHandler: nil)  // Text recognition request
-    private var hapticManager = HapticManager()  // Manages haptic feedback on allergen detection
-    var ViewModel: CameraViewModel  // Reference to CameraViewModel
-    private var matchedWordsSet: Set<String> = []  // Tracks words already detected to avoid duplicates
+    @Published var detectedText: [(category: String, word: String, hiddenSynonyms: [String])] = []
+    @Published var freeAllergenMessage: String?
+    private var textRequest = VNRecognizeTextRequest(completionHandler: nil)
+    private var hapticManager = HapticManager()
+    var ViewModel: CameraViewModel
+    private var matchedWordsSet: Set<String> = []
 
-    // List of ingredient-related keywords to detect, in multiple languages
     private let ingredientKeywords = [
         "المكونات", "مكونات", "مواد", "عناصر", "المحتويات", "محتويات", "تركيبة",
         "تركيب", "خليط", "تركيبات", "مواد خام", "مكونات الغذاء",
@@ -21,15 +18,13 @@ class PhotoViewModel: NSObject, ObservableObject {
         "Ingredients List", "Product Ingredients", "Food Ingredients",
         "Raw Materials"
     ]
-    
-    // Initialize with CameraViewModel reference and configure text recognition
+
     init(viewmodel: CameraViewModel) {
         self.ViewModel = viewmodel
         super.init()
         configureTextRecognition()
     }
 
-    // Set up the text recognition request with completion handler and language options
     private func configureTextRecognition() {
         textRequest = VNRecognizeTextRequest { [weak self] (request, error) in
             guard let self = self else { return }
@@ -39,7 +34,6 @@ class PhotoViewModel: NSObject, ObservableObject {
                 return
             }
 
-            // Process recognized text observations
             guard let observations = request.results as? [VNRecognizedTextObservation] else {
                 print("No recognized text found")
                 return
@@ -51,13 +45,11 @@ class PhotoViewModel: NSObject, ObservableObject {
             }
         }
 
-        // Configure recognition settings
         textRequest.recognitionLevel = .accurate
         textRequest.recognitionLanguages = ["ar", "en"]
         textRequest.usesLanguageCorrection = true
     }
 
-    // Start text recognition on a captured image
     func startTextRecognition(from image: UIImage) {
         guard let cgImage = image.cgImage else {
             print("Failed to convert UIImage to CGImage")
@@ -72,89 +64,97 @@ class PhotoViewModel: NSObject, ObservableObject {
         }
     }
 
-    // Process detected text, checking for allergens or ingredient-related keywords
     private func processDetectedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
-        let cleanedText = ViewModel.preprocessText(combinedText)  // Preprocess text for consistency
+        let cleanedText = ViewModel.preprocessText(combinedText)
 
         print("Detected Combined Text: \(cleanedText)")
 
-        // Check for language mismatch and set message if needed
-        checkLanguageAndPrompt(detectedText: combinedText)
+        // Check for language mismatch
+        checkLanguageAndPrompt(detectedText: cleanedText)
         if freeAllergenMessage != nil {
-            // If checkLanguageAndPrompt sets a message, stop further processing
             return
         }
 
-        // Split combined text into words and clean each
         let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
         print("Detected Words List: \(words)")
 
         var foundAllergens = false
-        let maxPhraseLength = 4  // Maximum phrase length to check for allergens
+        let maxPhraseLength = 4
         let N = words.count
 
-        // Check each phrase in the detected words for allergen-related matches
         for i in 0..<N {
-            for L in 1...maxPhraseLength {
-                if i + L <= N {
-                    let phrase = words[i..<i+L].joined(separator: " ")
-                    if checkAllergy(for: phrase) {
-                        foundAllergens = true
-                    }
+            for L in 1...maxPhraseLength where i + L <= N {
+                let phrase = words[i..<i+L].joined(separator: " ")
+                if checkAllergy(for: phrase) {
+                    foundAllergens = true
                 }
             }
         }
 
-        // If no allergens found, check for ingredient keywords and set appropriate message
         if !foundAllergens {
             if ingredientKeywords.contains(where: { fuzzyContains(cleanedText, keyword: $0) }) {
-                freeAllergenMessage = getLocalizedMessage()  // Display allergen-free message
+                freeAllergenMessage = getLocalizedMessage()
             } else {
-                // Display error if no ingredient-related keywords found
-                freeAllergenMessage = Locale.current.language.languageCode == "ar" ? "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." : "Sorry, no ingredients found. Please try again."
+                freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
+                    "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." :
+                    "Sorry, no ingredients found. Please try again."
             }
         } else {
-            freeAllergenMessage = nil  // Clear message if allergens found
+            freeAllergenMessage = nil
         }
     }
 
 
-    // Fuzzy search to check if the keyword is present in the text
-    func fuzzyContains(_ text: String, keyword: String) -> Bool {
-        // Define pattern to match keyword as a standalone word
-        let pattern = "\\b\(keyword)\\b"
-        let result = text.range(of: pattern, options: [.regularExpression, .caseInsensitive, .diacriticInsensitive]) != nil
-        print("Fuzzy match for keyword '\(keyword)': \(result)")
-        return result
-    }
+    private func checkLanguageAndPrompt(detectedText: String) {
+        let arabicCode = "ar"
+        let englishCode = "en"
+        let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
 
-    // Check if a detected phrase matches any allergen and update state if found
-    private func checkAllergy(for phrase: String) -> Bool {
-        let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
+        // Check if the detected text contains Arabic characters
+        let containsArabic = detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil
 
-        if let result = ViewModel.isTargetWord(cleanedPhrase) {
-            if !matchedWordsSet.contains(cleanedPhrase) {
-                // If the word matches a selected allergen, add to detected list and provide haptic feedback
-                if ViewModel.selectedWordsViewModel.selectedWords.contains(result.1) {
-                    DispatchQueue.main.async {
-                        self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
-                        self.hapticManager.performHapticFeedback()  // Provide feedback
-                        self.matchedWordsSet.insert(cleanedPhrase)  // Track detected phrase
-                    }
-                    return true  // Allergen found
-                }
+        // Check if the detected text contains English ingredient keywords
+        let containsEnglishIngredients = ingredientKeywords.contains { keyword in
+            keyword.range(of: "^[a-zA-Z\\s]+$", options: .regularExpression) != nil && fuzzyContains(detectedText, keyword: keyword)
+        }
+
+        // Check if the detected text contains Arabic ingredient keywords
+        let containsArabicIngredients = ingredientKeywords.contains { keyword in
+            keyword.range(of: "^[\\p{Arabic}\\s]+$", options: .regularExpression) != nil && fuzzyContains(detectedText, keyword: keyword)
+        }
+
+        // Only check for language mismatch when the app language is Arabic or English
+        if currentLanguageCode == arabicCode {
+            // If the app language is Arabic but the detected text has English ingredients, prompt user
+            if containsEnglishIngredients && !containsArabicIngredients {
+                freeAllergenMessage = "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
+            } else {
+                freeAllergenMessage = nil
+            }
+        } else if currentLanguageCode == englishCode {
+            // If the app language is English but the detected text has Arabic ingredients, prompt user
+            if containsArabicIngredients && !containsEnglishIngredients {
+                freeAllergenMessage = "Please change the app language to Arabic for better results."
+            } else {
+                freeAllergenMessage = nil
             }
         } else {
-            matchedWordsSet.remove(cleanedPhrase)  // Remove if not matching
+            // Clear the message if the app language is neither Arabic nor English
+            freeAllergenMessage = nil
         }
-        return false  // No allergen found
     }
-
-    // Get localized message for allergen-free status
     private func getLocalizedMessage() -> String {
-        return Locale.current.language.languageCode  == "ar" ? "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." : "Based on the picture, product is Allergen free"
+        return Locale.current.language.languageCode == "ar" ?
+            "بناءً على الصورة، المنتج خالٍ من المواد المسببة للحساسية." :
+            "Based on the picture, product is Allergen free."
     }
+
+    func fuzzyContains(_ text: String, keyword: String) -> Bool {
+        let pattern = "\\b\(keyword)\\b"
+        return text.range(of: pattern, options: [.regularExpression, .caseInsensitive, .diacriticInsensitive]) != nil
+    }
+
 
     // Reset detected text and clear matched words
     func resetPredictions() {
@@ -184,26 +184,40 @@ class PhotoViewModel: NSObject, ObservableObject {
     }
 
     // Check and prompt if the language of the detected text doesn't match the app's language
-    private func checkLanguageAndPrompt(detectedText: String) {
-        let arabicCode = "ar"
-        let englishCode = "en"
+//    private func checkLanguageAndPrompt(detectedText: String) {
+//        let arabicCode = "ar"
+//        let englishCode = "en"
+//
+//        // Get the current app language code
+//        let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
+//        let containsArabic = detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil
+//
+//        // Set the message for a language mismatch
+//        if containsArabic && currentLanguageCode != arabicCode {
+//            freeAllergenMessage = currentLanguageCode == arabicCode
+//                ? "يرجى تغيير لغة التطبيق إلى العربية للحصول على نتائج أفضل."
+//                : "Please change the app language to Arabic for better results."
+//        } else if !containsArabic && currentLanguageCode != englishCode {
+//            freeAllergenMessage = currentLanguageCode == arabicCode
+//                ? "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
+//                : "Please change the app language to English for better results."
+//        } else {
+//            freeAllergenMessage = nil  // Clear the message if no mismatch
+//        }
+//    }
+    private func checkAllergy(for phrase: String) -> Bool {
+          let cleanedPhrase = phrase.trimmingCharacters(in: .punctuationCharacters).lowercased()
 
-        // Get the current app language code
-        let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
-        let containsArabic = detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil
-
-        // Set the message for a language mismatch
-        if containsArabic && currentLanguageCode != arabicCode {
-            freeAllergenMessage = currentLanguageCode == arabicCode
-                ? "يرجى تغيير لغة التطبيق إلى العربية للحصول على نتائج أفضل."
-                : "Please change the app language to Arabic for better results."
-        } else if !containsArabic && currentLanguageCode != englishCode {
-            freeAllergenMessage = currentLanguageCode == arabicCode
-                ? "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
-                : "Please change the app language to English for better results."
-        } else {
-            freeAllergenMessage = nil  // Clear the message if no mismatch
-        }
-    }
-
+          if let result = ViewModel.isTargetWord(cleanedPhrase), !matchedWordsSet.contains(cleanedPhrase) {
+              if ViewModel.selectedWordsViewModel.selectedWords.contains(result.1) {
+                  DispatchQueue.main.async {
+                      self.detectedText.append((category: result.0, word: result.1, hiddenSynonyms: result.2))
+                      self.hapticManager.performHapticFeedback()
+                      self.matchedWordsSet.insert(cleanedPhrase)
+                  }
+                  return true
+              }
+          }
+          return false
+      }
 }
