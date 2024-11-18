@@ -18,7 +18,7 @@ struct OnboardingView3: View {
                 .padding(.bottom, 8)
                 .multilineTextAlignment(TextAlignment.center)
             
-            Text("You can customize specific allergens through 'My Allergies'")
+            Text("You can customize specific allergens through 'Allergies'")
                 .font(.system(size: 12))
                 .foregroundColor(.gray)
                 .padding(.bottom, 20)

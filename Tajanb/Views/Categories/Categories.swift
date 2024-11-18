@@ -14,38 +14,36 @@ struct Categories: View {
     @State private var allWords: [SearchableWord] = []
     @State private var isNavigatingToWordList = false
     @State private var selectedWord: SearchableWord?
-    @State private var isSearchBarVisible = false
 
     var body: some View {
         VStack {
             // Header
-            Text("My Allergies")
+            Text("Allergies")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 20)
                 .padding(.horizontal)
-                .accessibilityLabel("My Allergies")
+                .accessibilityLabel("Allergies")
 
             Text("Avoid your allergic reactions")
                 .foregroundColor(.white)
-                .padding(.bottom, isSearchBarVisible ? 10 : 20)
+                .padding(.bottom, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
                 .accessibilityLabel("Avoid your allergic reactions")
 
-            // SearchBar
-            if isSearchBarVisible {
-                SearchBar(text: $searchText, placeholder: NSLocalizedString("Search Allergies", comment: "Placeholder for searching allergies"))
-                    .padding(.horizontal)
-                    .padding(.bottom, 10)
-                    .transition(.move(edge: .top))
-                    .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight) // Handle RTL layout for Arabic
-            }
-
+            // Always visible SearchBar
+            SearchBar(text: $searchText, placeholder: NSLocalizedString("Search Allergies", comment: "Placeholder for searching allergies"))
+                .padding(.horizontal)
+                .padding(.bottom, 10)
+                .environment(\.layoutDirection, Locale.current.language.languageCode?.identifier == "ar" ? .rightToLeft : .leftToRight)
+                .padding(.bottom,10)
             Divider()
                 .background(Color.white)
+              //  .padding(.top)
+                .padding(.bottom,10)
 
             // List of categories or search results
             List {
@@ -98,15 +96,24 @@ struct Categories: View {
                 gatherAllWords()
                 print("Categories view appeared. Current categories: \(viewModel.firestoreViewModel.availableCategories.map { $0.name })")
             }
+            .onChange(of: isNavigatingToWordList) { isNavigating in
+                if !isNavigating {
+                    // Reset the navigation state when the navigation is complete
+                    withAnimation {
+                        isNavigatingToWordList = false
+                        searchText = ""
+                        selectedWord = nil
+                    }
+                }
+            }
 
             // Suggestion button
-            HStack(alignment: .firstTextBaseline){
+            HStack(alignment: .firstTextBaseline) {
                 Text("Do you have another type of allergy?")
                     .foregroundColor(Color("BodytextGray"))
                     .font(.system(size: 13, weight: .medium))
-                    .lineLimit(1) // Ensure the text stays on one line
-                    .layoutPriority(1) // Give higher priority to the text to prevent truncation
-
+                    .lineLimit(1)
+                    .layoutPriority(1)
 
                 Button(action: {
                     isSuggestionSheetPresented = true
@@ -130,15 +137,10 @@ struct Categories: View {
                 }
                 .accessibilityLabel("Suggest an Allergy")
                 .accessibilityHint("Double-tap to suggest a new allergy type.")
-                .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                    withAnimation {
-                        isPressed = pressing // Change color when pressing
-                    }
-                }, perform: {
-                })
             }
             .padding()
-            .padding(.top,5)            .sheet(isPresented: $isSuggestionSheetPresented) {
+            .padding(.top, 5)
+            .sheet(isPresented: $isSuggestionSheetPresented) {
                 UserSuggestionView(viewModel: viewModel)
                     .presentationDetents([.fraction(0.5)])
             }
@@ -149,34 +151,8 @@ struct Categories: View {
             }
             .hidden()
         )
-        .onChange(of: isNavigatingToWordList) { isNavigating in
-            // Clear the search and close the search bar when returning
-            if !isNavigating {
-                withAnimation {
-                    searchText = ""
-                    isSearchBarVisible = false
-                }
-            }
-        }
         .background(Color("CustomBackground").edgesIgnoringSafeArea(.all))
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    withAnimation {
-                        isSearchBarVisible.toggle()
-                        if !isSearchBarVisible {
-                            // Clear the search text when closing the search bar
-                            searchText = ""
-                        }
-                    }
-                }) {
-                    Image(systemName: isSearchBarVisible ? "xmark.circle.fill" : "magnifyingglass")
-                        .foregroundColor(Color("PrimeryButton"))
-                }
-                .accessibilityLabel(isSearchBarVisible ? "Close Search" : "Open Search")
-                .accessibilityHint("Double-tap to \(isSearchBarVisible ? "close the search field" : "open the search field").")
-            }
-
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
                     dismiss()

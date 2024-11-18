@@ -39,16 +39,19 @@ struct WordListView: View {
                 .toggleStyle(CustomToggleStyle())
                 .padding(.leading, 100)
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
             .background(Color("GrayList"))
             .cornerRadius(15)
             .frame(width: 365)
+            .padding(.bottom,10)
             .onChange(of: selectedWordsViewModel.isSelectAllEnabled) { newValue in
                 selectedWordsViewModel.handleSelectAllToggleChange(for: category, isSelected: newValue)
             }
+         
 
             Divider()
                 .background(Color.white)
+                .padding(.bottom,10)
             // Wrap the List in a ScrollViewReader
                       ScrollViewReader { scrollViewProxy in
                           List {
@@ -71,7 +74,7 @@ struct WordListView: View {
                                       .toggleStyle(CustomToggleStyle())
                                       .padding(.leading, 120)
                                   }
-                                  .padding()
+                                  .padding(12)
                                   .background(
                                       // Apply the animation to the selected word
                                       (word.word == selectedWord && animateHighlight) ?
@@ -80,6 +83,7 @@ struct WordListView: View {
                                   .cornerRadius(15)
                                   .id(word.word) // Assign ID to each row
                               }
+                              
                               .listRowBackground(Color.clear)
                           }
                           .listStyle(PlainListStyle())
