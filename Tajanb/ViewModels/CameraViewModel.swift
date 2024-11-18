@@ -229,8 +229,6 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             hasDetectedIngredients = false
         }
     }
-
-
     func processAllergensFromCapturedText(_ detectedStrings: [String]) {
         let combinedText = detectedStrings.joined(separator: " ")
         let cleanedText = preprocessText(combinedText)
@@ -239,8 +237,7 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
         foundAllergens = false
         detectedText.removeAll()
         matchedWordsSet.removeAll()
-        
-        // Check if there's no text detected at all
+
         if cleanedText.isEmpty {
             freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
                 "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." :
@@ -248,7 +245,6 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             return
         }
 
-        // Use a dictionary to track detected allergens to avoid duplicates
         var uniqueDetectedAllergens: [String: (category: String, word: String, hiddenSynonyms: [String])] = [:]
         let maxPhraseLength = 4
 
@@ -262,46 +258,50 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
             }
         }
 
-        // Check for language mismatch, only if ingredient keywords are detected and no allergens found
         if ingredientSynonyms.contains(where: { fuzzyContains(cleanedText, keyword: $0) }) && !foundAllergens {
-            // Only trigger mismatch check if ingredientSynonyms were detected in the text
-            if checkLanguageMismatch(for: cleanedText) {
+            if checkIngredientLanguageMismatch(for: cleanedText) {
                 return
             }
         }
 
-        // Update detectedText with unique allergens if any found
         detectedText = Array(uniqueDetectedAllergens.values)
-        
-        // Determine the allergen-free message or "no ingredients" message
+
         if foundAllergens {
             freeAllergenMessage = nil
         } else if ingredientSynonyms.contains(where: { fuzzyContains(cleanedText, keyword: $0) }) {
             freeAllergenMessage = getLocalizedMessage()
         } else {
-            // No allergens or ingredient synonyms detected
             freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
                 "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." :
                 "Sorry, no ingredients found. Please try again."
         }
     }
 
-    func checkLanguageMismatch(for text: String) -> Bool {
+    func checkIngredientLanguageMismatch(for text: String) -> Bool {
         let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
-        let containsArabic = text.range(of: "\\p{Arabic}", options: .regularExpression) != nil
 
-        // Check if there are ingredient-related terms in the text that are mismatched with the device language
-        if ingredientSynonyms.contains(where: { fuzzyContains(text, keyword: $0) }) &&
-           ((containsArabic && currentLanguageCode != "ar") || (!containsArabic && currentLanguageCode == "ar")) {
-            freeAllergenMessage = containsArabic ?
-                "Please change the app language to Arabic for better results." :
-                "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
+        let ingredientInDeviceLanguage = ingredientSynonyms.contains { ingredient in
+            fuzzyContains(text, keyword: ingredient) && isLanguageMatch(keyword: ingredient, languageCode: currentLanguageCode)
+        }
+
+        if !ingredientInDeviceLanguage {
+            freeAllergenMessage = currentLanguageCode == "ar" ?
+                "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل." :
+                "Please change the app language to Arabic for better results."
             return true
         }
         return false
     }
-    
-    
+
+    func isLanguageMatch(keyword: String, languageCode: String) -> Bool {
+        if languageCode == "ar" {
+            return keyword.range(of: "\\p{Arabic}", options: .regularExpression) != nil
+        } else {
+            return keyword.range(of: "\\p{Arabic}", options: .regularExpression) == nil
+        }
+    }
+
+
     func capturePhoto(completion: @escaping (UIImage?) -> Void) {
         cameraManager.capturePhoto { [weak self] (image: UIImage?) in  // Specify the type of 'image'
             if let capturedImage = image {
@@ -344,82 +344,3 @@ class CameraViewModel: NSObject, ObservableObject, CameraManagerDelegate {
 
     
 }
-//func processAllergensFromCapturedText(_ detectedStrings: [String]) {
-//       let combinedText = detectedStrings.joined(separator: " ")
-//       let cleanedText = preprocessText(combinedText)
-//       let words = cleanedText.split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters).lowercased() }
-//       
-//       foundAllergens = false  // Reset allergens flag
-//       detectedText.removeAll() // Clear previous detections
-//       matchedWordsSet.removeAll()  // Clear previous matched words set
-//
-//       // Use a dictionary to track detected allergens and avoid duplicates
-//       var uniqueDetectedAllergens: [String: (category: String, word: String, hiddenSynonyms: [String])] = [:]
-//       
-//       // Check for allergens in phrases
-//       let maxPhraseLength = 4
-//       let N = words.count
-//
-//       for i in 0..<N {
-//           for L in 1...maxPhraseLength {
-//               if i + L <= N {
-//                   let phrase = words[i..<i+L].joined(separator: " ")
-//                   let cleanedPhrase = preprocessText(phrase)
-//
-//                   if let allergenInfo = checkAllergy(for: phrase), !uniqueDetectedAllergens.keys.contains(allergenInfo.word) {
-//                       // Add to dictionary if not already detected
-//                       uniqueDetectedAllergens[allergenInfo.word] = allergenInfo
-//                       foundAllergens = true
-//                   }
-//               }
-//           }
-//       }
-//
-//       // Check for language mismatch first
-//       checkLanguageAndPrompt(detectedText: combinedText)
-//       if freeAllergenMessage != nil {
-//           // If a language mismatch message is set, skip further processing
-//           return
-//       }
-//
-//       // Update detectedText with unique items
-//       detectedText = Array(uniqueDetectedAllergens.values)
-//       
-//       if foundAllergens {
-//           freeAllergenMessage = nil
-//       } else if ingredientSynonyms.contains(where: { fuzzyContains(cleanedText, keyword: $0) }) {
-//           freeAllergenMessage = getLocalizedMessage()
-//       } else {
-//           freeAllergenMessage = Locale.current.language.languageCode == "ar" ?
-//               "عذرًا، لم يتم العثور على مكونات. حاول مرة أخرى." :
-//               "Sorry, no ingredients found. Please try again."
-//       }
-//   }
-//
-//
-//   func checkLanguageAndPrompt(detectedText: String) {
-//       let arabicCode = "ar"
-//       let englishCode = "en"
-//       
-//       // Get the current app language code
-//       let currentLanguageCode = Locale.current.language.languageCode?.identifier ?? ""
-//       
-//       // Check if detected text contains predominantly Arabic characters
-//       let containsArabic = detectedText.range(of: "\\p{Arabic}", options: .regularExpression) != nil
-//       
-//       // Determine the mismatch between text language and app language
-//       if containsArabic && currentLanguageCode != arabicCode {
-//           // Mismatch: Arabic text detected, app is not in Arabic
-//           freeAllergenMessage = currentLanguageCode == arabicCode
-//               ? "يرجى تغيير لغة التطبيق إلى العربية للحصول على نتائج أفضل."
-//               : "Please change the app language to Arabic for better results."
-//       } else if !containsArabic && currentLanguageCode != englishCode {
-//           // Mismatch: Non-Arabic text detected, app is not in English
-//           freeAllergenMessage = currentLanguageCode == arabicCode
-//               ? "يرجى تغيير لغة التطبيق إلى الإنجليزية للحصول على نتائج أفضل."
-//               : "Please change the app language to English for better results."
-//       } else {
-//           // No mismatch, clear the message
-//           freeAllergenMessage = nil
-//       }
-//   }
